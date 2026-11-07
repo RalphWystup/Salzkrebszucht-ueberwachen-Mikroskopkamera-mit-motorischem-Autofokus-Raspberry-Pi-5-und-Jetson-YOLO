@@ -59,7 +59,96 @@ button.kl{font-weight:600;border-width:2px;opacity:.55} button.kl.aktiv{opacity:
 .gruen{background:#19a33a}.gelb{background:#e8a317}.grau{background:#aaa}.rot{background:#c0392b}
 #zuruecksetzen{background:#fff;border:1px solid #c0392b;color:#c0392b}
 kbd{border:1px solid #bbb;border-radius:3px;padding:0 4px;background:#fafafa;font-size:12px}
-</style></head><body>
+</style><!-- ===== nur in der Veroeffentlichung, nicht auf dem Jetson ===================================
+  Die Lernseite holt Liste, Rahmen und Bilder vom Jetson. Ohne Geraet bleibt sie leer. Damit der
+  Reiter "Lernen" der veroeffentlichten Seite trotzdem zeigt, worum es geht, beantwortet dieses
+  Stueck die Abrufe aus mitgelieferten AUFZEICHNUNGEN vom 07.11.2026 (Ordner daten/ daneben):
+  die wirkliche Liste mit 301 Lernbildern und vier echte Bilder mit ihren Rahmen. Bewerten und
+  Speichern sind abgeschaltet -- es gibt nichts, wohin gespeichert werden koennte.
+-->
+<script>
+(function(){
+  var BILDER = ['20261106_100110_b235','20261106_100410_b164','20261106_100410_b39','20261106_100510_b133'];
+  var echt = window.fetch.bind(window);
+  window.fetch = function(u, o){
+    var s = (typeof u === 'string') ? u : (u && u.url) || '';
+    var m = (o && o.method) || 'GET';
+    if (/\/lernen\/zuruecksetzen/.test(s)) {
+      return Promise.resolve(new Response('{"ok":false,"fehler":"veroeffentlichte Fassung ohne Geraet"}',
+             {status:200, headers:{'Content-Type':'application/json'}}));
+    }
+    if (/\/lernen\/fertig/.test(s)) {
+      return Promise.resolve(new Response('{"ok":false,"fehler":"veroeffentlichte Fassung ohne Geraet"}',
+             {status:200, headers:{'Content-Type':'application/json'}}));
+    }
+    if (/\/lernen\/boxen\//.test(s)) {
+      if (m === 'POST') {
+        return Promise.resolve(new Response('{"ok":false,"fehler":"veroeffentlichte Fassung ohne Geraet"}',
+               {status:200, headers:{'Content-Type':'application/json'}}));
+      }
+      var n = s.split('/lernen/boxen/')[1].split('?')[0];
+      if (BILDER.indexOf(n) < 0) n = BILDER[0];
+      return echt('daten/boxen_' + n + '.json', {cache:'force-cache'});
+    }
+    if (/\/lernen\/liste/.test(s)) return echt('daten/liste.json', {cache:'force-cache'});
+    if (/\/stand/.test(s))         return echt('daten/stand_jetson.json', {cache:'force-cache'});
+    return echt(u, o);
+  };
+
+  function bildweiche(){
+    // Kein DOM-Test hier: dieses Stueck steht im KOPF, da gibt es die Leinwand noch nicht. Ein
+    // Test darauf liess die Weiche stumm aussteigen, und die Seite holte weiter /lernen/bild/… (404).
+    var d = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
+    var setzen = function(v){
+      var t = String(v); var m = t.match(/\/lernen\/bild\/([^?.]+)\.jpg/);
+      if (m) { var n = m[1]; if (BILDER.indexOf(n) < 0) n = BILDER[0]; return 'daten/' + n + '.jpg'; }
+      return v;
+    };
+    var urspruenglich = Object.getOwnPropertyDescriptor(window, 'Image');
+    // Jedes neue Image der Seite bekommt die Weiche mit auf den Weg
+    var EchtesImage = window.Image;
+    window.Image = function(){
+      var im = new EchtesImage();
+      try {
+        Object.defineProperty(im, 'src', {
+          configurable: true,
+          get: function(){ return d.get.call(this); },
+          set: function(v){ d.set.call(this, setzen(v)); }
+        });
+      } catch (err) {}
+      return im;
+    };
+    window.Image.prototype = EchtesImage.prototype;
+  }
+
+  // Ein gesperrter Knopf soll auch gesperrt AUSSEHEN -- die farbigen Knoepfe behalten sonst
+  // ihren Hintergrund und wirken bedienbar.
+  var stil = document.createElement('style');
+  stil.textContent = 'button[disabled]{opacity:.5;cursor:not-allowed;filter:grayscale(.6)}';
+  (document.head || document.documentElement).appendChild(stil);
+
+  function hinweis(){
+    var h = document.createElement('div');
+    h.style.cssText = 'margin:0 14px 8px;padding:8px 12px;background:#fdf3e3;border:1px solid #e8c89a;border-radius:6px;font-size:13px';
+    h.innerHTML = '<b>Veröffentlichte Fassung ohne Gerät.</b> Liste, Bilder und Rahmen sind <b>Aufzeichnungen vom 07.11.2026</b>. ' +
+      'Blättern und Ansehen gehen; Bewerten, Zurückstellen, Zurücksetzen und „Fertig" sind abgeschaltet, weil es nichts gibt, wohin gespeichert werden könnte.';
+    var m = document.querySelector('main');
+    if (m && m.parentNode) m.parentNode.insertBefore(h, m);
+    ['richtig','verwerfen','zurueckstellen','reset','fertig','zuruecksetzen'].forEach(function(id){
+      var b = document.getElementById(id); if (!b) return;
+      try { Object.defineProperty(b, 'disabled', { configurable:true, get:function(){return true;}, set:function(){} }); }
+      catch (err) { b.disabled = true; }
+      b.setAttribute('disabled','disabled');
+      b.title = 'Veröffentlichte Kopie ohne Gerät — am Mikroskop selbst ist dieser Knopf wirksam.';
+    });
+  }
+  bildweiche();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hinweis);
+  else hinweis();
+})();
+</script>
+
+</head><body>
 <header><b>Lernbilder bewerten</b><small>Seite 1.9 · Jetson</small><span id="stand">–</span>
 <label>Zeige <select id="filter"><option value="offen" data-text="nur offene">nur offene</option><option value="zurueckgestellt" data-text="zurückgestellte">zurückgestellte</option><option value="alle" data-text="alle">alle</option><option value="geprueft" data-text="geprüfte">geprüfte</option><option value="verworfen" data-text="verworfene">verworfene</option></select></label>
 <button id="fertig" class="blau" style="margin-left:auto">■ Fertig für heute</button>

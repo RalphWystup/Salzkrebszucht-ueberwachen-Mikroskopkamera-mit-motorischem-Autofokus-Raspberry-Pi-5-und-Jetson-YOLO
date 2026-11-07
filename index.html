@@ -129,12 +129,122 @@ body.vb #vbzu{position:absolute;top:6px;right:10px;background:rgba(0,0,0,.55);
   padding:3px 9px;border-radius:4px;color:#bbb;text-decoration:none;font-size:12px}
 body.vb .vw{color:#9ad} body.vb .vg{color:#7c7} body.vb .vr{color:#f88}
 .teilb table{border-collapse:collapse;margin:8px 0}.teilb th,.teilb td{border:1px solid var(--rand);padding:3px 8px;font-size:0.95em}.teilb figure{margin:12px 0}.teilb figcaption{font-size:0.9em;color:#555}.teilb blockquote{margin:6px 0 6px 20px;font-family:serif}.teilb video{max-width:100%;border:1px solid var(--rand)}
-</style></head><body>
+</style><!-- ===== nur in der Veroeffentlichung, nicht auf dem Geraet =====================================
+  Vorgabe: "Was oeffentlich steht, muss ohne Gegenstelle vollstaendig sein." Ohne Pi und ohne Jetson
+  gibt es keine Livequellen: das Kamerabild (/strom), der YOLO-Strom (:8096/strom) und die Zustaende
+  (/status, :8095/stand, :8096/stand, /yolo/verlauf) laufen ins Leere -- die Seite blieb schwarz und
+  fragte endlos nach (gefunden am 07.11.2026 in der Browserpruefung der veroeffentlichten Seite).
+  Dieses Stueck beantwortet die Abrufe aus AUFZEICHNUNGEN vom 07.11.2026, die unter daten/ mitliegen,
+  und setzt in die Livefelder Standbilder. Damit zeigt die veroeffentlichte Seite dieselben Zahlen,
+  Tafeln und Kurven wie im Betrieb. Auf dem Geraet steht dieses Stueck nicht; dort ist alles live.
+-->
+<script>
+(function(){
+  var AUFZ = [
+    [/8096\/stand/,    'daten/stand_yolo.json'],
+    [/yolo\/verlauf/,  'daten/verlauf.json'],
+    [/8092\/punkte/,   'daten/auswertung_punkte.json'],
+    [/8092\/zaehler/,  'daten/auswertung_zaehler.json'],
+    [/8092\/stand/,    'daten/auswertung_stand.json'],
+    [/8091\/zaehler/,  'daten/wache_zaehler.json'],
+    [/8091\/punkte/,   'daten/wache_punkte.json'],
+    [/8091\/stand/,    'daten/stand_wache.json'],
+    [/8095\/stand/,    'daten/stand_jetson.json'],
+    [/\/status(\?|$)/, 'daten/status_pi.json'],
+    [/\/status\b/,     'daten/status_pi.json']
+  ];
+  var echt = window.fetch.bind(window);
+  window.fetch = function(u, o){
+    var s = (typeof u === 'string') ? u : (u && u.url) || '';
+    if (s.indexOf('/befehl') >= 0) {                       // Knopfbefehle gibt es ohne Geraet nicht
+      return Promise.resolve(new Response('{"ok":false,"grund":"veroeffentlichte Fassung ohne Geraet"}',
+             {status:200, headers:{'Content-Type':'application/json'}}));
+    }
+    for (var i = 0; i < AUFZ.length; i++) {
+      if (AUFZ[i][0].test(s)) return echt(AUFZ[i][1], {cache:'force-cache'});
+    }
+    return echt(u, o);
+  };
+
+  // Die Seite setzt das Livebild selbst immer wieder neu (Strom, und bei Abriss Einzelbilder alle 500 ms).
+  // Ein error-Horcher allein genuegt darum nicht -- er wuerde sich mit der Seite im Kreis drehen. Statt dessen
+  // wird die Eigenschaft src dieses einen Bildes abgefangen: jede Zuweisung einer GERAETEQUELLE wird auf das
+  // Standbild umgebogen, alles andere geht durch.
+  var GERAET = /\/strom|\/bild\.jpg|:8096\/|:8090\//;
+  function ersatzbild(id, datei, text){
+    var e = document.getElementById(id); if (!e) return;
+    var d = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
+    try {
+      Object.defineProperty(e, 'src', {
+        configurable: true,
+        get: function(){ return d.get.call(this); },
+        set: function(v){ d.set.call(this, GERAET.test(String(v)) ? datei : v); }
+      });
+    } catch (err) { e.addEventListener('error', function(){ if (e.getAttribute('src') !== datei) d.set.call(e, datei); }); }
+    e.src = datei;
+    if (text) e.alt = text;
+  }
+
+  // Der Reiter "Lernen" laedt die Lernseite des Jetson in einen Rahmen. Ohne Geraet bleibt er leer;
+  // hier wird er auf die mitgelieferte Lernseite umgebogen, die ihrerseits aus Aufzeichnungen arbeitet.
+  function lernrahmen(){
+    var r = document.getElementById('lrahmen'); if (!r) return;
+    var d = Object.getOwnPropertyDescriptor(HTMLIFrameElement.prototype, 'src');
+    try {
+      Object.defineProperty(r, 'src', {
+        configurable: true,
+        get: function(){ return d.get.call(this); },
+        set: function(v){ d.set.call(this, /\/lernen/.test(String(v)) ? 'lernseite/lernen_1.9.html' : v); }
+      });
+    } catch (err) {}
+    var a = document.getElementById('llink');
+    if (a) { a.href = 'lernseite/lernen_1.9.html'; a.textContent = 'In eigenem Fenster öffnen'; }
+  }
+
+  // Ein gesperrter Knopf soll auch gesperrt AUSSEHEN -- die farbigen Knoepfe behalten sonst
+  // ihren Hintergrund und wirken bedienbar.
+  var stil = document.createElement('style');
+  stil.textContent = 'button[disabled]{opacity:.5;cursor:not-allowed;filter:grayscale(.6)}';
+  (document.head || document.documentElement).appendChild(stil);
+
+  function einrichten(){
+    lernrahmen();
+    ersatzbild('bild',   'bilder/bild_roh_1.jpg',  'Standbild aus dem Betrieb');
+    ersatzbild('ystrom', 'bilder/bild_yolo_1.jpg', 'Standbild mit den Rahmen des Modells');
+    ersatzbild('vbbild', 'bilder/bild_roh_1.jpg',  'Standbild aus dem Betrieb');
+    var t = document.getElementById('ystromtext');
+    if (t) t.textContent = 'Standbild mit den Erkennungen des Modells — der Livestrom läuft nur am Gerät.';
+    // Knoepfe, die ein Geraet brauchen, sagen warum (statt wirkungslos zu sein)
+    // Die Seite schaltet diese Knoepfe in jedem Takt nach dem Zustand wieder frei. Ein einmaliges
+    // disabled=true haelt darum nicht; die Eigenschaft wird festgehalten (wie beim Livebild die Quelle).
+    ['auto','nachfokus','plus','minus','fahre','stopp','befund','h_stromlos','h_an'].forEach(function(id){
+      var b = document.getElementById(id); if (!b) return;
+      try {
+        Object.defineProperty(b, 'disabled', { configurable: true, get: function(){ return true; }, set: function(){} });
+      } catch (err) { b.disabled = true; }
+      b.setAttribute('disabled', 'disabled');
+      b.title = 'Veröffentlichte Kopie ohne Gerät — am Mikroskop selbst ist dieser Knopf wirksam.';
+    });
+    var kopf = document.querySelector('header .fuss') || document.querySelector('header');
+    var hinweis = document.createElement('div');
+    hinweis.style.cssText = 'margin:8px 16px;padding:8px 12px;background:#eef3f8;border:1px solid #c3d4e4;border-radius:6px;font-size:13px';
+    hinweis.innerHTML = '<b>Veröffentlichte Fassung.</b> Alle Reiter, Texte, Bilder, Messungen und das Manuskript sind vollständig. ' +
+      'Die Livefelder — Kamerabild, Erkennungen, Zahlen, Tafeln und Lernkurve — zeigen <b>Aufzeichnungen vom 07.11.2026</b> ' +
+      'aus dem laufenden Betrieb (<code>daten/</code>), weil hier kein Gerät angeschlossen ist. Am Mikroskop selbst läuft dieselbe Seite live.';
+    var nav = document.querySelector('nav');
+    if (nav && nav.parentNode) nav.parentNode.insertBefore(hinweis, nav.nextSibling);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', einrichten);
+  else einrichten();
+})();
+</script>
+
+</head><body>
 <header><h1>Mikroskop-Fokus</h1><small>USB-Mikroskop am Raspberry Pi 5, Servo an Hardware-PWM · Prof. Dr.-Ing. Ralph Wystup M.Sc. und Claude (Anthropic, Claude Code) — gemeinsam erstellt · Fassung 4, 18.10.2026 · <b>Seite 1.34</b> · Jetson-Block · Punkte im Bild von der Auswertung <span id="auswertung_fassung">–</span> (neu aufgesetzt 05.11.2026) · Bildwächter 1.4 · Jetson mit YOLO (Manuskript Teil B) · lädt sich bei neuer Fassung selbst neu</small></header>
 <nav><button class="an" data-r="bedienen">Bedienen</button><button data-r="statistik">Statistik</button><button data-r="lernen">Lernen</button><button data-r="hardware">Hardware und Verschaltung</button><button data-r="beschreibung">Beschreibung und Ablauf</button><button data-r="manuskript">Manuskript: Methoden</button><button data-r="messung">Messungen</button><button data-r="zusammenarbeit">Zusammenarbeit mit der KI</button><button data-r="wache">Wache</button></nav>
 
 <section class="an" id="bedienen"><div class="k">
-<div><div class="zoomrahmen" id="zoomrahmen"><img class="live" id="bild" src="/strom" draggable="false"><canvas class="lage" id="lage" width="640" height="480"></canvas></div>
+<div><div class="zoomrahmen" id="zoomrahmen"><img class="live" id="bild" src="bilder/bild_roh_1.jpg" alt="Standbild aus dem Betrieb" draggable="false"><canvas class="lage" id="lage" width="640" height="480"></canvas></div>
 <p class="rahmenschalter"><label><input type="checkbox" id="rahmen_an" checked> Tiere markieren (Punkt an der Körpermitte, im Bild selbst)</label><label title="Nur Punkte, kein Text: sein Wort vom 05.11.2026. Nummern, Längen und Tempo stehen in den Aufnahmen und in der Vermessung."><input type="checkbox" id="rahmen_nr" checked disabled> nur Punkte, kein Text</label><span id="rahmen_stand"></span></p>
 <div class="zoomzeile"><small>Zoom</small> <input type="range" id="zoom" min="1" max="6" step="0.1" value="1"> <span id="zoomwert">1,0×</span> <button class="b" id="zoom1">1×</button> <button class="b" id="zoom_mitte">Mitte</button> <small>Mausrad zoomt, Ziehen verschiebt, Doppelklick zoomt auf die Stelle — rein elektronisch, nur die Anzeige</small></div>
 <div id="stand">–</div>
