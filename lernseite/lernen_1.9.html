@@ -1,0 +1,291 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Lernbilder bewerten 1.9</title>
+<style>
+body{font-family:system-ui,sans-serif;margin:0;background:#f3f3f1;color:#222}
+header{display:flex;gap:18px;align-items:center;padding:8px 14px;background:#fff;border-bottom:1px solid #ddd;flex-wrap:wrap}
+header b{font-size:15px} header small{color:#666}
+#stand{font-variant-numeric:tabular-nums}
+/* 1.8 (07.11.2026, sein Wort: "neben das bild sonst muss man immer scrolen, bitte aendern"):
+   Bisher durfte die Leinwand bis 1280 px breit werden. Damit war die linke Spalte breiter als der halbe
+   Bildschirm, und main{flex-wrap:wrap} schob "So geht es" und die Bilderliste UNTER das Bild -- also scrollen.
+   Jetzt zwei feste Spalten nebeneinander (kein Umbruch), und die Leinwand wird ueber die HOEHE begrenzt,
+   damit Bild, Knopfreihe und Liste zusammen auf den Bildschirm passen. Erst unter 1000 px Fensterbreite
+   (Tablet, schmales Fenster) bricht die rechte Spalte wieder nach unten um. */
+main{display:flex;gap:14px;padding:12px 14px;flex-wrap:nowrap;align-items:stretch}
+#bildspalte{flex:1 1 auto;min-width:0}
+#leinwand{border:1px solid #999;background:#000;cursor:crosshair;width:min(100%,1280px);height:auto}
+#seite{flex:0 0 380px;max-width:380px}
+
+/* 1.8: Ab 1001 px Fensterbreite steht alles IM Fenster -- Kopf, Bereit-Zeile, Bild mit Knöpfen links,
+   Hilfe und Bilderliste rechts. Die Seite selbst scrollt dann nicht mehr; gescrollt wird nur noch INNERHALB
+   der Bilderliste. Die Leinwand nimmt den Platz, der uebrig bleibt, und behaelt ihr Seitenverhaeltnis
+   (width/height auto mit beiden max-Grenzen) -- das ist wichtig, weil die Maus-Umrechnung in lage() den
+   Rahmen der Leinwand nimmt; mit object-fit waere sie falsch. Unter 1001 px bleibt der normale Fluss. */
+/* 1.9 (07.11.2026): Die zweispaltige Lage haengt jetzt an der Klasse "breit", die das Programm nach dem
+   WIRKLICH verfuegbaren Platz setzt -- nicht an einer festen Fensterbreite. Grund: im Reiter "Lernen" der
+   Pi-Seite steckt diese Seite in einem Rahmen, dessen Inhalt auf 960 px begrenzt ist; die alte Bedingung
+   min-width:1001px griff dort nie, und Hilfe und Liste rutschten unter das Bild. Sein Wort: "immer noch
+   nicht nach rechts beim reiter lernen!" */
+body.breit{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+body.breit header,body.breit #bereit,body.breit #bilanz{flex:0 0 auto}
+body.breit main{flex:1 1 auto;min-height:0;overflow:hidden;flex-wrap:nowrap}
+body.breit #bildspalte{display:flex;flex-direction:column;min-height:0}
+body.breit #bildfeld{flex:1 1 auto;min-height:0;display:flex;align-items:flex-start;margin-bottom:2px}
+/* Groesse setzt leinwandGroesse() -- mit max-width UND max-height zugleich klemmt der Browser beide
+   unabhaengig und quetscht das Bild (gemessen 1366x768: 944 x 355 statt 4:3). */
+body.breit #leinwand{display:block}
+body.breit #seite{display:flex;flex-direction:column;min-height:0;flex:0 0 clamp(250px,26%,360px);max-width:360px}
+body.breit #hilfe{flex:0 0 auto;overflow:auto;max-height:42%}
+body.breit #liste{flex:1 1 auto;min-height:110px;max-height:none}
+body:not(.breit) main{flex-wrap:wrap}
+body:not(.breit) #seite{flex:1 1 100%;max-width:none}
+button{font:inherit;padding:6px 12px;margin:3px 4px 3px 0;border:1px solid #888;border-radius:4px;background:#fff;cursor:pointer}
+button.gruen{background:#1a9c3a;color:#fff;border-color:#1a9c3a} button.rot{background:#c0392b;color:#fff;border-color:#c0392b}
+button.blau{background:#0b6ef5;color:#fff;border-color:#0b6ef5;font-weight:600}
+button.kl{font-weight:600;border-width:2px;opacity:.55} button.kl.aktiv{opacity:1;box-shadow:0 0 0 2px #ffd54a inset}
+#liste{max-height:60vh;overflow:auto;border:1px solid #ccc;background:#fff;font-size:13px;margin-top:8px}
+#liste div{padding:3px 6px;cursor:pointer;border-bottom:1px solid #eee;font-variant-numeric:tabular-nums}
+#liste div.aktiv{background:#dbeafe} #liste div.geprueft{color:#1a7a2a} #liste div.verworfen{color:#a33;text-decoration:line-through}
+.hinweis{font-size:13px;color:#555;line-height:1.5}
+/* 1.7: Alle Lernbilder zeigen DASSELBE Blickfeld (gleicher Aufdruck, gleiche Marke) und unterscheiden sich
+   im Mittel um 2 Prozent -- nur im Tier. Sein Wort: "es wird immer das selbe bild angezeigt". Darum muss der
+   Wechsel unuebersehbar sein: grosser Name, Platznummer, und ein kurzes Aufblinken des Rahmens. */
+#wername{font-size:19px;font-weight:700;letter-spacing:.3px;padding:6px 10px;background:#13314f;color:#fff;border-radius:5px;display:inline-block;min-width:34ch}
+#werplatz{font-size:15px;margin-left:10px;color:#13314f;font-weight:600}
+#leinwand{border:4px solid #bbb;border-radius:3px;transition:border-color .12s}   /* nur Rahmen -- Groesse steht oben */
+#leinwand.neu{border-color:#19a33a}
+#bereit{margin:0 14px 8px;padding:8px 12px;background:#eef3f8;border:1px solid #c3d4e4;border-radius:6px;font-size:13px;line-height:1.7}
+#bereit b{color:#13314f}
+.lampe{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:baseline}
+.gruen{background:#19a33a}.gelb{background:#e8a317}.grau{background:#aaa}.rot{background:#c0392b}
+#zuruecksetzen{background:#fff;border:1px solid #c0392b;color:#c0392b}
+kbd{border:1px solid #bbb;border-radius:3px;padding:0 4px;background:#fafafa;font-size:12px}
+</style></head><body>
+<header><b>Lernbilder bewerten</b><small>Seite 1.9 · Jetson</small><span id="stand">–</span>
+<label>Zeige <select id="filter"><option value="offen" data-text="nur offene">nur offene</option><option value="zurueckgestellt" data-text="zurückgestellte">zurückgestellte</option><option value="alle" data-text="alle">alle</option><option value="geprueft" data-text="geprüfte">geprüfte</option><option value="verworfen" data-text="verworfene">verworfene</option></select></label>
+<button id="fertig" class="blau" style="margin-left:auto">■ Fertig für heute</button>
+<button id="zuruecksetzen" title="setzt alle Bewertungen auf „offen“ zurück; die gezeichneten Rahmen bleiben, vorher wird gesichert">⟲ alles Gelernte zurücksetzen</button>
+</header>
+<div id="bereit">–</div>
+<div id="bilanz" hidden style="margin:12px 14px;padding:12px 16px;background:#e8f4ea;border:1px solid #1a9c3a;border-radius:6px;font-size:15px"></div>
+<main>
+<div id="bildspalte"><div style="margin-bottom:6px"><span id="wername">–</span><span id="werplatz"></span></div>
+<div id="bildfeld"><canvas id="leinwand" width="640" height="480"></canvas></div>
+<div style="margin-top:8px"><span style="margin-right:6px">Neuer Rahmen = </span>
+<button class="kl aktiv" data-klasse="tier" style="border-color:#1a9c3a;color:#1a9c3a">● Tier</button>
+<button class="kl" data-klasse="korn" style="border-color:#b0268f;color:#b0268f">● Korn / festes Teilchen</button>
+<button class="kl" data-klasse="massstab" style="border-color:#0b6ef5;color:#0b6ef5">● Maßstab / Aufdruck</button></div>
+<div style="margin-top:6px">
+<button id="zurueck">◀ zurück</button>
+<button id="richtig" class="gruen">✔ Rahmen stimmen, speichern, weiter ▶ (Eingabe)</button>
+<button id="verwerfen" class="rot">✖ Bild unbrauchbar, speichern, weiter ▶ (V)</button>
+<button id="reset">Vorschläge wiederherstellen (R)</button>
+<button id="zurueckstellen" title="unsicher? später noch einmal ansehen (Z)">↷ zurückstellen, weiter ▶ (Z)</button>
+<button id="weiter" title="nur blättern, ohne zu speichern">nur blättern ▶</button>
+<span id="gespeichert" style="margin-left:10px;font-weight:600"></span>
+<span id="platz" style="margin-left:10px;color:#555"></span></div>
+<div class="hinweis" id="info">–</div></div>
+<div id="seite"><details id="hilfe" open><summary style="cursor:pointer;font-size:13px;font-weight:600;color:#13314f;padding:2px 0">So geht es (zum Zuklappen anklicken)</summary><div class="hinweis"><b>So geht es:</b> Jeder Rahmen soll genau ein Tier umschließen. Rahmen anklicken = löschen (nochmal = zurück).
+Mit der Maus über ein Objekt ziehen = neuer Rahmen in der unten gewählten Klasse. <b>Rechtsklick</b> auf einen Rahmen = Klasse weiterschalten
+(Tier → Korn → Maßstab). <b>Grüner Knopf = Rahmen stimmen, speichern, nächstes Bild. Roter Knopf = Bild unbrauchbar (unscharf, leer), speichern, nächstes Bild.</b>
+„nur blättern" speichert nichts. Nach jedem Speichern erscheint rechts „gespeichert ✔" mit Uhrzeit; bleibt es aus, ist nichts angekommen.
+Grün = Tier, violett = Korn, blau = Maßstab, gestrichelt = gelöscht; alle Vorschläge sind Tiere. Tasten gehen auch: <kbd>Eingabe</kbd> <kbd>V</kbd> <kbd>R</kbd> <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>←</kbd> <kbd>→</kbd> <kbd>Z</kbd>.</div></details>
+<div id="liste"></div></div></main>
+<script>
+(function(){
+const $ = i => document.getElementById(i); const L = $('leinwand'), ctx = L.getContext('2d');
+let liste = [], idx = -1, bild = new Image(), daten = null, orig = null, zieh = null, laeuft = false, lauf = 0;
+const veraendert = () => !!daten && JSON.stringify(daten.boxen.filter(b => !b.weg).map(b => [b.x0, b.y0, b.x1, b.y1, b.klasse]))
+                                 !== JSON.stringify((orig || []).filter(b => !b.weg).map(b => [b.x0, b.y0, b.x1, b.y1, b.klasse]));
+const FARBE = {tier:'#1a9c3a', korn:'#b0268f', massstab:'#0b6ef5'}; const KLASSEN = ['tier', 'korn', 'massstab'];
+let klasseAktiv = 'tier'; const klasseWahl = () => klasseAktiv;
+function klasseSetzen(k){ klasseAktiv = k; document.querySelectorAll('button.kl').forEach(b => b.classList.toggle('aktiv', b.dataset.klasse === k)); }
+document.querySelectorAll('button.kl').forEach(b => b.onclick = () => klasseSetzen(b.dataset.klasse));
+async function laden(erstmals){                                       // 1.6: Fehler sichtbar, Auswahl selbst stellen
+  const meins = ++lauf; let l;
+  try { l = await (await fetch('/lernen/liste', {cache:'no-store'})).json(); }
+  catch (err) { if (meins !== lauf) return;
+    $('info').innerHTML = 'Die Liste der Lernbilder kam nicht an (' + err.message + '). <button id="nochmal">noch einmal versuchen</button>';
+    const n = $('nochmal'); if (n) n.onclick = () => laden(erstmals); return; }
+  if (meins !== lauf) return; liste = l;
+  // 1.6: Beim ersten Laden auf die erste Auswahl stellen, in der ueberhaupt Bilder stehen. Vorher stand der
+  // Filter fest auf "nur offene"; sobald keine offenen mehr da waren (alle bewertet oder zurueckgestellt),
+  // blieb die Liste leer und JEDER Weiterknopf meldete "Keine weiteren Bilder" -- die Seite sah tot aus.
+  if (erstmals) { const z = zaehlen();
+    if (!z[$('filter').value]) { const w = ['offen', 'zurueckgestellt', 'geprueft', 'verworfen'].find(k => z[k] > 0); $('filter').value = w || 'alle'; } }
+  zeigeListe(); const f = $('filter').value;
+  const erste = liste.findIndex(e => f === 'alle' || e.status === f);
+  if (idx < 0) { if (erste >= 0) oeffnen(erste); else { zeigeStand(); $('info').textContent = 'In dieser Auswahl steht kein Bild. Oben eine andere Auswahl waehlen.'; } }
+  else zeigeStand(); }
+function zaehlen(){ const z = {offen:0, geprueft:0, verworfen:0, zurueckgestellt:0, alle: liste.length};
+  liste.forEach(e => z[e.status] = (z[e.status] || 0) + 1); return z; }
+function gefiltert(){ const f = $('filter').value;                     // 1.6: die Platznummern der gerade sichtbaren Bilder
+  return liste.map((e, i) => (f === 'alle' || e.status === f) ? i : -1).filter(i => i >= 0); }
+function zeigeStand(){ const z = zaehlen();
+  $('stand').textContent = `${liste.length} Bilder · ${z.offen||0} offen · ${z.geprueft||0} geprüft · ${z.verworfen||0} verworfen` + (z.zurueckgestellt ? ` · ${z.zurueckgestellt} zurückgestellt` : '');
+  // 1.6: jede Auswahl traegt ihre Zahl -- dann ist vor dem Klicken zu sehen, dass "nur offene" leer ist
+  document.querySelectorAll('#filter option').forEach(o => { o.textContent = o.dataset.text + ' (' + (z[o.value] || 0) + ')'; o.disabled = !z[o.value]; }); }
+function zeigeListe(){ zeigeStand(); const f = $('filter').value; $('liste').innerHTML = '';
+  const sicht = gefiltert();                                           // 1.6: eine Stelle entscheidet, was sichtbar ist
+  sicht.forEach(i => { const e = liste[i];
+    const d = document.createElement('div'); d.textContent = `${e.name}  (${e.n_boxen})`; d.className = e.status + (i === idx ? ' aktiv' : ''); d.onclick = () => oeffnen(i); $('liste').appendChild(d); });
+  // 1.9, sein Wort: "immer wenn ich rahmen stimm...weiter druecke springt das bild nach unten".
+  // scrollIntoViewIfNeeded rollt JEDEN scrollbaren Vorfahren mit, also auch die Seite und im Reiter den
+  // aeusseren Rahmen. Hier wird nur noch IN der Liste gerollt, mit eigener Rechnung.
+  const a = $('liste').querySelector('div.aktiv');
+  if (a) { const LI = $('liste'); const o = a.offsetTop - LI.clientHeight / 2 + a.offsetHeight / 2;
+    LI.scrollTop = Math.max(0, Math.min(o, LI.scrollHeight - LI.clientHeight)); }
+  const z = gefiltert(); const stelle = z.indexOf(idx);
+  const ptxt = sicht.length ? (stelle >= 0 ? `Bild ${stelle + 1} von ${sicht.length} in dieser Auswahl` : `${sicht.length} Bilder in dieser Auswahl (das gezeigte gehört nicht dazu)`) : 'diese Auswahl ist leer';
+  $('platz').textContent = ptxt; $('werplatz').textContent = ptxt;
+  knoepfe(); }
+function knoepfe(){                                                    // 1.6: ein gesperrter Knopf sagt, warum
+  const sicht = gefiltert(); const stelle = sicht.indexOf(idx);
+  const vor = stelle >= 0 ? stelle + 1 < sicht.length : sicht.length > 0;
+  const zur = stelle > 0;
+  $('weiter').disabled = !vor; $('weiter').title = vor ? 'nur blättern, ohne zu speichern' : 'kein weiteres Bild in dieser Auswahl — oben eine andere Auswahl wählen';
+  $('zurueck').disabled = !zur; $('zurueck').title = zur ? 'ein Bild zurück' : 'das ist das erste Bild dieser Auswahl';
+  $('richtig').disabled = !daten; $('verwerfen').disabled = !daten; $('reset').disabled = !daten;
+  $('zurueckstellen').disabled = !daten; }
+async function oeffnen(i){ if (i < 0 || i >= liste.length) return; idx = i; const e = liste[i];
+  const meins = ++lauf;                                                // 1.6: Wettlauf -- wird waehrend des Ladens etwas anderes geoeffnet
+  let d;                                                               // (Auswahl umgestellt, anderer Eintrag geklickt), gilt nur das Letzte.
+  try { d = await (await fetch('/lernen/boxen/' + e.name, {cache:'no-store'})).json(); }      // 1.6: Abriss faellt auf, statt die Seite stumm stehen zu lassen
+  catch (err) { if (meins !== lauf) return;
+    $('info').innerHTML = `${e.name}: die Rahmen kamen nicht an (${err.message}). <button id="nochmal2">noch einmal</button>`;
+    daten = null; knoepfe(); const n = $('nochmal2'); if (n) n.onclick = () => oeffnen(i); return; }
+  if (meins !== lauf) return;
+  daten = d;
+  if (daten.fehler) { $('info').textContent = `${e.name}: ${daten.fehler}`; daten = null; knoepfe(); return; }
+  daten.boxen.forEach(b => { b.weg = !!b.weg; b.klasse = b.klasse || 'tier'; }); orig = JSON.parse(JSON.stringify(daten.boxen));
+  // 1.6: Kommt das Bild nicht an, blieb bisher das VORIGE Bild auf der Leinwand stehen, waehrend Rahmen und
+  // Name schon zum neuen gehoerten -- wer dann bewertet, bewertet das falsche Bild. Jetzt wird die Leinwand
+  // geleert, der Grund steht darauf, und Speichern ist gesperrt, bis das Bild wirklich da ist.
+  bild = new Image();
+  bild.onload = () => { if (meins === lauf) { leinwandGroesse(); malen(); knoepfe(); } };
+  bild.onerror = () => { if (meins !== lauf) return;
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, 640, 480); ctx.fillStyle = '#c0392b'; ctx.font = '15px sans-serif';
+    ctx.fillText('Das Bild ' + e.name + ' kam nicht an.', 20, 40); ctx.fillText('Bitte nicht bewerten — Seite neu laden.', 20, 64);
+    daten = null; knoepfe(); };
+  bild.src = '/lernen/bild/' + e.name + '.jpg?' + Date.now(); zeigeListe();
+  $('info').textContent = `${e.name} · Satz ${daten.satz || '?'} Bild ${daten.bild ?? '?'} · Stand: ${daten.status}` + (daten.geprueft_uhr ? ' um ' + daten.geprueft_uhr : '');
+  // 1.7: der Bildwechsel muss zu sehen sein, auch wenn das Blickfeld gleich aussieht
+  $('wername').textContent = e.name;
+  L.classList.remove('neu'); void L.offsetWidth; L.classList.add('neu'); setTimeout(() => L.classList.remove('neu'), 500); }
+function malen(){ if (!bild || !bild.complete || !bild.naturalWidth) return;    // 1.6: kein Zeichnen mit kaputtem Bild
+  ctx.drawImage(bild, 0, 0, 640, 480); if (!daten) return;
+  daten.boxen.forEach(b => { ctx.setLineDash(b.weg ? [6, 4] : []); ctx.lineWidth = b.weg ? 1 : 2; ctx.strokeStyle = b.weg ? '#999' : (FARBE[b.klasse] || '#1a9c3a'); ctx.strokeRect(b.x0, b.y0, b.x1 - b.x0, b.y1 - b.y0);
+    if (!b.weg && b.klasse !== 'tier') { ctx.fillStyle = FARBE[b.klasse]; ctx.font = '12px sans-serif'; ctx.fillText(b.klasse === 'korn' ? 'Korn' : 'Maßstab', b.x0 + 2, Math.max(10, b.y0 - 3)); } });
+  if (zieh) { ctx.setLineDash([3, 3]); ctx.strokeStyle = '#f08a1e'; ctx.strokeRect(zieh.x0, zieh.y0, zieh.x1 - zieh.x0, zieh.y1 - zieh.y0); } ctx.setLineDash([]); }
+function breiteSetzen(){                                               // 1.9: nach dem wirklichen Platz, nicht nach der Fensterbreite
+  const platz = document.documentElement.clientWidth, hoch = document.documentElement.clientHeight;
+  document.body.classList.toggle('breit', platz >= 820 && hoch >= 420);
+}
+function leinwandGroesse(){                                            // 1.8: groesstes 4:3-Feld, das hineinpasst
+  breiteSetzen();
+  const f = $('bildfeld'); if (!f) return;
+  if (!document.body.classList.contains('breit')) { L.style.width = ''; L.style.height = ''; return; }
+  const rand = 2 * (parseFloat(getComputedStyle(L).borderLeftWidth) || 0);
+  const b = Math.max(80, f.clientWidth - rand), h = Math.max(60, f.clientHeight - rand);
+  const s = Math.min(b / 640, h / 480);
+  L.style.width = Math.floor(640 * s) + 'px'; L.style.height = Math.floor(480 * s) + 'px';
+  if (bild && bild.complete && bild.naturalWidth) malen();
+}
+window.addEventListener('resize', leinwandGroesse);
+function lage(ev){ const r = L.getBoundingClientRect(); return {x: (ev.clientX - r.left) * 640 / r.width, y: (ev.clientY - r.top) * 480 / r.height}; }
+L.addEventListener('contextmenu', ev => { ev.preventDefault(); if (!daten) return; const p = lage(ev); const t = daten.boxen.filter(b => p.x >= b.x0 && p.x <= b.x1 && p.y >= b.y0 && p.y <= b.y1);
+  if (t.length) { const k = t.reduce((a, b) => ((a.x1-a.x0)*(a.y1-a.y0) <= (b.x1-b.x0)*(b.y1-b.y0) ? a : b)); k.klasse = KLASSEN[(KLASSEN.indexOf(k.klasse) + 1) % KLASSEN.length]; k.weg = false; malen(); } });
+L.addEventListener('mousedown', ev => { if (ev.button !== 0) return; const p = lage(ev); zieh = {x0: p.x, y0: p.y, x1: p.x, y1: p.y}; });
+L.addEventListener('mousemove', ev => { if (!zieh) return; const p = lage(ev); zieh.x1 = p.x; zieh.y1 = p.y; malen(); });
+L.addEventListener('mouseup', ev => { if (!zieh || !daten) return; const p = lage(ev); const w = Math.abs(p.x - zieh.x0), h = Math.abs(p.y - zieh.y0);
+  if (w < 6 && h < 6) { const t = daten.boxen.filter(b => p.x >= b.x0 && p.x <= b.x1 && p.y >= b.y0 && p.y <= b.y1);
+    if (t.length) { const k = t.reduce((a, b) => ((a.x1-a.x0)*(a.y1-a.y0) <= (b.x1-b.x0)*(b.y1-b.y0) ? a : b)); if (ev.shiftKey) { k.klasse = KLASSEN[(KLASSEN.indexOf(k.klasse) + 1) % KLASSEN.length]; k.weg = false; } else k.weg = !k.weg; } }
+  else daten.boxen.push({x0: Math.round(Math.min(zieh.x0, p.x)), y0: Math.round(Math.min(zieh.y0, p.y)), x1: Math.round(Math.max(zieh.x0, p.x)), y1: Math.round(Math.max(zieh.y0, p.y)), quelle: 'hand', klasse: klasseWahl(), weg: false});
+  zieh = null; malen(); });
+async function speichern(status){ if (!daten) return false; const e = liste[idx]; const g = $('gespeichert');
+  try {
+    const r = await fetch('/lernen/boxen/' + e.name, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({boxen: daten.boxen.filter(b => !b.weg).map(b => ({x0:b.x0, y0:b.y0, x1:b.x1, y1:b.y1, quelle:b.quelle, klasse:b.klasse})), status})});
+    const a = await r.json(); if (!a.ok) throw new Error(a.fehler || 'Antwort ohne ok');
+    e.status = a.status || status; e.n_boxen = a.n_boxen ?? e.n_boxen; zeigeListe();
+    g.style.color = '#1a7a2a'; g.textContent = 'gespeichert ✔ ' + new Date().toLocaleTimeString('de-DE') + ' (' + e.name + ')'; return true;
+  } catch (err) { g.style.color = '#c0392b'; g.textContent = 'NICHT gespeichert: ' + err.message; alert('Speichern fehlgeschlagen: ' + err.message + '\nBitte Seite neu laden und das Bild noch einmal bewerten.'); return false; } }
+async function weiter(status){
+  if (laeuft) return; laeuft = true; sperren(true);                    // 1.6: Doppelklick kann nicht zweimal speichern
+  try {
+    if (status && !(await speichern(status))) return;
+    const sicht = gefiltert(); let j = sicht.find(k => k > idx);        // 1.6: naechstes Bild DIESER Auswahl
+    const wahl = $('filter').selectedOptions[0].dataset.text;
+    if (j !== undefined) await oeffnen(j);
+    else if (sicht.length) {                                            // am Ende angekommen: zurueck an den Anfang, und das steht auch da
+      await oeffnen(sicht[0]);
+      $('info').textContent = `Ende der Auswahl „${wahl}" — weiter geht es wieder am Anfang. Noch ${sicht.length} Bilder offen. · ` + $('info').textContent; }
+    else { $('info').textContent = `Kein Bild mehr in der Auswahl „${wahl}". Oben eine andere Auswahl wählen.`; zeigeListe(); }
+  } finally { laeuft = false; sperren(false); knoepfe(); } }
+function zurueckBlaettern(){                                           // 1.6: zurueck bleibt in derselben Auswahl
+  const sicht = gefiltert(); const stelle = sicht.indexOf(idx);
+  if (stelle > 0) oeffnen(sicht[stelle - 1]);
+  else if (stelle < 0 && sicht.length) oeffnen(sicht[sicht.length - 1]); }
+function sperren(an){ ['richtig', 'verwerfen', 'zurueckstellen', 'weiter', 'zurueck', 'reset', 'fertig', 'zuruecksetzen'].forEach(k => { const b = $(k); if (b) b.disabled = an; }); }
+// 1.6: nach jedem Knopfdruck den Fokus vom Knopf nehmen -- sonst schluckt der Knopf die Eingabetaste
+// und die Pfeiltasten, und die Tastaturbedienung war ab dem ersten Klick tot.
+const knopf = (id, tun) => { const b = $(id); b.onclick = ev => { b.blur(); tun(ev); }; };
+knopf('richtig', () => weiter('geprueft')); knopf('verwerfen', () => weiter('verworfen')); knopf('weiter', () => weiter(null));
+knopf('zurueck', () => zurueckBlaettern());
+knopf('zurueckstellen', () => weiter('zurueckgestellt'));                // 1.7: unsicher -> spaeter noch einmal
+knopf('reset', () => { if (daten) { daten.boxen = JSON.parse(JSON.stringify(orig)); malen(); } });
+$('filter').onchange = () => { idx = -1; daten = null; $('filter').blur(); laden(false); };
+$('fertig').onclick = async () => {                                   // 1.4: Runde abschliessen: aktuelles Bild speichern, Bilanz, Meldung an den Jetson
+  // 1.6: auch bei "zurueckgestellt" und bei veraenderten Rahmen anbieten -- 1.5 fragte nur bei "offen",
+  // und seit es keine offenen Bilder mehr gibt, ging die Arbeit am gezeigten Bild beim Fertigdruecken verloren.
+  if (daten && liste[idx] && (['offen', 'zurueckgestellt'].includes(liste[idx].status) || veraendert())) {
+    if (confirm('Das angezeigte Bild noch als „Rahmen stimmen“ speichern?')) { if (!(await speichern('geprueft'))) return; } }
+  let a = {};
+  try { a = await (await fetch('/lernen/fertig', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'})).json(); } catch (e) { a = {ok: false, fehler: e.message}; }
+  const z = {offen:0, geprueft:0, verworfen:0, zurueckgestellt:0}; liste.forEach(e => z[e.status] = (z[e.status] || 0) + 1);
+  const b = $('bilanz'); b.hidden = false;
+  b.innerHTML = `<b>Fertig.</b> ${z.geprueft} Bilder geprüft, ${z.verworfen} verworfen, ${z.offen} noch offen, ${z.zurueckgestellt} zurückgestellt — alles ist auf dem Jetson gespeichert, Sie können das Fenster schließen.<br>` +
+    (a.ok ? `Der Jetson hat die Runde um ${a.uhr} angenommen und ${a.training ? 'startet das Training mit Ihren Bewertungen' : 'wartet mit dem Training (' + (a.grund || 'läuft bereits') + ')'}.` : `<span style="color:#c0392b">Meldung an den Jetson fehlgeschlagen: ${a.fehler || '?'} — die Bewertungen selbst sind gespeichert.</span>`);
+  if (!document.body.classList.contains('breit')) b.scrollIntoView(); };   // 1.9: im festen Aufbau scrollt nichts
+document.addEventListener('keydown', ev => { if (ev.target.tagName === 'SELECT' || ev.target.tagName === 'BUTTON') return; if (ev.key === 'Enter') { ev.preventDefault(); weiter('geprueft'); } else if (ev.key === 'v' || ev.key === 'V') weiter('verworfen'); else if (ev.key === 'r' || ev.key === 'R') $('reset').onclick(); else if (ev.key === 'ArrowRight') weiter('geprueft'); else if (ev.key === 'ArrowLeft') oeffnen(idx - 1); else if (ev.key === 'z' || ev.key === 'Z') weiter('zurueckgestellt');
+  else if (['1','2','3'].includes(ev.key)) klasseSetzen(KLASSEN[+ev.key - 1]); });
+// 1.7, sein Wort: "eine anzeige was bereit, das gibt es wohl zeitversaetze bis freigabe" -- die Lernrunde
+// wirkt nicht sofort: nach "Fertig" baut der Jetson den Datensatz, haelt den Livedienst an, trainiert
+// (etwa vier Minuten) und startet den Livedienst mit dem neuen Modell. Diese Zeile sagt jederzeit, wo das steht.
+async function bereit(){
+  const b = $('bereit'); let d;
+  try { d = await (await fetch('/stand', {cache:'no-store'})).json(); }
+  catch (err) { b.innerHTML = `<span class="lampe rot"></span>Der Jetson-Dienst antwortet nicht (${err.message}).`; return; }
+  const z = zaehlen(); const t = d.training || {}; const y = d.yolo || {};
+  const uhr = s => String(s || '').slice(11, 19) || String(s || '');
+  let lampe, satz;
+  if (t.laeuft) { const seit = uhr(t.gestartet);
+    lampe = 'gelb'; satz = `<b>Training läuft</b> seit ${seit} — das neue Modell ist in etwa vier Minuten bereit; der Livedienst pausiert solange.`; }
+  else if (y.phase === 'laeuft') {
+    lampe = 'gruen'; satz = `<b>Bereit.</b> Modell <b>${y.modell || '?'}</b> ist im Einsatz, erkennt mit ${y.bilder_s ?? '?'} Bildern je Sekunde` +
+      (y.tiere_mittel_5s !== undefined ? ` und sieht gerade ${y.tiere} Tiere.` : '.'); }
+  else { lampe = 'grau'; satz = `<b>Kein Livedienst.</b> Zustand: ${y.phase || 'unbekannt'}.`; }
+  const runde = t.letzte_runde ? `letzte Runde übergeben ${String(t.letzte_runde.uhr || '').slice(5, 16)}` : 'noch keine Runde übergeben';
+  b.innerHTML = `<span class="lampe ${lampe}"></span>${satz}<br>` +
+    `<b>Ihr Lernstand:</b> ${z.geprueft || 0} geprüft · ${z.zurueckgestellt || 0} zurückgestellt · ${z.offen || 0} offen · ` +
+    `${z.verworfen || 0} verworfen &nbsp;|&nbsp; ${runde} &nbsp;|&nbsp; Stand ${new Date().toLocaleTimeString('de-DE')}`;
+}
+knopf('zuruecksetzen', async () => {
+  const z = zaehlen();
+  if (!confirm(`Alles Gelernte zurücksetzen?\n\n` +
+      `${(z.geprueft||0) + (z.zurueckgestellt||0) + (z.verworfen||0)} bewertete Bilder gehen zurück auf „offen“.\n` +
+      `Die gezeichneten Rahmen BLEIBEN erhalten. Das angelernte Modell wird NICHT angefasst.\n` +
+      `Vorher schreibt der Jetson eine vollständige Sicherung, aus der sich alles wiederherstellen lässt.`)) return;
+  if (!confirm('Wirklich zurücksetzen? Danach sind alle Bilder wieder unbewertet.')) return;
+  const g = $('gespeichert');
+  try {
+    const a = await (await fetch('/lernen/zuruecksetzen', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'})).json();
+    if (!a.ok) throw new Error(a.fehler || 'Antwort ohne ok');
+    g.style.color = '#1a7a2a'; g.textContent = `zurückgesetzt: ${a.zurueckgesetzt} von ${a.gesamt} Bildern, Sicherung ${a.sicherung}`;
+    idx = -1; daten = null; await laden(true); bereit();
+  } catch (err) { g.style.color = '#c0392b'; g.textContent = 'NICHT zurückgesetzt: ' + err.message;
+    alert('Zurücksetzen fehlgeschlagen: ' + err.message); } });
+const h = $('hilfe');                                                  // 1.8: zugeklappt bleibt zugeklappt
+try { if (localStorage.getItem('lernhilfe') === 'zu') h.open = false; } catch (e) {}
+h.addEventListener('toggle', () => { try { localStorage.setItem('lernhilfe', h.open ? 'auf' : 'zu'); } catch (e) {} });
+breiteSetzen(); leinwandGroesse(); laden(true); bereit(); setInterval(bereit, 5000);
+})();
+</script></body></html>

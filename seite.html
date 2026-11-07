@@ -1,0 +1,1652 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mikroskop-Fokus</title><meta name="fassung" content="1.33">
+<style>
+:root{--bg:#f4f3ef;--fg:#1d1d1b;--rand:#c9c6bd;--kasten:#fff;--grau:#6b6962;--blau:#1f4e9e;--rot:#b3261e}
+body{font:15px/1.45 system-ui,"Segoe UI",sans-serif;margin:0;background:var(--bg);color:var(--fg)}
+header{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;padding:10px 16px 0}
+header h1{font-size:20px;margin:0}header small{color:var(--grau)}
+nav{display:flex;gap:6px;padding:8px 16px 0;border-bottom:1.5px solid var(--rand);flex-wrap:wrap}
+nav button{font:inherit;padding:7px 14px;border:1px solid var(--rand);border-bottom:none;border-radius:8px 8px 0 0;background:#ebe9e3;cursor:pointer}
+nav button.an{background:var(--kasten);font-weight:600}
+section{display:none;padding:14px 16px}section.an{display:block}
+.k{display:grid;grid-template-columns:660px 1fr;gap:16px}@media(max-width:1100px){.k{grid-template-columns:1fr}}
+.zoomrahmen{width:640px;max-width:100%;aspect-ratio:4/3;border:1px solid #999;background:#000;overflow:hidden;position:relative;cursor:grab;touch-action:none}
+img.live{width:100%;height:100%;display:block;transform-origin:0 0;user-select:none}
+/* BEFUND 04.11.2026: Die Seite hat eine allgemeine Regel canvas{background:#fff;border:1px solid #ccc}
+   fuer die Schaerfekurve. Eine Ueberblendflaeche, die den Hintergrund nicht ausdruecklich
+   zuruecknimmt, erbt ihn -- und liegt dann als WEISSE Kachel ueber dem Livebild. Genau das war
+   der weisse Bildschirm. Durchsichtig muss man hier also hinschreiben, es ist nicht die Vorgabe. */
+canvas.lage{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:0 0;
+            pointer-events:none;background:transparent;border:0;max-width:none}
+#vblage{position:absolute;left:0;top:0;width:100%;height:100%;
+        pointer-events:none;background:transparent;border:0;max-width:none}
+.tierblock{margin-top:10px;padding-top:10px;border-top:1px solid var(--rand)}
+.tierblock canvas{display:block;max-width:100%}
+/* 1.25 Jetson-Block: feste Felder (Anzeigefelder konstant), Lampe gruen = antwortet, grau = nicht erreichbar */
+.jzeile{height:1.7em;line-height:1.7em;white-space:nowrap;overflow:hidden;font-variant-numeric:tabular-nums}
+.jzeile b{display:inline-block;width:12ch;color:#555;font-weight:600}.jzeile b::after{content:':'}
+.jfeld{display:inline-block;overflow:hidden;text-overflow:ellipsis;vertical-align:bottom;margin-right:1.5ch;padding:0 .4ch;background:rgba(127,127,127,.08);border-radius:3px}
+.jlampe{display:inline-block;width:12px;height:12px;border-radius:50%;background:#9a9a9a;vertical-align:middle;margin-right:6px}
+/* 1.29 Reiter Statistik: Livebild mit Erkennungen + Kacheln mit festen Feldern */
+.ykopf{margin:6px 0 10px;font-size:15px}.yzeilen{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start}
+.ybild img{display:block;width:640px;max-width:100%;height:auto;background:#222;border:1px solid var(--rand)}
+.yzahlen{display:grid;grid-template-columns:repeat(2,minmax(150px,1fr));gap:10px;min-width:320px}
+.ykachel{border:1px solid var(--rand);border-radius:6px;padding:10px 12px;background:rgba(127,127,127,.06)}
+.ywert{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;min-height:1.2em}.ylabel{font-size:12px;color:#666}
+.ytab{border-collapse:collapse;font-variant-numeric:tabular-nums;margin-top:4px}.ytab th,.ytab td{border:1px solid var(--rand);padding:3px 10px;text-align:right}.ytab th:first-child,.ytab td:first-child{text-align:left}
+.jlampe.an{background:#1a9c3a;box-shadow:0 0 6px #1a9c3a}
+.rahmenschalter{margin:6px 0 0;display:flex;gap:14px;align-items:center;flex-wrap:wrap;color:var(--grau)}
+/* BEFUND 04.11.2026, sein Wort: "stell das zappeln ab weils sich der text staendig aendert".
+   #stand wird im Sekundentakt neu geschrieben und aendert dabei seine Laenge. Bricht die
+   Zeile um, springt alles darunter. Darum: EINE Zeile, kein dynamischer Umbruch, bei Bedarf
+   waagerecht rollbar, und Ziffern in fester Breite, damit schon die Zahlen nicht wackeln. */
+
+/* 04.11.2026, zweiter Anlauf: overflow-x:auto liess beim Erscheinen der Rollleiste die
+   Zeile um deren Hoehe wachsen -- auch das ist Zappeln. Feste Hoehe, Rest abgeschnitten. */
+/* PLATZ FUER DEN LAENGSTEN TEXT RESERVIEREN -- sein Wort 04.11.2026: "du legst ja den
+   maximalen text selbst fest also lege das textfeld so aus dass der text immer passt!"
+   Jedes Feld, das aus einem Takt beschrieben wird, bekommt eine FESTE Hoehe, die fuer den
+   laengsten Text reicht; umgebrochen wird INNERHALB des Kastens, abgeschnitten wird nichts.
+   Laengster Text je Feld (aus den Formatvorschriften im Skript gezaehlt) und Rechnung
+   mit 0,55 em je Zeichen (Mischtext, Systemschrift):
+     #stand         110 Zeichen, 20px  -> 1210 px -> 2 Zeilen ab 620 px Breite, 3 darunter
+     #rahmen_stand   69 Zeichen, 15px  ->  570 px -> 2 Zeilen ab 290 px Breite
+     #kinfo          37 Zeichen, 13px  ->  265 px -> 1 Zeile
+     #tierinfo      167 Zeichen, 13px  -> 1190 px -> 3 Zeilen ab 400 px Breite
+     #wstand         55 Zeichen, 17px  ->  515 px -> 2 Zeilen ab 260 px Breite
+   Die Hoehe haengt damit nur noch von der Fensterbreite ab, nie vom Inhalt. */
+#stand,#kinfo,#rahmen_stand,#tierinfo,#wstand,#zoomwert,#meldertext,#melderzahl,#vb1,#vb2,#vb3{
+  font-variant-numeric:tabular-nums;overflow:hidden}
+#stand{display:block;white-space:normal;line-height:1.3em;height:2.6em}
+@media (max-width:620px){#stand{height:3.9em}}
+#rahmen_stand{display:block;width:100%;flex:0 0 100%;white-space:normal;line-height:1.35em;height:2.7em}
+.rahmenschalter{height:auto;align-content:flex-start}
+#kinfo{display:block;white-space:nowrap;line-height:1.45em;height:1.45em}
+#tierinfo{display:block;white-space:normal;line-height:1.35em;height:4.05em}
+#wstand{white-space:normal;line-height:1.35em;height:2.7em}
+#zoomwert{display:inline-block;width:3.2em;text-align:right;white-space:nowrap}
+#melder{width:168px;height:132px;box-sizing:border-box;justify-content:center}
+#meldertext{display:block;width:100%;white-space:nowrap}
+#melderzahl{display:block;width:100%;height:4.05em;line-height:1.35em;white-space:nowrap;font-variant-numeric:tabular-nums}
+#vbleiste{height:2.8em;overflow:hidden}
+#vbleiste span{display:inline}
+.tafel#wtafel td,.tafel#wtafel th{white-space:nowrap}
+/* Leuchtanzeige des Bewegungsmelders, am rechten Rand */
+#melder{position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:9998;
+        display:flex;flex-direction:column;align-items:center;gap:6px;
+        padding:10px 12px;border-radius:10px;border:1px solid var(--rand);
+        background:var(--kasten);font:12px/1.3 system-ui,sans-serif;color:var(--grau);
+        box-shadow:0 2px 10px rgba(0,0,0,.12);text-align:center}
+#melderlampe{width:26px;height:26px;border-radius:50%;background:#c9c6bd;
+             border:1px solid #9b988f;transition:background .15s}
+#melder.an #melderlampe{background:#e02020;border-color:#8c1414;
+             box-shadow:0 0 14px 4px rgba(224,32,32,.65);animation:pulsen 1s infinite}
+@keyframes pulsen{0%,100%{opacity:1}50%{opacity:.55}}
+#melder.an{border-color:#e02020;color:#b3261e}
+@media (max-width:760px){#melder{position:static;transform:none;margin:8px 0;
+        flex-direction:row;justify-content:flex-start}}
+.zoomzeile{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px}.zoomzeile input[type=range]{width:160px}
+button.b{font:inherit;padding:9px 16px;margin:3px;border:1px solid #999;border-radius:6px;background:#fff;cursor:pointer}
+button.g{background:#e8f0fb;border-color:var(--blau)}button:disabled{opacity:.45}
+#stand{font-size:20px;margin:6px 0}canvas{background:#fff;border:1px solid #ccc;max-width:100%}
+pre.log{background:#fff;border:1px solid #ccc;padding:8px;height:250px;overflow:auto;font-size:12px;margin:0;white-space:pre-wrap}
+input[type=number]{font:inherit;padding:7px;width:70px}small{color:var(--grau)}
+.text{max-width:960px}
+/* 1.34 (07.11.2026, sein Wort: "neben das bild sonst muss man immer scrolen" und "das auch rechts, das ist
+   immer platz frei"): Reiter, die Flaeche brauchen, duerfen breiter sein als 960 px. */
+.text.weit{max-width:none}
+.sspalten{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
+.slinks{flex:1 1 560px;min-width:0}
+.srechts{flex:0 0 560px;max-width:620px;max-height:calc(100vh - 215px);overflow:auto}
+/* 1.34: die rechte Spalte rollt notfalls in sich selbst, damit der Reiter als Ganzes ins Fenster passt */
+.srechts .ytab{width:100%}
+.srechts table{max-height:none}
+@media (max-width:980px){ .srechts{flex:1 1 100%;max-width:none} }
+/* 1.34: Livebild und Lernkurve an die Fensterhoehe binden, damit der Reiter auch auf 900 px hohen
+   Bildschirmen ohne Scrollen auskommt (gemessen: sonst 1230 px Inhalt bei 900 px Fenster). */
+#ystrom{width:auto;height:auto;max-width:100%;max-height:38vh}
+#ykurve{max-height:26vh}
+#statistik h2{margin:8px 0 4px} #statistik h3{margin:9px 0 3px}
+/* 1.34: #melder schwebt fest am rechten Rand (position:fixed, right:14px). Solange rechts nichts stand,
+   fiel das nicht auf; jetzt deckte er die Lernkurve zu. Darum bekommt er seinen Streifen zurueck. */
+#statistik .sspalten{padding-right:178px}
+#statistik .ykachel{padding:6px 10px}.text h2{font-size:17px;margin:18px 0 6px}.text h3{font-size:15px;margin:14px 0 4px}
+.text table{border-collapse:collapse;margin:6px 0}.text td,.text th{border:1px solid var(--rand);padding:4px 9px;text-align:left;vertical-align:top}
+.f{font-family:"Cambria Math","Latin Modern Math",serif;font-size:16px;background:#fff;border:1px solid var(--rand);border-radius:6px;padding:6px 12px;margin:6px 0;display:inline-block}
+code{background:#eceae4;padding:1px 4px;border-radius:4px}svg{max-width:100%;height:auto}
+
+/* Vollbildansicht: nur auf dem Schirm des Pi, ueber ?vollbild aufgerufen.
+   Die gewoehnliche Seite bleibt davon voellig unberuehrt -- es wird nur ein- und
+   ausgeblendet, nichts ersetzt. */
+body.vb{background:#000;overflow:hidden;margin:0}
+body.vb > *:not(#vbflaeche){display:none!important}
+#vbflaeche{display:none}
+body.vb #vbflaeche{display:block;position:fixed;inset:0;background:#000}
+body.vb #vbbild{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
+body.vb #vbleiste{position:absolute;left:0;right:0;bottom:0;padding:4px 10px;
+  background:rgba(0,0,0,.62);color:#ddd;display:flex;gap:18px;flex-wrap:wrap;
+  align-items:baseline;font-size:13px;font-variant-numeric:tabular-nums}
+body.vb #vbzu{position:absolute;top:6px;right:10px;background:rgba(0,0,0,.55);
+  padding:3px 9px;border-radius:4px;color:#bbb;text-decoration:none;font-size:12px}
+body.vb .vw{color:#9ad} body.vb .vg{color:#7c7} body.vb .vr{color:#f88}
+.teilb table{border-collapse:collapse;margin:8px 0}.teilb th,.teilb td{border:1px solid var(--rand);padding:3px 8px;font-size:0.95em}.teilb figure{margin:12px 0}.teilb figcaption{font-size:0.9em;color:#555}.teilb blockquote{margin:6px 0 6px 20px;font-family:serif}.teilb video{max-width:100%;border:1px solid var(--rand)}
+</style></head><body>
+<header><h1>Mikroskop-Fokus</h1><small>USB-Mikroskop am Raspberry Pi 5, Servo an Hardware-PWM · Prof. Dr.-Ing. Ralph Wystup M.Sc. und Claude (Anthropic, Claude Code) — gemeinsam erstellt · Fassung 4, 18.10.2026 · <b>Seite 1.34</b> · Jetson-Block · Punkte im Bild von der Auswertung <span id="auswertung_fassung">–</span> (neu aufgesetzt 05.11.2026) · Bildwächter 1.4 · Jetson mit YOLO (Manuskript Teil B) · lädt sich bei neuer Fassung selbst neu</small></header>
+<nav><button class="an" data-r="bedienen">Bedienen</button><button data-r="statistik">Statistik</button><button data-r="lernen">Lernen</button><button data-r="hardware">Hardware und Verschaltung</button><button data-r="beschreibung">Beschreibung und Ablauf</button><button data-r="manuskript">Manuskript: Methoden</button><button data-r="messung">Messungen</button><button data-r="zusammenarbeit">Zusammenarbeit mit der KI</button><button data-r="wache">Wache</button></nav>
+
+<section class="an" id="bedienen"><div class="k">
+<div><div class="zoomrahmen" id="zoomrahmen"><img class="live" id="bild" src="/strom" draggable="false"><canvas class="lage" id="lage" width="640" height="480"></canvas></div>
+<p class="rahmenschalter"><label><input type="checkbox" id="rahmen_an" checked> Tiere markieren (Punkt an der Körpermitte, im Bild selbst)</label><label title="Nur Punkte, kein Text: sein Wort vom 05.11.2026. Nummern, Längen und Tempo stehen in den Aufnahmen und in der Vermessung."><input type="checkbox" id="rahmen_nr" checked disabled> nur Punkte, kein Text</label><span id="rahmen_stand"></span></p>
+<div class="zoomzeile"><small>Zoom</small> <input type="range" id="zoom" min="1" max="6" step="0.1" value="1"> <span id="zoomwert">1,0×</span> <button class="b" id="zoom1">1×</button> <button class="b" id="zoom_mitte">Mitte</button> <small>Mausrad zoomt, Ziehen verschiebt, Doppelklick zoomt auf die Stelle — rein elektronisch, nur die Anzeige</small></div>
+<div id="stand">–</div>
+<button class="b g" id="auto">Autofokus</button><button class="b g" id="nachfokus">Nachfokus</button><button class="b" id="stopp">Stopp</button> &nbsp; <button class="b" id="minus">− 0,3°</button><button class="b" id="plus">+ 0,3°</button><br>
+<label><input type="radio" name="h" id="h_stromlos" value="stromlos"> im Stand stromlos (still, ~1 von 10 Handschritten daneben)</label> &nbsp;
+<label><input type="radio" name="h" id="h_an" value="an"> im Stand Puls an (12 von 12, knurrt)</label><br>
+<input id="ziel" type="number" step="0.1" min="0" max="180" value="138"><button class="b" id="fahre">Fahre nach (von unten)</button> &nbsp; <button class="b" id="befund">Befund für die KI bündeln</button>
+<p><small>Hardware-PWM · Haltung im Stand wählbar · jedes Ziel wird von 5° darunter angefahren · Schritte mit kurzem Rütteln · Autofokus: Suchlauf ≈ 25 s, Stapel ≈ 20 s, Anfahrt ≈ 10 s · Nachfokus: nur Stapel ±8° um die jetzige Stellung ≈ 30 s · Ergebnis = Schärfe am Ende gegen die Parabelhöhe des Stapels (100 % = berechnete Spitze).</small></p></div>
+<div><canvas id="kurve" width="560" height="260"></canvas><div><small id="kinfo"></small></div>
+<div class="tierblock"><b>Tiere im Bild — je Stunde das Höchste</b>
+<canvas id="tierkurve" width="560" height="180"></canvas>
+<div><small id="tierinfo">…</small></div></div>
+<div class="tierblock" id="jetsonblock"><b><span class="jlampe" id="jlampe"></span>Jetson</b> <small>(Zusatzrechner: holt die Aufnahmen, prüft, rechnet die Statistik; ohne ihn läuft alles andere weiter)</small>
+<div class="jzeile"><b>Verbindung</b><span class="jfeld" id="jverb" style="width:44ch">–</span></div>
+<div class="jzeile"><b>Auslastung</b><span class="jfeld" id="jcpu" style="width:11ch">CPU –</span><span class="jfeld" id="jgpu" style="width:11ch">GPU –</span><span class="jfeld" id="jram" style="width:20ch">RAM –</span><span class="jfeld" id="jtemp" style="width:9ch">–</span></div>
+<div class="jzeile"><b>Arbeit</b><span class="jfeld" id="jauftrag" style="width:52ch">–</span></div>
+<div class="jzeile"><b>Livestrom</b><span class="jfeld" id="jlive" style="width:60ch">–</span></div>
+<div class="jzeile"><b>YOLO</b><span class="jfeld" id="jyolo" style="width:72ch">–</span></div>
+<div class="jzeile"><b>Stand</b><span class="jfeld" id="jstat" style="width:60ch">–</span></div></div><pre class="log" id="log"></pre></div></div></section>
+
+<section id="statistik"><div class="text weit">
+<h2>Statistik vom Jetson</h2>
+<div class="ykopf"><span class="jlampe" id="ylampe"></span><b>YOLO-Objekterkennung</b> <span id="yzustand" class="jfeld" style="width:70ch">–</span></div>
+
+<div class="sspalten">
+  <div class="slinks">
+<div class="yzeilen">
+  <div class="ybild"><img id="ystrom" alt="" width="640" height="480"><div class="hinweis" id="ystromtext">Livebild mit Erkennungen: nicht verbunden</div></div>
+  <div class="yzahlen">
+    <div class="ykachel"><div class="ywert" id="ytiere">–</div><div class="ylabel">Tiere im Bild (Mittel 5 s)</div></div>
+    <div class="ykachel"><div class="ywert" id="ybewegt">–</div><div class="ylabel">bewegt / ruhend</div></div>
+    <div class="ykachel"><div class="ywert" id="ygroesse">–</div><div class="ylabel">Größe, Median mm</div></div>
+    <div class="ykachel"><div class="ywert" id="ytempo">–</div><div class="ylabel">Tempo, Median mm/s</div></div>
+    <div class="ykachel"><div class="ywert" id="yrate">–</div><div class="ylabel">Bilder/s durch YOLO</div></div>
+    <div class="ykachel"><div class="ywert" id="ykoerner">–</div><div class="ylabel">Körner im Bild</div></div>
+  </div>
+</div>
+    <h3>Aufnahmen und Verfolgung (Jetson-Dienst)</h3>
+    <div class="jzeile"><b>Stand</b><span class="jfeld" id="ystatistik" style="width:80ch">–</span></div>
+  </div>
+  <div class="srechts">
+    <h3>Tiere je Stunde (YOLO)</h3>
+    <table class="ytab" id="ystunden"><thead><tr><th>Stunde</th><th>höchstens</th><th>Mittel</th><th>Bilder</th></tr></thead><tbody><tr><td colspan="4">–</td></tr></tbody></table>
+    <h3>Lernfortschritt von YOLO</h3>
+    <div class="hinweis" id="ykurvetext">–</div>
+    <canvas id="ykurve" width="860" height="300" style="width:100%;height:auto;background:#fff;border:1px solid var(--rand);border-radius:4px"></canvas>
+  </div>
+</div>
+<div class="hinweis">Dieser Reiter liest den YOLO-Dienst des Jetson (:8096) und den Jetson-Dienst (:8095) direkt. Fällt der Jetson aus, bleiben die Lampen grau; Pi, Fokus, Verfolgung und der Reiter „Bedienen" laufen ohne ihn weiter.</div>
+</div></section>
+
+<section id="lernen"><div class="text weit">
+<h2>Lernbilder bewerten — die Lernseite des Jetson</h2>
+<p class="hinweis">Die Lernseite läuft auf dem Jetson und wird hier erst geladen, wenn dieser Reiter offen ist; der Pi hängt nicht daran.
+Bedienung: Linksklick auf einen Rahmen löscht ihn, Ziehen zeichnet einen neuen in der gewählten Klasse, Rechtsklick wechselt die Klasse,
+grün speichert und blättert, „Fertig" startet das Nachtraining auf dem Jetson (etwa vier Minuten, YOLO pausiert solange).
+<a id="llink" href="http://<IP-des-Jetson>:8095/lernen" target="_blank" rel="noopener">In eigenem Fenster öffnen</a></p>
+<div class="ykopf"><span class="jlampe" id="llampe"></span><b>Jetson</b> <span id="lstand" class="jfeld" style="width:70ch">–</span></div>
+<iframe id="lrahmen" title="Lernbilder bewerten" style="width:100%;height:calc(100vh - 230px);min-height:520px;border:1px solid var(--rand);background:#fff;margin-top:8px"></iframe>
+</div></section>
+<section id="hardware"><div class="text">
+<h2>Der Aufbau</h2>
+<p><img src="bilder/aufbau_seite.jpg" alt="Aufbau von der Seite: Raspberry Pi 5 im Acrylgehäuse, USB-Mikroskop im 3D-gedruckten Halter, Servo oben, Objektträger auf dem Fuß" style="max-width:100%;border:1px solid #c9c6bd;border-radius:8px"></p>
+<p><img src="bilder/aufbau_oben.jpg" alt="Aufbau von oben: Servo mit Zahnrad am Rändelrad des Mikroskops, Stativstange zur groben Höheneinstellung" style="max-width:100%;border:1px solid #c9c6bd;border-radius:8px"></p>
+<p><small>Fotos vom 19.10.2026: links der Raspberry Pi 5 im Acrylgehäuse, rechts das USB-Mikroskop im schwarzen 3D-gedruckten Halter; der Servo sitzt oben am Halter und greift mit dem kleinen Zahnrad in das große am Rändelrad. Darunter der Objektträger auf dem Fuß des Mikroskopstativs. Die Beleuchtung erzeugt das USB-Mikroskop selbst mit seinen eingebauten LEDs um das Objektiv (Auflicht). Die Metallstange ist das Stativ: An ihr sind Servomechanik und Mikroskop befestigt; mit der großen Rändelschraube an der Stange wird das Ganze von Hand grob in der Höhe eingestellt, der Servo übernimmt dann die Feineinstellung am Rändelrad.</small></p>
+<p>Ein einfaches USB-Mikroskop (Wandler Genesys Logic 05e3:f12b, 640 × 480 Bildpunkte, 30 Bilder/s, YUYV) hat ein Rändelrad zur Handverstellung der Schärfe. Dieses Rad wird nicht mehr von Hand gedreht, sondern von einem Modellbauservo über ein Zahnradpaar. Die Halterung ist im 3D-Druck gefertigt und trägt Mikroskop, Servo und beide Zahnräder in festem Abstand.</p>
+<table><tr><th>Teil</th><th>Angabe</th></tr>
+<tr><td>Rechner</td><td>Raspberry Pi 5 Model B, 4 GB, Raspberry Pi OS 12 (bookworm), Python 3.11, OpenCV 4.6; Name im Netz <code>mikroskop</code></td></tr>
+<tr><td>Kamera</td><td>USB-Mikroskop an USB 2.0, <code>/dev/video0</code>; Regler: Helligkeit, Kontrast, Gamma, Schärfe (bleiben auf Vorgabe)</td></tr>
+<tr><td>Beleuchtung</td><td>Im Mikroskop eingebaute LEDs rund um das Objektiv (Auflicht), Helligkeit am Rädchen des USB-Kabels; keine zusätzliche Lampe. Die Probe wird von oben beleuchtet, der Hintergrund ist ein weißes Blatt unter dem Objektträger.</td></tr>
+<tr><td>Servo</td><td>Modellbauservo, Stellbereich 0–180° bei Impulsen von 0,40 bis 2,40 ms, 50 Hz; Signal an GPIO 18 (Hardware-PWM, PWM0-Kanal 2); Versorgung direkt vom 5-V-Pin des Pi, Masse gemeinsam</td></tr>
+<tr><td>Stromversorgung</td><td>Ein Netzteil für alles: 5,1 V, 3 A am USB-C des Pi (Vorgabe für den Pi 5 sind 5,1 V / 5 A; die 3 A reichen hier, weil nur Kamera und ein Servo hängen). Der Servo zieht beim Fahren kurz einige hundert Milliampere; gemessen stört das weder Kamera noch Pi — am 19.10.2026 nachgesehen: <code>vcgencmd get_throttled</code> = 0x0, keine Unterspannung seit dem Start.</td></tr>
+<tr><td>Getriebe</td><td>Kleines Zahnrad auf der Servowelle, großes Zahnrad auf der Welle, die das Rändelrad des Mikroskops mitnimmt: Untersetzung 1 : 2. Ein Grad am Servo sind 0,5° am Mikroskoprad.</td></tr>
+<tr><td>Halterung</td><td>3D-Druck; Zahnräder und Mitnahme am Rändelrad sind die Stellen, an denen das gemessene Spiel von 4,6° (am Servo) entsteht</td></tr>
+<tr><td>Stativ</td><td>Metallstange, an der Servomechanik und Mikroskop zusammen sitzen; die große Rändelschraube an der Stange stellt das Ganze von Hand grob in der Höhe ein, danach stellt nur noch der Servo</td></tr></table>
+<h2>Verschaltung</h2>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 300" font-family="system-ui,Segoe UI,sans-serif" font-size="12" style="background:#fff;border:1px solid #c9c6bd;border-radius:8px">
+<defs><marker id="pf" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#6b6962"/></marker></defs>
+<rect x="16" y="40" width="220" height="130" rx="8" fill="#e6f4ea" stroke="#2e7d32" stroke-width="1.5"/><text x="28" y="62" font-weight="700" font-size="13">Raspberry Pi 5</text>
+<text x="28" y="84">USB 2.0 → Mikroskop</text><text x="28" y="104">GPIO 18 (Pin 12) → Servo Signal</text><text x="28" y="124">5 V (Pin 2) → Servo + (vom Pi)</text><text x="28" y="144">GND (Pin 6) → Servo −</text><text x="28" y="162" fill="#6b6962">Ethernet/WLAN → Heimnetz, Port 8090</text>
+<rect x="330" y="40" width="200" height="130" rx="8" fill="#fff3c4" stroke="#c9a227" stroke-width="1.5"/><text x="342" y="62" font-weight="700" font-size="13">Servo</text>
+<text x="342" y="84">Signal: Puls 0,40–2,40 ms</text><text x="342" y="104">alle 20 ms (50 Hz)</text><text x="342" y="124">0° … 180°</text><text x="342" y="150" fill="#6b6962">kleines Zahnrad auf der Welle</text>
+<rect x="620" y="40" width="320" height="130" rx="8" fill="#e8f0fb" stroke="#1f4e9e" stroke-width="1.5"/><text x="632" y="62" font-weight="700" font-size="13">Mikroskop (USB)</text>
+<text x="632" y="84">großes Zahnrad (1 : 2) auf der Welle</text><text x="632" y="104">zum Rändelrad der Handverstellung</text><text x="632" y="124">Bild 640 × 480, 30 Bilder/s</text><text x="632" y="150" fill="#6b6962">Probe unter dem Objektiv</text>
+<line x1="236" y1="104" x2="330" y2="104" stroke="#6b6962" stroke-width="1.6" marker-end="url(#pf)"/><text x="283" y="96" text-anchor="middle" fill="#6b6962">3 Adern</text>
+<line x1="530" y1="104" x2="620" y2="104" stroke="#6b6962" stroke-width="1.6" marker-end="url(#pf)"/><text x="575" y="96" text-anchor="middle" fill="#6b6962">1 : 2</text>
+<path d="M 780 170 L 780 220 L 126 220 L 126 170" fill="none" stroke="#6b6962" stroke-width="1.6" marker-end="url(#pf)"/><text x="450" y="240" text-anchor="middle" fill="#6b6962">USB: Bilder zurück zum Pi — der Regelkreis schließt sich über die Schärfe im Bild</text>
+<text x="16" y="266" fill="#6b6962">Versorgung: ein Netzteil 5,1 V / 3 A am USB-C des Pi; der Servo hängt am 5-V-Pin des Pi, kein zweites Netzteil</text>
+<text x="16" y="284" fill="#6b6962">Hardware-PWM: /boot/firmware/config.txt → dtoverlay=pwm-2chan; GPIO 18 = /sys/class/pwm/pwmchip0/pwm2 (Periode 20 000 000 ns, Tastdauer in ns)</text>
+</svg>
+<h2>Was das Getriebe für die Regelung bedeutet</h2>
+<p>Die Untersetzung halbiert die Bewegung: 0,3° Servoschritt sind 0,15° am Rändelrad. Die Halbwertsbreite des Schärfegipfels von 1,4 bis 3° am Servo entspricht 0,7 bis 1,5° am Rad. Das Spiel von 4,6° am Servo (2,3° am Rad) ist größer als der Gipfel; darum muss jede Anfahrt aus derselben Richtung kommen, sonst landet der Servo neben dem Gipfel, obwohl der Befehl stimmt. Die Rückstellkraft, die den Servo im Stand knurren lässt, kommt aus Mikroskopmechanik und Zahneingriff; sie ist mit dem gewählten Aufbau nicht zu beseitigen, nur zu beherrschen (Haltung wählbar).</p>
+</div></section>
+
+<section id="beschreibung"><div class="text">
+<p><img src="bilder/aufbau_schirm.jpg" alt="Der Aufbau mit dem Bildschirm: Raspberry Pi 5 im
+Acrylgehäuse, USB-Mikroskop im 3D-gedruckten Halter mit Servo, Präparat unter dem Objektiv,
+davor der 7-Zoll-Schirm mit dem Livebild" style="max-width:100%;border:1px solid #c9c6bd;border-radius:8px"></p>
+<p><small>Der Aufbau mit dem Bildschirm. Auf dem Schirm läuft dasselbe Livebild, das diese
+Seite zeigt; die Zahlen oben links im Bild sind Schärfe und Servowinkel, die das Programm in
+jedes Einzelbild einbrennt. Auf dem Schirm des Pi selbst läuft seit dem 03.11.2026 die
+Vollbildansicht (<code>vollbild.html</code>) — diese Seite hier bleibt unverändert.</small></p>
+
+<h2>Was das Programm ist</h2>
+<p>Auf dem Raspberry Pi läuft <code>autofokus4.py</code> als Dienst (<code>mikroskop-fokus.service</code>, startet beim Hochfahren). Es liest das USB-Mikroskop (640 × 480, 30 Bilder/s), berechnet für jedes Bild ein Schärfemaß, fährt den Servo über die Hardware-PWM des Pi 5 und liefert diese Seite unter <code>http://mikroskop:8090</code> aus. Der Browser zeigt nur an und schickt Befehle; alles Messen und Regeln geschieht im Programm.</p>
+<h2>Die Bedienelemente</h2>
+<table><tr><th>Element</th><th>Was es tut</th></tr>
+<tr><td>Livebild</td><td>Bild der Kamera mit Schärfezahl, Servowinkel und dem grünen Messfenster (ROI, mittlere 33 % jeder Kante).</td></tr>
+<tr><td>Zoom</td><td>Elektronischer Zoom 1× bis 6× nur in der Anzeige: Schieberegler, Mausrad auf dem Bild, Ziehen verschiebt den Ausschnitt, Doppelklick zoomt auf die Stelle, „1×" und „Mitte" setzen zurück. Die Kamera liefert weiter 640 × 480; die Schärfemessung bleibt im vollen Bild, der Zoom ändert sie nicht.</td></tr>
+<tr><td>Autofokus</td><td>Voller Ablauf: Suchlauf über den ganzen Bereich, Stapel, Anfahrt, Ergebnis. Etwa 70 s.</td></tr>
+<tr><td>Nachfokus</td><td>Nur Stapel ±8° um die jetzige Stellung und Anfahrt. Etwa 30 s. Für kleine Änderungen, wenn der Gipfel schon in der Nähe liegt.</td></tr>
+<tr><td>Stopp</td><td>Bricht den laufenden Ablauf ab; der Servo bleibt, wo er ist.</td></tr>
+<tr><td>+ 0,3° / − 0,3°</td><td>Ein Handschritt. Beide Richtungen fahren erst 5° nach unten und kommen von unten auf den neuen Wert (etwa 9 s), damit das Getriebespiel immer auf derselben Seite liegt.</td></tr>
+<tr><td>Haltung im Stand</td><td>stromlos: still, das Getriebe hält durch Reibung, etwa jeder zehnte Handschritt geht daneben. Puls an: der Servo hält aktiv, trifft 12 von 12, knurrt dabei.</td></tr>
+<tr><td>Fahre nach</td><td>Fährt einen eingegebenen Winkel an, von unten.</td></tr>
+<tr><td>Befund für die KI bündeln</td><td>Schreibt Zustand, die letzten 60 Protokollzeilen, die letzte Kurve und das aktuelle Bild nach <code>~/Desktop/messung/befund_&lt;Zeit&gt;/</code>. Das ist das Paket, das die KI zur Analyse liest (Reiter Zusammenarbeit).</td></tr>
+<tr><td>Kurve</td><td>Schärfe über dem Winkel aus dem letzten Suchlauf oder Stapel; der rote Strich ist der berechnete Gipfel.</td></tr>
+<tr><td>Protokoll</td><td>Jede Meldung des Programms mit Uhrzeit; dieselben Zeilen stehen in <code>~/Desktop/messung/autofokus4_&lt;Datum&gt;.log</code>, alle Messpunkte in der <code>.csv</code> daneben.</td></tr></table>
+<h2>Der Ablauf „Autofokus"</h2>
+<ol>
+<li><b>Suchlauf.</b> Der Servo fährt auf 0°, dann gleichmäßig mit 8°/s bis 180°. Alle 0,3° wird die Schärfe notiert. Das Maximum dieser Kurve nennt die Gegend des Gipfels; wegen des Nachlaufs von Servo und Kamera liegt der wahre Gipfel einige Grad darunter. Ist das Maximum kleiner als das Dreifache des Medians (Fuß), gibt es keinen Gipfel und der Lauf endet mit Meldung.</li>
+<li><b>Stapel.</b> Der Servo fährt 12° unter die Gegend und steigt in Schritten von 0,3°. Jeder Schritt: Puls an, 150 ms Rütteln ±0,6°, Ziel setzen, 250 ms Ruhe, Schärfe als Mittel aus zwei Bildern. Sobald die Schärfe nach dem Maximum unter 40 % gefallen ist, endet der Stapel. Durch die sieben Punkte um das Maximum wird eine Parabel gelegt; ihr Scheitel ist der Gipfelwinkel, ihre Höhe die Bezugsgröße 100 %.</li>
+<li><b>Anfahrt.</b> Der Servo fährt 5° unter den Gipfel und steigt von dort, zuerst in 0,3°-, nahe dem Ziel in 0,2°-Schritten. Er hält an, sobald die gemessene Schärfe mindestens 92 % der Parabelhöhe erreicht. Fällt die Schärfe stattdessen nach dem Überschreiten von 60 % wieder unter 70 % des bisher Besten, ist der Gipfel überfahren; dann ein zweiter Versuch.</li>
+<li><b>Ergebnis.</b> Die Haltung wird eingestellt (stromlos oder Puls an), nach 0,4 s wird die Schärfe aus sechs Bildern gemittelt und als Anteil der Parabelhöhe gemeldet. Ab 85 % heißt es BESTANDEN, sonst NICHT ERREICHT mit der ehrlichen Zahl.</li></ol>
+<h2>Warum so und nicht einfacher</h2>
+<p>Alle Regeln stammen aus Messungen am Gerät am 18.10.2026 (Reiter Messungen): Software-PWM zittert, darum Hardware-PWM. Das Getriebe hat 4,6° Spiel, darum immer von unten. Kleine Schritte aus dem Stand bleiben hängen, darum das Rütteln. Der Servo läuft dem Befehl nach, darum 250 ms Ruhe vor jeder Messung und die Trennung von Suchlauf und Stapel. Der befohlene Winkel ist nie die Ist-Lage, darum entscheidet am Ende nur die gemessene Schärfe.</p>
+
+<h2>Der zweite Teil: die Zucht beobachten</h2>
+<p>Seit Anfang November hängt an derselben Kamera eine zweite Aufgabe. Der Pi beobachtet eine Salzkrebszucht,
+und ein Jetson Orin Nano daneben erkennt die Tiere mit einem angelernten Netz. Die Arbeit ist geteilt, und
+zwar so, dass der Pi nie auf den Jetson wartet.</p>
+<table>
+<tr><th>Gerät</th><th>Aufgabe</th><th>läuft als</th></tr>
+<tr><td>Raspberry Pi 5</td><td>Bild aufnehmen, scharf stellen, Bewegung erkennen, Aufnahmen schreiben, diese Seite ausliefern, Tiere verfolgen</td><td><code>autofokus4.py</code> (Port 8090), <code>auswertung_1.4.py</code> (Port 8092), <code>wache_pi</code> (Port 8091)</td></tr>
+<tr><td>Jetson Orin Nano</td><td>Aufnahmen abholen, Farbwahrheit rechnen, Statistik, Lernseite ausliefern, YOLO anlernen und live rechnen</td><td><code>mikroskop-jetson</code> (Port 8095), <code>mikroskop-yolo</code> (Port 8096), <code>mikroskop-training</code> (einmalig)</td></tr>
+</table>
+<p>Fällt der Jetson aus, bleiben in dieser Seite nur die Lampen grau. Aufnahme, Schärfe, Verfolgung und der
+Reiter „Bedienen" laufen weiter. Das ist Absicht und wird bei jeder Prüfung nachgewiesen.</p>
+
+<h3>Wie YOLO sehen lernt</h3>
+<p>YOLO ist ein Erkennungsnetz, das in einem Bild Rahmen um Objekte legt und jedem Rahmen eine Klasse und
+eine Sicherheit gibt. Es weiß nichts von Salzkrebsen, bis man es ihm zeigt. Das geschieht in Runden:</p>
+<ol>
+<li><b>Lernbilder ziehen.</b> Aus den Aufnahmen holt der Jetson die Bilder mit den meisten Tieren und legt
+Vorschlagsrahmen hinein, aus der Farbwahrheit und aus der Verfolgung. Das sind Vorschläge, keine Wahrheit.</li>
+<li><b>Bewerten.</b> Im Reiter „Lernen" wird jedes Bild durchgesehen: falsche Rahmen anklicken und löschen,
+fehlende mit der Maus ziehen, die Klasse mit der rechten Maustaste wechseln (Tier, Korn, Maßstab). Dieser
+Schritt ist der einzige, den keine Maschine übernehmen kann, und er bestimmt alles Weitere.</li>
+<li><b>Fertig drücken.</b> Der Jetson baut daraus einen Datensatz (85 Teile zum Lernen, 15 zum Prüfen),
+hält den Livedienst an, trainiert etwa vier Minuten auf der Grafikeinheit und startet den Livedienst mit dem
+neuen Modell. Die Seite sagt während dieser Zeit, woran sie ist.</li>
+<li><b>Nachsehen.</b> Im Reiter „Statistik" steht die Lernkurve: die Güte mAP50 je Epoche, ein Zug je
+Trainingslauf, mit der Zahl der bewerteten Bilder darunter. Daran ist zu sehen, ob eine Runde etwas gebracht hat.</li>
+</ol>
+<p>mAP50 ist das übliche Maß für solche Netze: der Anteil richtig gefundener Objekte, gemittelt über die
+Klassen, wobei ein Rahmen als richtig gilt, wenn er sich zu mindestens der Hälfte mit dem von Hand gezogenen
+deckt. 1,0 wäre fehlerfrei.</p>
+
+<h3>Was die Zahlen im Reiter „Statistik" bedeuten</h3>
+<table>
+<tr><th>Feld</th><th>Bedeutung</th></tr>
+<tr><td>Tiere im Bild (Mittel 5 s)</td><td>wie viele Tiere YOLO gerade sieht, geglättet über fünf Sekunden</td></tr>
+<tr><td>bewegt / ruhend</td><td>Trennung bei 0,2 mm/s. Ruhende Tiere sind der schwierige Teil, sie fehlen der Bewegungserkennung</td></tr>
+<tr><td>Größe, Median mm</td><td>längste Rahmenseite mal Maßstab. Das Längenmaß ist Rumpf plus Schwanz</td></tr>
+<tr><td>Tempo, Median mm/s</td><td>aus dem Weg des Rahmenmittelpunkts zwischen zwei Bildern</td></tr>
+<tr><td>Bilder/s durch YOLO</td><td>Durchsatz des Livedienstes. Liegt er deutlich unter der Bildrate der Kamera, kommt der Jetson nicht nach</td></tr>
+<tr><td>Tiere je Stunde</td><td>Zähler des Livedienstes über 72 Stunden: höchstens gleichzeitig, Mittel je Bild, Zahl der Bilder</td></tr>
+</table>
+<p>Das Livebild daneben zeigt denselben Strom, den YOLO gerade rechnet, mit den eingezeichneten Erkennungen.
+Es ist keine Aufzeichnung und kein Standbild: was dort steht, hat das Netz in dieser Sekunde gefunden.</p>
+
+<h3>Was man im Betrieb tut</h3>
+<p>Im Alltag genügt ein Blick auf die Bereit-Zeile im Reiter „Lernen" und auf die Lampen im Reiter
+„Statistik". Arbeit entsteht nur an zwei Stellen: Lernbilder bewerten, solange die Güte noch steigt, und
+eingreifen, wenn eine Lampe grau bleibt. Alles andere räumt sich selbst auf, auch die Videos auf dem Jetson.</p>
+</div></section>
+
+<section id="manuskript"><div class="text">
+<h2>1 · Das Schärfemaß</h2>
+<p>Ein scharfes Bild hat steile Kanten, ein unscharfes flache. Das Maß dafür ist die Energie des Bildgradienten. Im Messfenster (ROI) wird das Graubild <i>I</i>(x,y) mit den Sobel-Kernen gefaltet:</p>
+<div class="f">G<sub>x</sub> = I ∗ [[−1 0 1],[−2 0 2],[−1 0 1]] , &nbsp; G<sub>y</sub> = I ∗ [[−1 −2 −1],[0 0 0],[1 2 1]]</div>
+<p>und das Tenengrad-Maß ist der Mittelwert der quadrierten Gradientenlänge:</p>
+<div class="f">S = (1/N) · Σ<sub>ROI</sub> ( G<sub>x</sub>² + G<sub>y</sub>² )</div>
+<p>Es wird nicht normiert und nicht begrenzt. Das frühere Programm teilte durch 15 000 und schnitt bei 1,0 ab; dadurch wurde der Gipfel zu einem Plateau von mehr als 10° Breite, in dem der Regler das Maximum nicht sehen konnte. Pertuz, Puig und García (Pattern Recognition 46, 2013) vergleichen 36 Schärfeoperatoren; Tenengrad gehört zu den dreien mit dem besten Verhältnis von Empfindlichkeit zu Rauschfestigkeit. Gemessen am Gerät: Streuung von Bild zu Bild ohne Bewegung 0,7 bis 2,6 % des Mittelwerts, Fuß (weit außerhalb des Fokus) etwa 200, Gipfel etwa 9 000, also ein Verhältnis von 45 : 1.</p>
+<h3>Beleuchtung und Schärfemaß</h3>
+<p>Das USB-Mikroskop beleuchtet die Probe selbst: LEDs um das Objektiv werfen Auflicht von oben, die Helligkeit wird am Rädchen des Kabels eingestellt, darunter liegt ein weißes Blatt als Hintergrund. Für das Schärfemaß heißt das zweierlei. Erstens hängt die Gradientenenergie quadratisch vom Kontrast ab: Wird die Beleuchtung geändert, ändern sich alle Schärfewerte um denselben Faktor, der Gipfel bleibt am selben Winkel. Darum werden im Programm nur Verhältnisse verwendet (Anteil an der Parabelhöhe, Abfall unter 40 % des Maximums), nie absolute Schwellen — mit einer Ausnahme, dem Mindestwert 1 000 für „es gibt einen Gipfel", der bei dieser Beleuchtung weit unter dem Gipfel (etwa 9 000) und weit über dem Fuß (etwa 200) liegt. Zweitens darf die Beleuchtung während eines Laufs nicht verändert werden, sonst vergleicht der Stapel Werte verschiedener Helligkeit; die Kameraregler (Helligkeit, Kontrast, Gamma) bleiben deshalb auf ihrer Vorgabe, und die automatische Belichtung der Kamera bekommt nach jedem Schritt die 250 ms Ruhe, in denen sie sich einschwingt. Spiegelungen der LEDs auf einem nassen Präparat erzeugen harte Kanten und können das Maß verfälschen; die Mitte-ROI von 33 % hält den Rand des Bildfelds, wo die Reflexe meist liegen, aus der Messung heraus.</p>
+<h2>2 · Die Form des Gipfels und die Parabel</h2>
+<p>Die Schärfe über dem Servowinkel <i>a</i> hat bei dieser Probe einen einzigen Gipfel mit Halbwertsbreite 1,4 bis 3° und einem Fuß von 16 bis 20° (ab 5 % der Höhe). Nahe dem Scheitel ist jede glatte Kurve durch ihre Taylor-Entwicklung zweiter Ordnung beschrieben, also eine Parabel:</p>
+<div class="f">S(a) ≈ p<sub>0</sub> a² + p<sub>1</sub> a + p<sub>2</sub> , &nbsp; a* = −p<sub>1</sub> / (2 p<sub>0</sub>) , &nbsp; S* = S(a*)</div>
+<p>Die Koeffizienten kommen aus der Methode der kleinsten Quadrate über die sieben Stapelpunkte um das gemessene Maximum (drei links, drei rechts). Gültig ist die Anpassung nur für p<sub>0</sub> &lt; 0 (nach unten offen); sonst bleibt das gemessene Maximum der Gipfel. Der Scheitel liegt zwischen den Rasterpunkten und ist genauer als der Rasterabstand 0,3°; die Höhe S* ist die Bezugsgröße, auf die das Ergebnis in Prozent bezogen wird. Deshalb kann ein Ergebnis knapp über 100 % liegen, wenn die Anfahrt zufällig näher an der wahren Spitze hält als die Parabel schätzt.</p>
+<h2>3 · Der Servo und seine Ansteuerung</h2>
+<p>Ein Modellbauservo stellt den Winkel nach der Breite eines Impulses, der alle 20 ms (50 Hz) wiederholt wird. Für diesen Servo gilt die lineare Zuordnung</p>
+<div class="f">t<sub>Puls</sub>(a) = 0,40 ms + (a / 180°) · 2,00 ms , &nbsp; a ∈ [0°, 180°]</div>
+<p>also 11,1 µs je Grad. Die Impulse erzeugt die Hardware-PWM des RP1-Bausteins (GPIO 18 = PWM0-Kanal 2, Freigabe über <code>dtoverlay=pwm-2chan</code>); Periode und Tastdauer werden in Nanosekunden geschrieben, die Auflösung ist damit weit feiner als der Totbereich des Servos. Software-PWM aus dem Benutzerraum (RPi.GPIO über lgpio) hat Impulsbreitenschwankungen im Bereich einiger Mikrosekunden, die der Servo als Sollwertänderungen von Bruchteilen eines Grads deutet und dauernd nachregelt: gemessen ±47 bis 63 % Schärfeschwankung im Stand gegenüber ±0,7 bis 0,9 % mit Hardware-PWM. Mit der Untersetzung 1 : 2 wird aus 11,1 µs je Servograd 22,2 µs je Grad am Rändelrad.</p>
+<h2>4 · Spiel, Hysterese und die Regel „immer von unten"</h2>
+<p>Zwischen Servoabtrieb, Zahnradpaar und Rändelrad liegt Spiel. Modell: die Ist-Lage <i>a</i><sub>ist</sub> folgt dem Befehl <i>a</i> um einen richtungsabhängigen Betrag <i>b</i> versetzt,</p>
+<div class="f">a<sub>ist</sub> = a − b<sub>↑</sub> beim Aufwärtsfahren , &nbsp; a<sub>ist</sub> = a + b<sub>↓</sub> beim Abwärtsfahren , &nbsp; b<sub>↑</sub> + b<sub>↓</sub> ≈ 4,6°</div>
+<p>Gemessen als Abstand der Gipfel im langsamen Hin- und Rücklauf: 4,6° (Hardware-PWM, 0,2° je 150 ms). Rütteln während der Fahrt verringert den Wert nur auf 3,2°; es ist mechanisches Spiel. Wird jedes Ziel ausschließlich aufwärts angefahren, ist <i>b</i> konstant und fällt aus allen Differenzen heraus: Gipfelwinkel und Anfahrt sind dann im selben Koordinatensystem. Das ist die Regel von Knapper et al. (Journal of Microscopy 2022) für das OpenFlexure-Mikroskop, dort mit 137 Schritten Spiel am Schrittmotor. Darum beginnt jede Anfahrt 5° unterhalb des Ziels, und auch der Handschritt „−0,3°" fährt 5° hinunter und kommt von unten.</p>
+<h2>5 · Haftreibung und das Rütteln</h2>
+<p>Ein kleiner Schritt aus dem Stand muss die Haftreibung überwinden, die größer ist als die Gleitreibung (Stick-Slip). Gemessen mit Hardware-PWM: ein Schritt von 0,2° bewegt das Bild in 1 von 6 Fällen, 0,3° in 3 von 6, erst 0,5° in 6 von 6. Wird der Sollwert während 150 ms alle 25 ms zwischen <i>a</i> + 0,6° und <i>a</i> − 0,6° gewechselt und dann auf <i>a</i> gesetzt, bricht der Servo los und folgt: 0,2° in 6 von 6, 0,1° in 5 von 6 Fällen. Die Rüttelamplitude bleibt unter dem Spiel, darum ändert sie die Richtung der Vorspannung nicht. Eine Ausnahme ist gemessen: Rütteln am Gipfel, nachdem das Getriebe von unten gespannt wurde, ließ es in einem Schritt um sein Spiel zurückschnappen (Schärfe 8 813 → 193). Seitdem rüttelt kein Schritt mehr an der Stelle, jeder Handschritt nimmt den Umweg von unten.</p>
+<h2>6 · Nachlauf und Messzeitpunkt</h2>
+<p>Servo und Kamera folgen dem Befehl verzögert. Im schnellen Lauf (6°/s, 0,25° je 40 ms) erschien der Gipfel hin bei 140,75° und zurück bei 136,0°; im langsamen Lauf mit Software-PWM an derselben Stelle. Der Unterschied von 4,75° war Nachlauf, kein Spiel: Der Befehl war dem Servo voraus, die Kamera dem Bild um ein bis zwei Bilder hinterher. Daraus folgt: nach jedem Schritt 250 ms Ruhe, dann zwei Bilder verwerfen, dann messen; und der schnelle Suchlauf liefert nur die Gegend, nie den Gipfel. Die Umkehrprobe bestätigte es: nach 0,2°-Schritten im 120-ms-Takt stand der Servo 1,4° hinter dem Befehl.</p>
+<h2>7 · Der Regler als Ganzes</h2>
+<p>Die Aufgabe ist, das Maximum einer unbekannten, eingipfligen Funktion S(a) mit einem Stellglied zu finden, dessen Ist-Lage nicht messbar ist. Der Suchlauf tastet S grob über den ganzen Bereich ab (Kosten: 25 s, Gewinn: keine Annahme über die Lage). Der Stapel misst S im Fuß des Gipfels auf dem 0,3°-Raster und liefert über die Parabel Scheitel und Höhe. Die Anfahrt schließt den Kreis über die Messgröße selbst: Sie endet nicht am berechneten Winkel, sondern dort, wo S ≥ 0,92 · S* gemessen wird. Damit ist das Ergebnis gegen Spiel, Nachlauf und Streuung der Ist-Lage unempfindlich, denn alle drei wirken nur auf den Winkel, nicht auf die Schärfe. Zahlen vom 18.10.2026: sechs Läufe hintereinander, Ergebnis 93 bis 105 % der Parabelhöhe, Gipfelwinkel 139,6 bis 140,1°, Dauer 70 s. Nachfokus 30 s.</p>
+<h2>8 · Halten im Stand</h2>
+<p>Nach dem Fokus bleibt eine Rückstellkraft auf dem Getriebe. Mit Puls hält der Servo dagegen und regelt hörbar nach (Knurren), die Stellung bleibt: 60 s ohne Sprung, 12 von 12 Handschritten getroffen. Stromlos hält nur die Reibung: 20 s Streuung 0,7 %, aber gelegentlich rutscht das Getriebe um sein Spiel ab, und der nächste Handschritt geht von einer falschen Stellung aus (1 von 10). Beide Haltungen sind auf der Seite wählbar; der Autofokus fährt immer mit Puls und schaltet erst am Ende um.</p>
+<h2>Quellen</h2>
+<ul><li>J. Knapper et al., Fast, high-precision autofocus on a motorised microscope: automating blood sample imaging on the OpenFlexure Microscope, Journal of Microscopy 285 (2022); arXiv 2109.06842.</li>
+<li>S. Pertuz, D. Puig, M. A. García, Analysis of focus measure operators for shape-from-focus, Pattern Recognition 46 (2013) 1415–1432.</li>
+<li>Raspberry Pi Foundation, RP1 PWM und <code>pwm-2chan</code>-Overlay; Raspberry-Pi-Forum zu Servo-Jitter mit Software-PWM.</li></ul>
+
+<hr>
+<div class="teilb">
+<h1
+id="teil-b-die-zucht-beobachten-bildwächter-auf-dem-pi-lernen-und-erkennen-auf-dem-jetson">Teil
+B · Die Zucht beobachten: Bildwächter auf dem Pi, Lernen und Erkennen
+auf dem Jetson</h2>
+<p><em>Fassung 1.0 vom 06.11.2026 · Prof. Dr.-Ing. Ralph Wystup M.Sc.
+und Claude (Anthropic, Claude Code) — gemeinsam erstellt. Teil A
+(Kapitel 1–8) beschreibt den motorischen Autofokus; Teil B setzt darauf
+auf.</em></p>
+<h2 id="die-aufgabe-eine-salzkrebszucht-überwachen">9 · Die Aufgabe:
+eine Salzkrebszucht überwachen</h2>
+<p>Salzkrebse (<em>Artemia</em>) sind das Lebendfutter der Aquakultur.
+Wer sie zieht, will wissen, wie viele Tiere im Wasser sind, ob sie sich
+bewegen, wie groß sie werden und wie schnell. Unter dem USB-Mikroskop
+mit dem Autofokus aus Teil A liegt die Probe in einer flachen Schale;
+die Kamera liefert 640 × 480 Bildpunkte mit 30 Bildern je Sekunde, ein
+Bildpunkt entspricht etwa 10,5 µm in der Schärfeebene (Maßstab aus Teil
+A, gültig nur im Fokus).</p>
+<p>Daraus folgen vier Messgrößen: <strong>Tiere je Bild</strong> (daraus
+die Dichte), <strong>bewegt oder ruhend</strong>,
+<strong>Körperlänge</strong> und <strong>Tempo</strong>. Und zwei
+Vorgaben, die den Aufbau bestimmen:</p>
+<ol type="1">
+<li><strong>Der Pi läuft allein.</strong> Bild, Schärfe, Anzeige,
+Aufzeichnung und die einfache Verfolgung der Tiere laufen auf dem
+Raspberry Pi 5 und müssen weiterlaufen, wenn alles andere ausfällt — der
+zweite Rechner, das Netz zum Arbeitsbereich, die KI-Sitzung.</li>
+<li><strong>Der Jetson lernt und erkennt.</strong> Ein Jetson Orin Nano
+(8 GB, 1024 CUDA-Kerne) liest den Livestrom des Pi mit, sammelt die
+Aufnahmen, lässt sich Lernbilder vom Menschen bewerten, lernt daraus ein
+YOLO-Modell und liefert die Statistik an die Seite des Pi zurück. Fällt
+er aus, fehlt nur die Statistik.</li>
+</ol>
+<p>Der Rest dieses Teils folgt dem Weg eines Bildes: vom Pi (Kapitel 10)
+über die Datenstrecke (11) zu den Lernbildern (12), dem Training und dem
+Livedienst auf dem Jetson (13), zurück auf die Seite (14), geprüft als
+Ganzes (15), vermessen (16) und eingeordnet (17).</p>
+<h2 id="der-bildwächter-auf-dem-pi">10 · Der Bildwächter auf dem Pi</h2>
+<p>Der Bildwächter (Auswertung 1.4) läuft als Dienst neben dem Autofokus
+und liest denselben Kamerastrom. Er arbeitet mit Regeln, nicht mit
+gelernten Netzen — das macht ihn auf dem Pi schnell (27–28 Bilder je
+Sekunde) und ohne Fremdhilfe lauffähig.</p>
+<p><strong>Bewegung.</strong> Ein Hintergrundmodell aus Gaußmischungen
+(MOG2 in OpenCV) hält für jeden Bildpunkt eine Verteilung der zuletzt
+gesehenen Grauwerte. Was von der Verteilung abweicht, ist Vordergrund.
+Eine morphologische Öffnung tilgt Einzelpunkte, ein Flächenfenster lässt
+nur Flecken in der Größe eines Tieres durch (Körperlänge 0,4–1,5 mm,
+also 40–150 Bildpunkte).</p>
+<p><strong>Aussehen.</strong> Ein Fleck gilt als Tier, wenn seine Form
+länglich ist (Verhältnis der Hauptachsen) und seine Farbe im Braun der
+Artemia liegt (Farbraum HSV, Sättigung und Farbton in einem Fenster).
+Körner sind grau und rund, Luftblasen hell.</p>
+<p><strong>Verfolgung.</strong> Flecken aufeinanderfolgender Bilder
+werden nach Nähe zu Bahnen verbunden. Jede Bahn trägt Länge, Tempo
+(Verschiebung je Zeit, in mm/s über den Maßstab) und Alter. Die Marken
+im Livebild („Punkte”) stammen aus diesen Bahnen.</p>
+<p><strong>Aufzeichnung.</strong> Sobald Bewegung vorliegt, schreibt der
+Pi einen Satz: ein kurzes Video (MJPEG, 640 × 480) und eine Zeilendatei
+mit allen Flecken und Bahnen je Bild. Ein Satz dauert einige Sekunden;
+am 06.11.2026 entstanden rund 2 200 Sätze. Die Seite zeigt die Punkte im
+Livebild, den Zustand des Wächters und die Aufzeichnungen (Teil A,
+Reiter „Bedienen”).</p>
+<p><strong>Wo die Regeln an ihre Grenze kommen.</strong> Ruhende Tiere
+sind für ein Bewegungsmodell unsichtbar; der Befund zu Problem 4
+(Kapitel 16) zeigt, dass drei Viertel der verpassten Tiere schon am
+Vordergrund scheitern, nicht an Form oder Farbe. Ein Versuch, ruhende
+Tiere über eine Nachsuche im Aussehen mitzunehmen (Fassungen 1.5–1.8),
+erzeugte Marken ohne Tier an grauen Körnern und wurde nach dem
+Augenschein zurückgenommen. Die Regelmaschine bleibt bei 1.4; das Lernen
+übernimmt der Jetson.</p>
+<h2 id="die-datenstrecke-zwischen-pi-und-jetson">11 · Die Datenstrecke
+zwischen Pi und Jetson</h2>
+<p>Beide Rechner stehen im selben Heimnetz, der Pi im WLAN (2,4 GHz,
+Bandwechsel abgeschaltet, Teil A), der Jetson am Kabel. Gemessen am
+06.11.2026: Ping 1 ms, Kopieren Jetson → Pi 37 Mbit/s, Livestrom 30
+Bilder je Sekunde bei 11 Mbit/s.</p>
+<p>Der Jetson-Dienst (Fassung 1.10, ein Python-Programm unter systemd)
+tut im Minutentakt vier Dinge:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Schritt</th>
+<th style="text-align: left;">Was geschieht</th>
+<th style="text-align: left;">Warum so</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Sätze holen</td>
+<td style="text-align: left;"><code>rsync</code> über SSH-Schlüssel vom
+Pi, nur neue Sätze</td>
+<td style="text-align: left;">der Pi schiebt nichts, er wartet auf
+niemanden</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Farbwahrheit</td>
+<td style="text-align: left;">je Satz eine zweite, langsamere Erkennung
+nur nach Farbe und Form (Medianbild als Hintergrund)</td>
+<td style="text-align: left;">unabhängiger zweiter Weg zu den Tieren,
+liefert Vorschlagsrahmen</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Statistik</td>
+<td style="text-align: left;">alle 5 min über alle Sätze: Bahnen, Länge
+(Median), Tempo (Median), Tiere je Bild</td>
+<td style="text-align: left;">Zahlen für die Seite, ohne den Pi zu
+belasten</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Aufräumen</td>
+<td style="text-align: left;">Videos älter als 3 h löschen, unter 10 GB
+frei schon nach 1 h; jeder 10. Satz und eine Haltelist bleiben als
+Lernarchiv (bis 6 GB)</td>
+<td style="text-align: left;">Platte voll heißt Dienst tot; Lernbilder
+brauchen ihre Videos</td>
+</tr>
+</tbody>
+</table>
+<p>Dazu liest der Dienst den Livestrom des Pi dauernd mit (MJPEG,
+Wiederverbindung 2–30 s), hält das letzte Bild bereit, nimmt Aufträge
+entgegen (Skripte, die der Pi in einen Ordner legt) und gibt Dateien
+stückweise über HTTP heraus (Base64, 45 000 Zeichen je Stück, SHA-256 am
+Ende). Dieser Auftrags- und Dateiweg braucht kein Kennwort — das war die
+Lehre eines Vormittags, an dem der Sicherheitsfilter der KI-Sitzung auf
+ein mehrfach ausgelesenes Kennwort ansprang und die Sitzung sperrte.</p>
+<h2 id="lernbilder-und-die-lernseite">12 · Lernbilder und die
+Lernseite</h2>
+<p>Ein Modell lernt aus Bildern mit Rahmen. Die Rahmen zeichnet nicht
+der Mensch von Null an, sondern die Maschine schlägt sie vor und der
+Mensch korrigiert:</p>
+<ol type="1">
+<li><strong>Auswahl der Bilder.</strong> Je Satz die drei tierreichsten
+Bilder, mindestens 25 Bilder auseinander, Lernarchiv zuerst; insgesamt
+301.</li>
+<li><strong>Vorschlagsrahmen.</strong> Vereinigung aus Farbwahrheit und
+Verfolgung des Pi (Rahmen, die sich zu mehr als 50 % überdecken, werden
+verschmolzen), jeder Rahmen um 6 Bildpunkte vergrößert.</li>
+<li><strong>Vorsortierung.</strong> Die 50 aussagekräftigsten Bilder
+(viele Rahmen, hohe Schärfe nach dem Laplace-Maß, höchstens zwei je
+Satz) kommen zuerst, der Rest ist „zurückgestellt” und bleibt für
+spätere Runden.</li>
+<li><strong>Die Lernseite</strong> läuft auf dem Jetson und ist mit der
+Maus bedienbar: Linksklick löscht einen Rahmen, Ziehen zeichnet einen
+neuen in der gewählten Klasse, Rechtsklick wechselt die Klasse (Tier,
+Korn, Maßstab), grün speichert und blättert, rot verwirft das Bild. Jede
+Bewertung wird sofort als Datei abgelegt, man kann jederzeit aufhören.
+Der Knopf <strong>„Fertig”</strong> meldet dem Dienst das Ende einer
+Runde; er baut den Datensatz und startet das Training (Kapitel 13).</li>
+</ol>
+<p>Die erste Runde am 06.11.2026: 52 Bilder geprüft mit 209 Tier-, 14
+Korn- und 12 Maßstabsrahmen, 6 Bilder verworfen, 243 zurückgestellt.
+Eine Lehre aus der ersten Fassung der Seite: ein Knopf „weiter”, der
+nicht speichert, kostet eine halbe Stunde Arbeit — seit Fassung 1.3
+speichert jeder grüne Knopf.</p>
+<figure>
+<img src="bilder/lernbild_1.jpg" style="max-width:100%;height:auto" onerror="this.parentElement.style.display='none'"
+alt="Lernbild mit den vom Verfasser bewerteten Rahmen (Tiere grün; Körner orange und Maßstab blau, hier nicht im Bild)" />
+<figcaption aria-hidden="true">Lernbild mit den vom Verfasser bewerteten
+Rahmen (Tiere grün; Körner orange und Maßstab blau, hier nicht im
+Bild)</figcaption>
+</figure>
+<figure>
+<img src="bilder/lernseite.png" style="max-width:100%;height:auto" onerror="this.parentElement.style.display='none'"
+alt="Die Lernseite auf dem Jetson mit echten Daten: Bild 55 des Satzes von 11:15 Uhr, Stand 52 geprüft, Filter „geprüfte”" />
+<figcaption aria-hidden="true">Die Lernseite auf dem Jetson mit echten
+Daten: Bild 55 des Satzes von 11:15 Uhr, Stand 52 geprüft, Filter
+„geprüfte”</figcaption>
+</figure>
+<h2 id="yolo-auf-dem-jetson-datensatz-training-livedienst">13 · YOLO auf
+dem Jetson: Datensatz, Training, Livedienst</h2>
+<p><strong>Datensatz.</strong> Nur geprüfte Bilder (und offene mit
+Vorschlagsrahmen, wenn man es will), nie verworfene oder
+zurückgestellte. Die Rahmen gehen in das YOLO-Format (Klasse, Mitte,
+Breite, Höhe, normiert), die Aufteilung in Lern- und Prüfbilder folgt
+dem MD5-Hash des Bildnamens (85 : 15), damit sie bei jeder Runde gleich
+bleibt.</p>
+<p><strong>Modell.</strong> YOLOv8n (3,2 Mio. Parameter) aus
+<code>ultralytics</code>, Eingabe 640 Bildpunkte, Stapel 8, 40 Epochen
+mit frühem Halt (15 Epochen ohne Gewinn). Ein Lauf mit 52 Bildern dauert
+auf dem Jetson 3,5 min. Die Güte wird als mAP@0,5 auf den Prüfbildern
+angegeben — der Mittelwert der Präzision über die Trefferquote, wobei
+ein Rahmen als Treffer gilt, wenn er den wahren Rahmen zu mindestens 50
+% überdeckt (IoU, Schnitt durch Vereinigung):</p>
+<blockquote>
+<p>IoU = |A ∩ B| / |A ∪ B|</p>
+</blockquote>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Lauf</th>
+<th style="text-align: right;">Bilder (Lern/Prüf)</th>
+<th style="text-align: right;">Rahmen</th>
+<th style="text-align: right;">mAP@0,5</th>
+<th style="text-align: right;">mAP@0,5:0,95</th>
+<th style="text-align: right;">Dauer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Vorschlagsrahmen ohne Mensch</td>
+<td style="text-align: right;">257 / 44</td>
+<td style="text-align: right;">633</td>
+<td style="text-align: right;">0,65</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">12 min</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">52 bewertete Bilder (Mensch)</td>
+<td style="text-align: right;">43 / 9</td>
+<td style="text-align: right;">235</td>
+<td style="text-align: right;">0,53</td>
+<td style="text-align: right;">0,22</td>
+<td style="text-align: right;">3,5 min</td>
+</tr>
+</tbody>
+</table>
+<p>Das zweite Modell ist das ehrlichere: seine Prüfbilder tragen
+menschliche Rahmen, nicht die Vorschläge derselben Maschine. Dass die
+Zahl mit nur neun Prüfbildern grob ist, liegt auf der Hand; die 243
+zurückgestellten Bilder sind die nächste Runde.</p>
+<p><strong>Speicher — die Lehren des Tages.</strong> Der Jetson hat 7,4
+GB, die sich CPU und GPU teilen (vereinheitlichter Speicher,
+<code>nvmap</code>). Vier Dinge mussten gelernt werden, jedes an einem
+Abbruch:</p>
+<ol type="1">
+<li>CUDA braucht beim Start <strong>physisch freien</strong> Speicher.
+Der Seitencache des Dienstes (Videos per rsync, bis 5 GB je Stunde)
+zählt nicht als frei → vor jedem GPU-Start
+<code>sync; echo 3 &gt; drop_caches</code> über einen Helfer mit
+sudoers-Regel.</li>
+<li>Eine Speicherobergrenze (<code>MemoryHigh</code>) am Dienst drosselt
+auch seine Kinder → Training und Livedienst sind eigene
+systemd-Einheiten.</li>
+<li>Zwei GPU-Prozesse passen nicht nebeneinander → die Trainingseinheit
+hält den Livedienst an (<code>ExecStartPre=+systemctl stop</code>) und
+startet ihn danach (<code>ExecStopPost=+systemctl start</code>); die
+Seite zeigt solange „YOLO pausiert — Training läuft”.</li>
+<li>Der TensorRT-Export hing zweimal am Speicher → kein Export; PyTorch
+in halber Genauigkeit liefert 49,8 Bilder je Sekunde, mehr als der Strom
+bringt.</li>
+</ol>
+<p>Und eine fünfte, systemd-eigene: Mit <code>User=</code> laufen auch
+<code>ExecStartPre</code>-Schritte als dieser Benutzer. Der Cache-Helfer
+scheiterte still mit „Permission denied”, sichtbar nur im Journal —
+Root-Schritte tragen das Präfix <code>+</code>.</p>
+<p><strong>Livedienst.</strong> Der YOLO-Livedienst (Fassung 1.3) liest
+den Livestrom des Pi, lässt jedes Bild durch das Modell und verfolgt die
+Rahmen mit ByteTrack (Zuordnung über Bildfolgen, Spur-Nummern). Daraus
+je Bild: Tiere, bewegt oder ruhend (Spurgeschwindigkeit über 0,5 s gegen
+0,2 mm/s), Körpergröße als längste Rahmenseite mal Maßstab, Tempo als
+Median der Spuren, Körner. Ein Stundenzähler hält Höchstwert und Mittel
+je Stunde. Der Dienst gibt die Zahlen (<code>/stand</code>) und einen
+MJPEG-Strom der Bilder <strong>mit eingezeichneten Rahmen, Klasse und
+Sicherheit</strong> heraus — die Funktionsanzeige in Echtzeit. Gemessen:
+28,8 von 28,8 Bildern je Sekunde verarbeitet, Körpergröße 1,0–1,2 mm,
+Tempo 0,4 mm/s (16:07 und 16:14 Uhr). Ein neues <code>best.pt</code>
+wird im Lauf erkannt und nachgeladen.</p>
+<figure>
+<img src="bilder/bild_yolo_1.jpg" style="max-width:100%;height:auto" onerror="this.parentElement.style.display='none'"
+alt="YOLO bei der Arbeit (Satz vom 06.11.2026, 17:33 Uhr): blaue Rahmen mit Klasse und Sicherheit aus dem Modell der 52 bewerteten Bilder. Gelb und der grüne Rahmen stammen aus dem Bild des Pi: Schärfewert, Servowinkel und Messfenster des Autofokus (Teil A)." />
+<figcaption aria-hidden="true">YOLO bei der Arbeit (Satz vom 06.11.2026,
+17:33 Uhr): blaue Rahmen mit Klasse und Sicherheit aus dem Modell der 52
+bewerteten Bilder. Gelb und der grüne Rahmen stammen aus dem Bild des
+Pi: Schärfewert, Servowinkel und Messfenster des Autofokus (Teil
+A).</figcaption>
+</figure>
+<figure>
+<video controls muted loop playsinline width="640" src="video/clip_yolo_2026-11-06.mp4" onerror="this.parentElement.style.display=&#39;none&#39;">
+</video>
+<figcaption>
+Derselbe Satz als Film (5,9 s, 164 Bilder) durch den YOLO-Livedienst:
+Rahmen, Klasse und Sicherheit je Bild; der rohe Ausschnitt liegt daneben
+(video/clip_roh_2026-11-06.mp4). Auf dem Pi selbst fehlen die Filme, die
+Figur blendet sich dann aus.
+</figcaption>
+</figure>
+<h2 id="die-seite-statistik-lernen-und-der-rückfall-ohne-jetson">14 ·
+Die Seite: Statistik, Lernen und der Rückfall ohne Jetson</h2>
+<p>Die Seite des Pi (Teil A) bekam drei Dinge dazu, ohne dass der Reiter
+„Bedienen” sich änderte:</p>
+<ul>
+<li><strong>Jetson-Block</strong> im Reiter „Bedienen”: Verbindung,
+Auslastung (CPU, GPU, Speicher, Temperatur), letzter Abgleich,
+Livestrom, eine YOLO-Zeile. Eigener Abruf alle 2 s mit eigener
+Fehlerbehandlung; nach 6 s ohne Antwort fällt die Lampe, sonst ändert
+sich nichts.</li>
+<li><strong>Reiter „Statistik”</strong>: Lampe und Zustand des
+YOLO-Dienstes, das Livebild mit Rahmen (nur geladen, solange der Reiter
+offen ist), Kacheln für Tiere je Bild (Mittel über 5 s), bewegt/ruhend,
+Größe, Tempo, Bilder je Sekunde, Körner, dazu die Stundentafel und die
+Satzstatistik des Jetson-Dienstes. Läuft ein Training, steht dort „YOLO
+pausiert — Training läuft seit hh:mm:ss”.</li>
+<li><strong>Reiter „Lernen”</strong>: die Lernseite des Jetson in einem
+Rahmen, geladen erst beim Öffnen und nur, wenn der Jetson antwortet;
+sonst ein Satz, der sagt, woran es fehlt. Klicks und der Fertig-Knopf
+gehen direkt an den Jetson.</li>
+</ul>
+<p>Die Regel dahinter ist Kernforderung 42 des Verfassers: <strong>Der
+Pi wartet nie auf den Jetson.</strong> Jeder Abruf zum Jetson hat ein
+eigenes Zeitlimit, nichts anderes auf der Seite hängt daran. Die
+Browserprobe P8 (Kapitel 15) stellt den Jetson ab und prüft, dass
+Livebild, Fokus und Punkte weiterlaufen.</p>
+<figure>
+<img src="bilder/statistik_reiter.png" style="max-width:100%;height:auto" onerror="this.parentElement.style.display='none'"
+alt="Reiter „Statistik” mit dem Livebild der YOLO-Erkennung" />
+<figcaption aria-hidden="true">Reiter „Statistik” mit dem Livebild der
+YOLO-Erkennung</figcaption>
+</figure>
+<h2 id="das-zusammenspiel-prüfen">15 · Das Zusammenspiel prüfen</h2>
+<p>Fünf Teile arbeiten zusammen — Pi, Jetson, die Brücke auf dem PC des
+Verfassers, der Arbeitsbereich der KI und der Browser. Ein Prüfer
+(Fassung 1.5) fährt 17 Schritte ab und schreibt ein Protokoll; die
+Sollwerte stehen im Prüfer, nicht im Prüfling.</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Schritt</th>
+<th style="text-align: left;">Was belegt wird</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">P1–P2</td>
+<td style="text-align: left;">Brücke lebt (Puls), Brücke antwortet</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">P3–P5</td>
+<td style="text-align: left;">Pi erreichbar; Auswertung und Fokus
+laufen; Seite und Kiosk mit der erwarteten Fassung</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">P6–P7</td>
+<td style="text-align: left;">Jetson-Dienst antwortet; Sätze geholt und
+gerechnet</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">P8</td>
+<td style="text-align: left;"><strong>Rückfall ohne Jetson</strong> im
+echten Browser: Seite läuft, Lampe aus, Livebild da</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">P9–P10</td>
+<td style="text-align: left;">Dateikanal (Prüfsumme) und Auftragskanal
+(hier → Pi → Jetson → hier)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">P11</td>
+<td style="text-align: left;">Dienste auf Pi und Jetson sind
+eingeschaltet und starten von selbst neu</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">P12</td>
+<td style="text-align: left;">Zugang ohne Kennwort in Befehlen</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">P13–P14</td>
+<td style="text-align: left;">Geräte arbeiten ohne Zutun weiter; Jetson
+sieht den Livestrom</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">P15–P17</td>
+<td style="text-align: left;">Seite mit Jetson im Browser;
+YOLO-Livedienst verarbeitet den Strom; Lernseite mit Zählwerten</td>
+</tr>
+</tbody>
+</table>
+<p>Lauf vom 06.11.2026, 16:53 Uhr: 16 von 17 bestanden, P2 fiel an einem
+Aussetzer der Brücke (sie holt etwa 5 s nach einem Python-Auftrag für
+40–60 s keine Befehle ab, gemessen mit einer Reihe von neun Abfragen)
+und wurde durch Wiederholung belegt. Das Protokoll liegt bei. Die Tafel
+„Was ohne den Arbeitsbereich weiterläuft” darin ist die Antwort auf die
+Vorgabe, dass eine gesperrte KI-Sitzung die Geräte nicht berühren darf:
+alles läuft weiter, nur neue Fassungen und Aufträge ruhen.</p>
+<h2 id="was-gemessen-wurde-06.11.2026">16 · Was gemessen wurde
+(06.11.2026)</h2>
+<p><strong>Rechenleistung und Strecke.</strong></p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Größe</th>
+<th style="text-align: right;">Wert</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">YOLOv8n auf dem Jetson, PyTorch FP16, nach
+Leeren des Caches</td>
+<td style="text-align: right;">49,8 Bilder/s</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">YOLO-Livedienst am Strom des Pi
+(Verfolgung eingeschlossen)</td>
+<td style="text-align: right;">28,8 von 28,8 Bildern/s</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Livestrom Pi → Jetson</td>
+<td style="text-align: right;">30 Bilder/s, 11 Mbit/s</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kopieren Jetson → Pi (rsync, Pi im
+2,4-GHz-WLAN)</td>
+<td style="text-align: right;">37 Mbit/s</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Training 52 Bilder, 40 Epochen (früher
+Halt bei 39)</td>
+<td style="text-align: right;">215 s</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Training 301 Bilder mit
+Vorschlagsrahmen</td>
+<td style="text-align: right;">12 min</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Speicher auf dem Jetson.</strong> Mit FEM-Dienst und Desktop:
+317 MB frei, 2,7 GB ausgelagert; ohne beide (abgeschaltet am Abend):
+1,64 GB frei, 4,77 GB verfügbar, 0,29 GB ausgelagert. Das Training
+brauchte 5,8 von 7,4 GB.</p>
+<p><strong>Problem 4 — warum der Pi Tiere verpasst.</strong> Gegen die
+Farbwahrheit als zweiten Weg: von den verpassten Tieren scheiterten
+<strong>75 % am Vordergrund</strong> (MOG2), nicht an Form oder Farbe;
+die Farbwahrheit selbst kennt keine ruhenden Tiere (Medianbild). Ruhende
+Tiere zeigen im Stand eine Bilddifferenz von 12,5 Graustufen
+(Antennenschlag), Körner 3,9 — ein brauchbares Lebenszeichen, das aber
+in der Nachsuche (1.8) keinen Gewinn brachte, solange die Suche selbst
+an grauen Körnern hing.</p>
+<p><strong>YOLO am Strom.</strong> 16:07 Uhr: Körpergröße 1,01 mm, Tempo
+0,42 mm/s; 16:14 Uhr: 1,22 mm bei 26,3 Bildern/s; um 18:20 Uhr nur noch
+0–1 Tiere je Bild im Strom, während die Farbwahrheit in denselben Sätzen
+4 „Tiere” zählte — sie zählt Körner mit. Für die Bilder dieses
+Manuskripts wurde darum der Satz mit den meisten
+<strong>YOLO</strong>-Tieren gewählt, nicht der mit den meisten
+Farbtreffern.</p>
+<h2 id="einordnung">17 · Einordnung</h2>
+<ul>
+<li><strong>OASIS (openUC2) im Helmholtz-Projekt SOOP</strong>: offene
+Planktonkamera mit Dunkelfeld und Tiefenlernen auf einem Jetson —
+derselbe Rechner, derselbe Gedanke, nur ohne Autofokus und ohne die
+Zuchtaufgabe.</li>
+<li><strong>ARTiMiS (Gincley u. a., 2024)</strong>: Flusszelle mit
+Kamera und Netz, Zählung je Milliliter; die Dichte je Volumen fehlt uns
+noch (offene Frage in Kapitel 18).</li>
+<li><strong>SnappArt (INVE mit Aris)</strong>: Zählung von Nauplien in
+der Brüterei — der kommerzielle Maßstab für die Aufgabe.</li>
+<li><strong>Wang und De Baets (Gent, 2019)</strong>: Marker-CNN zählt
+Zysten und Nauplien auf Standbildern mit 99,6 % (ein UNet setzt Marken
+auf die Körpermitten, ein zweites Netz prüft jede Marke); Körperlänge
+entlang der Mittellinie mit 1,16 % Fehler aus 250 Lernbildern. Daraus
+für uns: eine Klasse „Zyste”, die Länge über das Skelett statt über die
+Rahmenseite, und die Zählgenauigkeit auf Standbildern gegen die
+geprüften Rahmen messen.</li>
+</ul>
+<h2 id="offen">18 · Offen</h2>
+<ol type="1">
+<li><strong>Mehr Lernbilder</strong>: 243 zurückgestellte Bilder
+bewerten, „Fertig” drücken — der Rest läuft von selbst.</li>
+<li><strong>Die Regeln des Pi aus YOLO kalibrieren</strong>: der Jetson
+vergleicht jede Marke des Pi mit seinen Rahmen und sucht die Schwellen,
+die Fehltreffer und Lücken zugleich klein halten (Problem 4). Der Pi
+bleibt allein lauffähig.</li>
+<li><strong>Dichte je Milliliter</strong>: Schalenvolumen und
+Schärfentiefe vermessen (Maßstab gilt nur im Fokus).</li>
+<li><strong>Lebend oder tot</strong>: ruhende Tiere über das
+Lebenszeichen (Bilddifferenz im Stand) von Körnern trennen.</li>
+<li><strong>Klasse Zyste, Länge über die Mittellinie,
+Dunkelfeldbeleuchtung</strong> (Kapitel 17).</li>
+<li><strong>Ohne Laptop steuern</strong>: ein Abholdienst auf dem Pi,
+der Aufträge wie die Brücke selbst holt — nur auf Wort des
+Verfassers.</li>
+</ol>
+<h2>19 · Was am 07.11.2026 gemessen wurde</h2>
+<p>Der 06.11. endete mit einem laufenden Modell und offenen Fragen. Am 07.11. wurden vier davon gemessen.
+Die Befunde stehen vollständig in den Blättern <code>BEFUND_PROBLEM1/6/7/9_2026-11-07.md</code>; hier die
+Ergebnisse und was sie für das Verfahren bedeuten.</p>
+
+<h3>19.1 Die Sicherheitsschwelle des Livedienstes ist zu hoch</h3>
+<p>Gemessen wurde YOLO gegen die von Hand geprüften Lernbilder, getrennt nach Lern- und Prüfteil und über
+drei Sicherheitsschwellen. Eine einzelne Schwelle hätte in die Irre geführt: sie trennt nicht, ob ein Modell
+nichts gelernt hat oder ob es unsicher ist.</p>
+<table>
+<tr><th>Schwelle</th><th>Trefferquote Prüfteil</th><th>Genauigkeit Prüfteil</th><th>Trefferquote Lernteil</th></tr>
+<tr><td>0,10</td><td>62,5 %</td><td>53,2 %</td><td>77,5 %</td></tr>
+<tr><td>0,25</td><td>37,5 %</td><td>71,4 %</td><td>32,5 %</td></tr>
+<tr><td>0,40 (Livedienst)</td><td>10,0 %</td><td>80,0 %</td><td>13,0 %</td></tr>
+</table>
+<p>Das Modell hat gelernt, ist aber unsicher. Mit der eingestellten Schwelle 0,40 meldet der Livedienst
+etwa jedes zehnte Tier. Das erklärt die niedrigen Livezahlen (0,04 bis 0,10 Tiere je Bild über 18 Stunden)
+und ist kein Fehler der Erkennung, sondern eine Einstellung. Die Klassen Korn (14 Beispiele) und Maßstab
+(12) hat das Netz gar nicht gelernt: null Funde bei jeder Schwelle. Gent erreicht mit 250 Lernbildern
+99,6 %; hier sind es 52.</p>
+
+<h3>19.2 Wo die Farbwahrheit blind ist</h3>
+<p>Von 209 Tier-Rahmen der geprüften Lernbilder hat der Bediener 43 selbst nachgetragen. Jedes fünfte Tier
+sieht also keine der beiden Maschinen. Die Farbregel findet 44,5 % seiner Rahmen bei 89,4 % Genauigkeit, von
+den nachgetragenen aber nur einen einzigen. Die naheliegende Erklärung — die Sättigungsschwelle sei zu hoch —
+wurde geprüft und verworfen: bei der heutigen Schwelle 40 haben bereits 69,8 % der nachgetragenen Tiere genug
+gesättigte Bildpunkte. Der Verlust entsteht später. Eine Stufenmessung an 161 Tierrahmen zeigt, wo:</p>
+<table>
+<tr><th>Stufe</th><th>es bleiben</th><th>Verlust hier</th></tr>
+<tr><td>0 · Rahmen des Beobachters</td><td>100,0 %</td><td>—</td></tr>
+<tr><td>1 · Sättigung S &gt; 40 oder dunkler Kopf</td><td>98,8 %</td><td>1,2 %</td></tr>
+<tr><td>2 · Ortsfest-Masken abgezogen</td><td>91,3 %</td><td>7,5 %</td></tr>
+<tr><td>3 · Öffnen, Schließen, Gruppieren</td><td>90,1 %</td><td>1,2 %</td></tr>
+<tr><td>4 · Flächenfenster 150…6000 px</td><td>82,0 %</td><td>8,1 %</td></tr>
+</table>
+<p>Nach Lage getrennt: über dem schwarzen Aufdruck findet die Regel 79,4 % der Tiere, frei davon 100 %. Der
+Verlust an der Ortsfest-Maske beträgt über dem Aufdruck 8,6 % und daneben null. Die Maske löscht die
+Aufdruckfläche samt 9 px Rand — und mit ihr die Tiere, die gerade darüber liegen. Der zweite, gleich große
+Verlust sitzt im Flächenfenster.</p>
+
+<h3>19.3 Dichte Tiere: die Sorge war unbegründet</h3>
+<p>In 191 214 Bildern aus 1077 Sätzen kamen zwei getrennt verfolgte Tiere in 0,006 % der Bilder einander
+näher als 50 px, in keinem näher als 30 px. Von sieben Begegnungen war keine lang genug, um über einen
+Nummerntausch zu entscheiden. Die ältere Annahme von 0,7 % war um zwei Größenordnungen zu hoch.</p>
+<p>Die andere Hälfte der Frage — verschmelzen zwei Tiere zu einem Rahmen? — kann der Verfolger selbst nicht
+beantworten; dafür wurde die Farbwahrheit herangezogen. In 1,09 % der Rahmen liegen zwei oder mehr
+Farbgebiete. Der Augenschein an zwölf vergrößerten Fällen zeigt jedoch: neun davon sind <em>ein</em> Tier,
+dessen dunkler Rumpf und blasser Schwanz von der Farbregel getrennt werden, weil der Gruppierungsabstand von
+15 px nicht reicht. Nur drei enthielten wirklich ein zweites Objekt. Die Rechnung allein hätte hier zu einer
+falschen Aussage geführt.</p>
+
+<h3>19.4 Lichtfarbe: stabil, aber falsch geeicht</h3>
+<p>Über 25 Stunden und 160 Sätze schwankt das Verhältnis Blau zu Rot des Hintergrunds um 1,6 %, seine
+Sättigung im 99,9. Hundertstel liegt zwischen 133 und 142. Eine Drift des Lichts gibt es nicht. Dafür ist in
+<em>keinem</em> der 160 Sätze die Schwelle 40 die beste; die beste liegt durchweg bei 20 bis 30. Die feste 40
+kostet im Median 25,8 Punkte Trennkraft. Geändert wurde nichts: die Schwelle ist der Bezugspunkt aller
+bisherigen Messungen.</p>
+
+<h3>19.5 Die Rechenlast des Pi liegt nicht beim Prozessor</h3>
+<p>Gemessen über ein Zeitfenster statt aus einer Momentanzeige trägt der Pi 2,12 von 4 Kernen, also 53 %.
+Das Lastmittel von 4,3 bis 5,1 entsteht zur Hälfte aus Aufgaben, die nicht rechnen, sondern auf die
+Speicherkarte warten: Rückschreibefäden, das ext4-Tagebuch und der Systemprotokolldienst. In einem Fenster
+von 20 s standen 44 % der Zeit Aufträge in der Warteschlange der Karte. Geschrieben werden 47 GB am Tag,
+17,13 MB je Aufnahmesatz, davon 8,26 MB für die Datei mit den eingezeichneten Rahmen, die kein
+Auswertungsprogramm liest und die nach drei Stunden gelöscht wird.</p>
+
+<h3>19.6 Was daraus folgt</h3>
+<ol>
+<li>Mehr Lernbilder bewerten. Alles andere ist zweitrangig, solange das Netz aus 52 Bildern lernt.</li>
+<li>Die Schwelle des Livedienstes von 0,40 auf 0,25 senken. Eine Zahl, sofort umkehrbar, dreifache Ausbeute.</li>
+<li>Ortsfest-Maske, Flächenfenster und Gruppierungsabstand der Farbregel überprüfen — erst messen, dann ändern.</li>
+<li>Die Datei mit den eingezeichneten Rahmen nicht mehr mitschreiben, sondern bei Bedarf zeichnen.</li>
+</ol>
+
+<h2 id="quellen">Quellen</h2>
+<ol type="1">
+<li>Gincley, B. u. a.: <em>ARTiMiS — Imaging flow cytometry for
+aquaculture</em>, Environ. Sci. Technol. 58 (2024).</li>
+<li>Wang, G., De Baets, B.: <em>Automated Artemia detection and length
+measurement using deep convolutional networks</em>, Kurzfassung,
+Universität Gent, 2019 (CC BY 4.0; im Ordner
+<code>literatur/</code>).</li>
+<li>Jocher, G. u. a.: <em>Ultralytics YOLOv8</em>, 2023,
+https://github.com/ultralytics/ultralytics.</li>
+<li>Zhang, Y. u. a.: <em>ByteTrack: Multi-Object Tracking by Associating
+Every Detection Box</em>, ECCV 2022.</li>
+<li>Zivkovic, Z.: <em>Improved adaptive Gaussian mixture model for
+background subtraction</em>, ICPR 2004 (MOG2 in OpenCV).</li>
+<li>openUC2, Helmholtz SOOP: <em>OASIS — Open Autonomous Sensing and
+Imaging System</em>, Projektseiten 2024–2026.</li>
+<li>INVE Aquaculture: <em>How technology is redefining live food
+management in the hatchery</em>, Artemia Knowledge Hub, 2025.</li>
+</ol>
+
+</div>
+</div></section>
+
+<section id="messung"><div class="text">
+<h2>Messungen vom 18.10.2026, Probe Fadenalgen</h2>
+<table><tr><th>Messung</th><th>Ergebnis</th></tr>
+<tr><td>Einzelschritte, Software-PWM, Puls aus (altes Programm)</td><td>0,1° 1/6 · 0,2° 2/6 · 0,5° 4/6 · 1° 5/6 · 2° 5/6 wirksam</td></tr>
+<tr><td>Einzelschritte, Software-PWM, Puls an</td><td>0,1° 3/6 · 0,2° 6/6 · 0,5° 6/6</td></tr>
+<tr><td>Schärfekurve schnell (0,25° je 40 ms)</td><td>Gipfel hin 140,75° / zurück 136,0°, Halbwertsbreite 2,5°, scheinbare Hysterese 4,75° (Nachlauf)</td></tr>
+<tr><td>Schärfekurve langsam, Software-PWM</td><td>Gipfel 138,0° in beiden Richtungen, Halbwertsbreite 1,4° hin, 4,8° zurück (Zittern verdeckt das Spiel)</td></tr>
+<tr><td>Halten mit Software-PWM, Puls an</td><td>Schärfe ±47 bis 63 %</td></tr>
+<tr><td>Hardware-PWM, Halten, Puls an</td><td>±0,9 % (15 s), 60 s ohne Sprung ±0,7 %</td></tr>
+<tr><td>Hardware-PWM, Halten, stromlos</td><td>±0,7 % (20 s)</td></tr>
+<tr><td>Hardware-PWM, Hysterese langsam</td><td>4,6°; mit Rütteln ±0,3/0,6/1,0°: 4,2 / 3,8 / 3,2°</td></tr>
+<tr><td>Hardware-PWM, Einzelschritte aus dem Stand</td><td>0,1° 0/6 · 0,2° 1/6 · 0,3° 3/6 · 0,5° 6/6; mit Rütteln ±0,6°: 0,1° 5/6 · 0,2° 6/6 · 0,3° 6/6</td></tr>
+<tr><td>Autofokus 4, sechs Läufe</td><td>93 bis 105 % der Parabelhöhe, Gipfel 139,6 bis 140,1°, 70 s</td></tr>
+<tr><td>Handschritte, Puls an</td><td>12 von 12 auf dem Hang, dreimal 139,93°: 8964 / 8989 / 8955</td></tr>
+<tr><td>Handschritte, stromlos</td><td>9 von 10 (ein Abrutschen um das Spiel)</td></tr></table>
+<p>Rohdaten: <code>~/Desktop/messung/</code> — kurve_*.csv, fein_*.csv, schritte_*.csv, hw_fein_*.csv, dither_*.csv, autofokus4_*.csv, schaerfekurve_2026-10-18.png, BEFUND_2026-10-18.txt.</p>
+</div></section>
+
+<section id="zusammenarbeit"><div class="text">
+<h2>Wie die KI zugeschaltet wird</h2>
+<p>Die KI (Claude in Claude Code) läuft auf einem Server außerhalb des Heimnetzes und hat keinen eigenen Weg zum Pi. Der Weg führt über den Arbeitsrechner des Auftraggebers: Dort läuft die <b>Brücke</b> (<code><Brückenordner-auf-dem-PC></code>), ein Programm, das Befehle vom Server abholt, ausführt und die Antwort zurückgibt. Für den Pi liegt daneben <code>pi.py</code>, das per SSH mit Schlüssel (kein Passwort gespeichert) einen Auftrag aus <code>pi_auftrag.txt</code> auf dem Pi ausführt und dessen Ausgabe zurückbringt. Alles, was die KI am Pi tut, geht durch diese zwei Dateien und ist dort nachlesbar.</p>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" font-family="system-ui,Segoe UI,sans-serif" font-size="12" style="background:#fff;border:1px solid #c9c6bd;border-radius:8px">
+<defs><marker id="p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#6b6962"/></marker></defs>
+<text x="16" y="26" font-size="15" font-weight="700">Struktur der Zusammenarbeit — wer wo läuft und was wohin fließt</text>
+<rect x="16" y="46" width="250" height="150" rx="8" fill="#efe6f7" stroke="#6a3d9a" stroke-width="1.5"/><text x="28" y="68" font-weight="700" font-size="13">Server (Claude Code)</text>
+<text x="28" y="90">Claude: liest Protokolle, misst,</text><text x="28" y="107">rechnet, schreibt Programme</text><text x="28" y="124">Arbeitskopie im Arbeitsbereich</text><text x="28" y="141">Gedächtnis über das Projekt</text><text x="28" y="170" fill="#6b6962">kein Zugang ins Heimnetz</text>
+<rect x="355" y="46" width="250" height="150" rx="8" fill="#fff3c4" stroke="#c9a227" stroke-width="1.5"/><text x="367" y="68" font-weight="700" font-size="13">Arbeitsrechner (Windows)</text>
+<text x="367" y="90"><Brückenordner-auf-dem-PC>\bruecke.py — holt Befehle</text><text x="367" y="107">vom Server, führt sie aus</text><text x="367" y="124"><Brückenordner-auf-dem-PC>\pi.py — SSH zum Pi</text><text x="367" y="141">pi_auftrag.txt — der Auftrag</text><text x="367" y="158">pi_key — der Schlüssel</text><text x="367" y="183" fill="#6b6962">Browser: http://mikroskop:8090</text>
+<rect x="694" y="46" width="250" height="150" rx="8" fill="#e6f4ea" stroke="#2e7d32" stroke-width="1.5"/><text x="706" y="68" font-weight="700" font-size="13">Raspberry Pi 5 „mikroskop"</text>
+<text x="706" y="90">Dienst mikroskop-fokus</text><text x="706" y="107">autofokus4.py: Kamera, Schärfe,</text><text x="706" y="124">Servo (Hardware-PWM), Seite :8090</text><text x="706" y="141">~/Desktop/messung: Protokoll, CSV,</text><text x="706" y="158">Befund-Pakete</text><text x="706" y="183" fill="#6b6962">USB-Mikroskop · Servo GPIO 18</text>
+<line x1="266" y1="110" x2="355" y2="110" stroke="#6b6962" stroke-width="1.6" marker-end="url(#p)" marker-start="url(#p)"/><text x="310" y="98" text-anchor="middle" fill="#6b6962">Brücke</text><text x="310" y="128" text-anchor="middle" fill="#6b6962" font-size="10">Internet</text>
+<line x1="605" y1="110" x2="694" y2="110" stroke="#6b6962" stroke-width="1.6" marker-end="url(#p)" marker-start="url(#p)"/><text x="650" y="98" text-anchor="middle" fill="#6b6962">SSH</text><text x="650" y="128" text-anchor="middle" fill="#6b6962" font-size="10">Schlüssel</text>
+<rect x="16" y="226" width="928" height="176" rx="8" fill="#f4f3ef" stroke="#a19e94" stroke-width="1.2"/><text x="28" y="248" font-weight="700" font-size="13">Ablauf einer Zuschaltung</text>
+<text x="28" y="272">1. Der Auftraggeber beschreibt das Problem im Chat und drückt auf der Seite „Befund für die KI bündeln" (oder die KI holt sich Protokoll und CSV selbst).</text>
+<text x="28" y="292">2. Die KI liest über Brücke und pi.py: Protokoll, Messpunkte, Bild, Zustand des Dienstes. Sie bewegt den Servo nur, wenn der Auftraggeber es erlaubt hat.</text>
+<text x="28" y="312">3. Analyse mit Zahlen: Was ist gemessen, was daraus folgt, was offen bleibt. Literatur und bekannte Lösungen vor eigenen Ansätzen.</text>
+<text x="28" y="332">4. Eine Änderung wird zuerst in der Arbeitskopie geschrieben, dann als Datei auf den Pi gebracht (cat-Heredoc über pi.py), der Dienst neu gestartet.</text>
+<text x="28" y="352">5. Nachmessen am Gerät, die Zahlen ins Protokoll, auf diese Seite (Reiter Messungen) und ins Gedächtnis der KI. Erst dann gilt die Änderung.</text>
+<text x="28" y="378" fill="#6b6962">Was die KI nie tut: Passwörter speichern (der Schlüssel ersetzt es), Dateien löschen ohne Wort, am Pi etwas installieren oder neu starten ohne Wort.</text>
+</svg>
+<h2>Wie dieses Projekt entstanden ist — der Entwicklungsprozess am 18. Oktober 2026</h2>
+<p>Das Programm ist nicht am Schreibtisch geschrieben und dann abgegeben worden. Es ist am laufenden Gerät entstanden, in einem Tag, und zwar so: Der Auftraggeber saß am Mikroskop und sah zu, die KI arbeitete über die Brücke direkt auf dem Pi. Jeder Schritt war ein Kreis aus Messen, Bauen, Aufspielen, Nachmessen und Rücksprache. Nichts davon musste der Auftraggeber selbst eintippen, kopieren oder installieren.</p>
+<table><tr><th>Uhrzeit</th><th>Was geschah</th><th>Wer</th></tr>
+<tr><td>14:46</td><td>Zugang eingerichtet: SSH-Schlüssel auf dem Pi eingetragen, das Passwort danach gelöscht. Bestandsaufnahme: Rechner, Kamera, Servo, vorhandene Programme auf dem Desktop gelesen.</td><td>KI</td></tr>
+<tr><td>14:50</td><td>Hinweis: „Der Servo hängt manchmal, Schritte münden nicht immer in Verstellungen — probier es selbst aus."</td><td>Auftraggeber</td></tr>
+<tr><td>15:00–15:07</td><td>Messprogramm geschrieben, auf den Pi gespielt, gelaufen: Stick-Slip bestätigt (0,2° nur 2 von 6), Schärfekurve hin und zurück, Nachlauf gemessen, Befundblatt und Kurve auf dem Pi abgelegt.</td><td>KI</td></tr>
+<tr><td>15:11–15:19</td><td>Erster Regler (Autofokus 3) aufgespielt und gefahren; Ergebnis 74 %, dann 118 %, der Servo zitterte im Stand. Einwand: „Lass dir etwas Eleganteres einfallen, suche erst Literatur und Git."</td><td>KI, dann Auftraggeber</td></tr>
+<tr><td>15:20–15:25</td><td>Literatur gelesen (OpenFlexure, Pertuz 2013, Raspberry-Pi-Forum): Ursache des Zitterns ist die Software-PWM. Umbau auf Hardware-PWM mit Erlaubnis: „ja, mach den Umbau und Neustart." Eintrag in config.txt, Neustart des Pi, nachgemessen.</td><td>KI mit Freigabe</td></tr>
+<tr><td>15:27–15:30</td><td>Messungen mit Hardware-PWM: Zittern weg (±0,9 %), echtes Spiel 4,6° sichtbar, Rütteln hilft beim Losbrechen. Beobachtung „ab und zu ein zzzt" — das war die Rüttelprobe.</td><td>KI, Auftraggeber</td></tr>
+<tr><td>15:40</td><td>Autofokus 4 nach OpenFlexure-Art aufgespielt: erster Lauf 99 %. Auftraggeber testet selbst am Knopf: „jetzt scheint er scharf zu stellen."</td><td>KI, Auftraggeber</td></tr>
+<tr><td>15:44–15:55</td><td>Beobachtung „bei −0,3° springt er"; Schrittprobe über die Seite, Befund: Rütteln am gespannten Getriebe lässt es zurückschnappen. Korrektur: beide Handschritte von unten. Nachgemessen: 12 von 12.</td><td>Auftraggeber meldet, KI misst und korrigiert</td></tr>
+<tr><td>16:00–16:12</td><td>„101 %?" → Bezug auf die Parabelhöhe. „Der Motor knurrt" → Halten stromlos, dann gemessen: 1 von 10 rutscht ab. „Mach es wählbar" → Haltung auf der Seite wählbar, Nachfokus-Knopf.</td><td>Rücksprache, KI setzt um</td></tr>
+<tr><td>16:14–16:36</td><td>Dienst eingerichtet (startet beim Hochfahren), Rechnername „mikroskop", Fenster beim Anmelden, Desktop aufgeräumt, Seite mit Reitern, Befund-Knopf, letzter Fokus gemerkt. Pi aus- und eingeschaltet, nachgeprüft.</td><td>KI, Auftraggeber prüft</td></tr>
+<tr><td>16:47–17:00</td><td>Repositorium auf GitHub angelegt, Spiegel auf C:, Sicherung — auf Wort des Auftraggebers; „weißes Fenster" in der Remote-Sitzung per Bildschirmfoto nachgesehen und auf Firefox umgestellt.</td><td>KI mit Freigabe</td></tr></table>
+<p><b>Was daran wichtig ist.</b> Die KI hat die Software jedes Mal selbst auf den Pi gespielt, den Dienst neu gestartet und das Ergebnis am Gerät gemessen — nicht behauptet. Jede Beobachtung des Auftraggebers („knurrt", „springt", „zischt", „weißes Fenster") wurde als Messwert genommen, nachgestellt und mit Zahlen beantwortet, bevor etwas geändert wurde. Jede Änderung ging zurück in die Messung. Was nur der Mensch sehen oder hören kann, hat der Mensch beigetragen; was sich messen lässt, hat die KI gemessen. Eingriffe in das System (Neustart, Dateien in config.txt, Löschen, Veröffentlichen) geschahen nur auf ausdrückliches Wort. Das Ergebnis sind nicht nur ein Programm und eine Seite, sondern die Messreihe dahinter, die sagt, warum jede Regel im Programm so ist.</p>
+<h2>Was die KI sieht und was nicht</h2>
+<table><tr><th>Sichtbar für die KI</th><th>Nicht sichtbar</th></tr>
+<tr><td>Protokoll und CSV des Dienstes, jedes Einzelbild auf Anforderung (als Datei, kein Livestrom), Zustand über <code>/status</code>, die Kurven, alle Messskripte und ihre Ergebnisse in <code>~/Desktop/messung</code></td><td>Der Bildschirm des Pi, Geräusche des Servos, die Mechanik, der Browser des Auftraggebers. Darum sind Beobachtungen wie „es knurrt" oder „es zischt" wichtige Messwerte, die nur der Mensch liefern kann.</td></tr></table>
+<h2>Wie eine Korrektur abläuft, konkret</h2>
+<ol><li>Im Chat: „Bei Minus springt er" — oder „Befund bündeln" auf der Seite drücken.</li>
+<li>Die KI holt <code>befund_&lt;Zeit&gt;/</code> vom Pi (Zustand, Protokoll, Kurve, Bild), liest und vergleicht mit den Messungen auf dieser Seite.</li>
+<li>Bei Bedarf eine gezielte Messung (eigenes Skript in <code>~/Desktop/messung</code>, Servo bewegt sich — nur mit Erlaubnis).</li>
+<li>Änderung in <code>autofokus4.py</code> oder <code>seite.html</code>, auf den Pi, Dienst neu starten: <code>sudo systemctl restart mikroskop-fokus</code>.</li>
+<li>Nachmessen, Zahlen hier eintragen. Der Auftraggeber prüft am Gerät.</li></ol>
+<h2>Dateien auf dem Pi</h2>
+<table><tr><th>Ort</th><th>Inhalt</th></tr>
+<tr><td><code>~/Desktop/autofokus4/</code></td><td>autofokus4.py, seite.html, autofokus4.out (Konsole des Dienstes)</td></tr>
+<tr><td><code>/etc/systemd/system/mikroskop-fokus.service</code></td><td>der Dienst; <code>systemctl status mikroskop-fokus</code></td></tr>
+<tr><td><code>~/Desktop/messung/</code></td><td>Messungen, Protokolle, CSV, Bilder, Befund-Pakete</td></tr>
+<tr><td><code>~/.config/autostart/mikroskop-fokus.desktop</code></td><td>öffnet die Seite beim Anmelden als Firefox-Fenster auf dem Desktop (auch bei Remote-Desktop; Chromium bleibt dort weiß)</td></tr>
+<tr><td><code>/boot/firmware/config.txt</code></td><td><code>dtoverlay=pwm-2chan</code> für die Hardware-PWM (Sicherung config.txt.vor_pwm_2026-10-18)</td></tr>
+<tr><td><code>~/.ssh/authorized_keys</code></td><td>der öffentliche Schlüssel der Brücke (Zeile „bruecke")</td></tr></table>
+
+<h2>Wie es weiterging — 5. und 6. November 2026</h2>
+<p>Der Bildwächter wurde am 5. November neu aufgesetzt (Auswertung 1.4), der Jetson am 6. November angebunden: Datenstrecke gemessen, Dienst in zehn Fassungen
+(jede daneben, Rückfall benannt), Lernseite in fünf, YOLO-Umgebung, Training als eigene Einheit, Livedienst, Reiter „Statistik" und „Lernen". Die KI arbeitet dabei
+ausschließlich über die Brücke auf dem PC des Verfassers: Dateien hochladen, Aufträge an den Pi, Aufträge an den Jetson über den Pi, Ergebnisse stückweise zurück.
+Zwei Regeln des Tages: Kennwörter nie in Befehlen (ein Sicherheitsfilter sperrte die Sitzung, als ein Kennwort mehrfach ausgelesen wurde — seither liest ein
+Werkzeug das Zugangsblatt auf dem PC), und jede Fassung erst im echten Browser durchspielen, bevor sie auf den Pi geht. Der Prüfer mit 17 Schritten (Teil B,
+Kapitel 15) ist das Ergebnis der Forderung des Verfassers, dass das Zusammenspiel auch ohne die KI-Sitzung weiterläuft. Was an diesem Tag gelernt wurde, steht in
+einer Wissensdatenbank, die vor jedem neuen Mechanismus befragt wird — „sieh immer zuerst nach, damit wir nichts vergessen, was wir schon mal gelöst haben".</p>
+</div></section>
+
+<section id="wache"><div class="text">
+<h2>Wache: Tierbeobachtung und die drei Wächter</h2>
+<p id="wstand" style="font-size:17px;margin:8px 0">wird abgefragt …</p>
+<table class="tafel" id="wtafel"></table>
+<h3>Was die drei Wächter prüfen</h3>
+<table class="tafel">
+<tr><th>Wächter</th><th>woran</th><th>Sollwert</th><th>fällt aus, wenn</th></tr>
+<tr><td><b>Fokus</b></td><td>Servowinkel, bei jeder Prüfung von <code>/status</code> geholt</td>
+    <td>der Winkel der Grundlinie</td><td>nachfokussiert wurde</td></tr>
+<tr><td><b>Lage</b></td><td>Phasenkorrelation gegen das Referenzbild</td>
+    <td>0 Bildpunkte</td><td>Schale oder Folie verrutscht sind</td></tr>
+<tr><td><b>Beharrlichkeit</b></td><td>Punkte, die in über 80 % der Bilder eines Fensters abweichen</td>
+    <td>unter 150</td><td>Schmutz sich abgesetzt hat oder eine Blase steht</td></tr>
+</table>
+<p><small>Sie versagen aus verschiedenen Gründen — fällt einer aus, fällt der nächste nicht mit.
+Die Wache läuft als eigener Dienst auf Port 8091 und rührt diese Seite nicht an. Steht dort
+„nicht erreichbar", ist sie nicht gestartet; am Mikroskop ändert das nichts.</small></p>
+</div></section>
+<!-- 1.17: Lampe steht ausserhalb des Vollbild-Behaelters -- sein Wort: "nur auf der html", "das vollbild kann so bleiben" -->
+<div id="melder" title="Bewegungsmelder: leuchtet, solange nach dem Ausloesen aufgezeichnet wird">
+ <div id="melderlampe"></div><b id="meldertext">Melder</b>
+ <span id="melderzahl"></span></div>
+<div id="vbflaeche">
+ <img id="vbbild" alt="Mikroskop-Livebild">
+ <canvas id="vblage"></canvas>
+ <a id="vbzu" href="./">Bedienseite</a>
+ <div id="vbleiste"><span id="vb1">…</span><span id="vb2"></span><span id="vb3"></span></div>
+</div>
+<script>
+const $=i=>document.getElementById(i);
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('an',x===b));document.querySelectorAll('section').forEach(s=>s.classList.toggle('an',s.id===b.dataset.r));});
+async function befehl(art,wert){await fetch('/befehl',{method:'POST',body:JSON.stringify({art,wert})});}
+$('auto').onclick=()=>befehl('auto');$('nachfokus').onclick=()=>befehl('nachfokus');$('h_stromlos').onchange=()=>befehl('haltung','stromlos');$('h_an').onchange=()=>befehl('haltung','an');$('stopp').onclick=()=>befehl('stopp');$('plus').onclick=()=>befehl('plus');$('minus').onclick=()=>befehl('minus');$('fahre').onclick=()=>befehl('nach',parseFloat($('ziel').value));$('befund').onclick=()=>befehl('befund');
+function zeichne(k,maxw){const c=$('kurve'),x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);if(!k.length)return;const xs=k.map(p=>p[0]),ys=k.map(p=>p[1]);const x0=Math.min(...xs),x1=Math.max(...xs),y1=Math.max(...ys)||1;
+x.strokeStyle='#1f4e9e';x.beginPath();k.forEach((p,i)=>{const px=30+(p[0]-x0)/((x1-x0)||1)*520,py=240-p[1]/y1*220;i?x.lineTo(px,py):x.moveTo(px,py)});x.stroke();
+x.fillStyle='#666';x.font='11px sans-serif';x.fillText(x0.toFixed(1)+'°',30,255);x.fillText(x1.toFixed(1)+'°',520,255);x.fillText(y1.toFixed(0),2,14);
+if(maxw!=null&&maxw>=x0&&maxw<=x1){const px=30+(maxw-x0)/((x1-x0)||1)*520;x.strokeStyle='#b3261e';x.beginPath();x.moveTo(px,20);x.lineTo(px,240);x.stroke();}}
+async function tick(){try{const z=await (await fetch('/status')).json();$('stand').textContent=`Schärfe ${z.schaerfe.toFixed(0)} · Winkel ${z.winkel==null?'–':z.winkel.toFixed(2)+'°'} · ${z.puls?'Puls an':'stromlos'} · ${z.phase}`+(z.max?` · Max ${z.max.toFixed(0)} bei ${z.max_winkel.toFixed(2)}°`:'')+(z.ergebnis?` · Ergebnis ${z.ergebnis}`:'');
+for(const b of ['auto','nachfokus','plus','minus','fahre','h_stromlos','h_an'])$(b).disabled=z.lauf;if(document.activeElement.name!=='h'){$('h_stromlos').checked=z.stromlos;$('h_an').checked=!z.stromlos;}
+zeichne(z.kurve,z.max_winkel);$('kinfo').textContent=(z.kurve.length?`Kurve: ${z.kurve.length} Punkte · `:'')+`Kamera ${z.fps.toFixed(0)} Bilder/s`;
+const l=$('log');const unten=l.scrollTop+l.clientHeight>=l.scrollHeight-10;l.textContent=z.meldungen.join('\n');if(unten)l.scrollTop=l.scrollHeight;}catch(e){$('stand').textContent='Programm antwortet nicht — läuft der Dienst mikroskop-fokus?';}}
+setInterval(tick,400);tick();
+// ---- elektronischer Zoom (nur die Anzeige; Schaerfe wird weiter im vollen Bild gemessen)
+(function(){const r=$('zoomrahmen'),im=$('bild'),sl=$('zoom'),wz=$('zoomwert');let z=1,tx=0,ty=0,zieh=null;
+function klemme(){const W=r.clientWidth,H=r.clientHeight;tx=Math.min(0,Math.max(W-W*z,tx));ty=Math.min(0,Math.max(H-H*z,ty));}
+function male(){klemme();const tr=`translate(${tx}px,${ty}px) scale(${z})`;im.style.transform=tr;const lg=$('lage');if(lg)lg.style.transform=tr;wz.textContent=z.toFixed(1).replace('.',',')+'×';sl.value=z;}
+function setze(nz,px,py){const W=r.clientWidth,H=r.clientHeight;nz=Math.min(6,Math.max(1,nz));if(px==null){px=W/2;py=H/2;}
+ const bx=(px-tx)/z,by=(py-ty)/z;z=nz;tx=px-bx*z;ty=py-by*z;male();}
+sl.oninput=()=>setze(parseFloat(sl.value));$('zoom1').onclick=()=>{z=1;tx=0;ty=0;male();};$('zoom_mitte').onclick=()=>{const W=r.clientWidth,H=r.clientHeight;tx=(W-W*z)/2;ty=(H-H*z)/2;male();};
+r.addEventListener('wheel',e=>{e.preventDefault();const b=r.getBoundingClientRect();setze(z*(e.deltaY<0?1.15:1/1.15),e.clientX-b.left,e.clientY-b.top);},{passive:false});
+r.addEventListener('dblclick',e=>{const b=r.getBoundingClientRect();setze(z<3?3:1,e.clientX-b.left,e.clientY-b.top);});
+r.addEventListener('pointerdown',e=>{zieh={x:e.clientX,y:e.clientY,tx,ty};r.setPointerCapture(e.pointerId);r.style.cursor='grabbing';});
+r.addEventListener('pointermove',e=>{if(!zieh)return;tx=zieh.tx+(e.clientX-zieh.x);ty=zieh.ty+(e.clientY-zieh.y);male();});
+r.addEventListener('pointerup',()=>{zieh=null;r.style.cursor='grab';});r.addEventListener('pointercancel',()=>{zieh=null;});
+male();})();
+
+// --- Wache auf Port 8091 (eigener Dienst, eigene Herkunft; sendet CORS-Kopf) ---
+const WACHE = location.protocol + '//' + location.hostname + ':8091';
+function wzeile(n, v, ok){return `<tr><td>${n}</td><td style="font-variant-numeric:tabular-nums">${v}</td>`
+  + `<td>${ok===null?'':(ok?'<b style="color:#2e7d32">in Ordnung</b>':'<b style="color:#b00">ACHTUNG</b>')}</td></tr>`;}
+async function wtick(){
+  const st=document.getElementById('wstand'), tf=document.getElementById('wtafel');
+  if(!st) return;
+  try{
+    const z=await (await fetch(WACHE+'/stand',{cache:'no-store'})).json();
+    st.textContent=`${z.phase} · ${z.bilder} Bilder · ${z.episoden} Episoden · seit ${z.laeuft_seit_min} min`;
+    const ws=z.winkel_soll, w=z.winkel;
+    let h='<tr><th>Größe</th><th>Wert</th><th>Urteil</th></tr>';
+    h+=wzeile('Fokus (Servowinkel)', w==null?'–':w.toFixed(2)+'°'+(ws?` (Soll ${ws.toFixed(2)}°)`:''),
+              (w==null||ws==null)?null:Math.abs(w-ws)<=0.15);
+    h+=wzeile('Maßstab aus der Folie', z.massstab_um_px?z.massstab_um_px.toFixed(3)+' µm/px':'nicht lesbar',
+              z.massstab_um_px?true:null);
+    h+=wzeile('Lage gegen die Referenz', `(${z.lage[0].toFixed(0)}, ${z.lage[1].toFixed(0)}) px`,
+              Math.abs(z.lage[0])<1 && Math.abs(z.lage[1])<1);
+    h+=wzeile('stehende Abweichungen', z.stehend+' Punkte', z.stehend<150);
+    h+=wzeile('Referenz neu gebaut', z.referenz_neu+'×', null);
+    const e=z.letzte_episode;
+    // immer dieselbe Zeilenzahl -- eine fehlende Zeile liesse die Tafel springen
+    h+=wzeile('letzte Episode', e ? `${e.uhr||''} · ${e.ortungen} Ortungen`
+        +(e.laenge_um?` · ${e.laenge_um.toFixed(0)} µm · ${e.tempo_mm_s.toFixed(2)} mm/s`:'') : '–', null);
+    tf.innerHTML=h;
+  }catch(e){
+    st.textContent='Wache nicht erreichbar (Dienst auf Port 8091 läuft nicht)';
+    tf.innerHTML='';
+  }
+}
+setInterval(wtick, 3000); wtick();
+
+// --- Vollbildansicht (nur mit ?vollbild in der Adresse) ------------------------
+// BEFUND 03.11.2026: Zuerst lag die Vollbildansicht als eigene Datei unter file://.
+// Firefox behandelt file:// als fremde Herkunft und blockte sowohl das Bild von
+// http://localhost:8090/strom als auch die Abfragen von /status -- das Fenster blieb
+// schwarz. Hier liegt sie in DERSELBEN Seite und damit in derselben Herkunft; damit
+// entfaellt das Problem vollstaendig. Die gewoehnliche Ansicht aendert sich nicht.
+if (location.search.indexOf('vollbild') >= 0) {
+  document.body.classList.add('vb');
+  document.getElementById('vbbild').src = '/strom';   // 1.19: der Bildwaechter setzt gleich die richtige Quelle (livequelle)
+  const V=i=>document.getElementById(i);
+  async function vbtick(){
+    try{
+      const z = await (await fetch('/status',{cache:'no-store'})).json();
+      V('vb1').innerHTML = `<span class="vw">Fokus</span> ${z.winkel==null?'–':z.winkel.toFixed(2)+'°'}`
+        + ` · <span class="vw">Schärfe</span> ${z.schaerfe.toFixed(0)}`
+        + ` · <span class="vw">Bildrate</span> ${z.fps?z.fps.toFixed(1):'–'}/s · ${z.phase}`;
+    }catch(e){ V('vb1').innerHTML='<span class="vr">Fokusdienst antwortet nicht</span>'; }
+    try{
+      const w = await (await fetch(location.protocol+'//'+location.hostname+':8091/stand',
+                                   {cache:'no-store'})).json();
+      const f=(a)=>a?'vg':'vr';
+      const fok=(w.winkel!=null&&w.winkel_soll!=null)?Math.abs(w.winkel-w.winkel_soll)<=0.15:null;
+      V('vb2').innerHTML = `<span class="vw">Wache</span> ${w.episoden} Episoden · ${w.bilder} Bilder`
+        + (w.massstab_um_px?` · <span class="vw">Maßstab</span> ${w.massstab_um_px.toFixed(3)} µm/px`:'')
+        + ` · <span class="${f(fok)}">Fokus</span>`
+        + ` <span class="${f(Math.abs(w.lage[0])<1&&Math.abs(w.lage[1])<1)}">Lage</span>`
+        + ` <span class="${f(w.stehend<150)}">Beharrlichkeit</span>`;
+      const e=w.letzte_episode;
+      V('vb3').innerHTML = e ? `<span class="vw">zuletzt</span> `
+        + (e.laenge_um?`${e.laenge_um.toFixed(0)} µm · ${e.tempo_mm_s.toFixed(2)} mm/s`
+                      :`${e.ortungen} Ortungen`) : '';
+    }catch(e){ V('vb2').innerHTML='<span class="vr">Wache läuft nicht</span>'; V('vb3').textContent=''; }
+  }
+  setInterval(vbtick, 3000); vbtick();
+}
+
+// --- Bildwaechter 1.4 (04.11.2026) -------------------------------------------
+// BEFUND: Das WLAN des Pi riss 4-6 mal am Tag fuer 2-3 s ab (Bandspringen
+// zwischen 2,4 und 5 GHz derselben Fritz!Box). Ein MJPEG-Strom ist eine
+// STEHENDE Verbindung: er stirbt dabei sofort -- und zwar LEISE. Der Browser
+// hat die Kopfzeilen laengst, bleibt beim letzten Bild stehen und loest kein
+// 'error' aus. Ein onerror allein haette den Fall also nicht gesehen.
+// Darum wird hier gemessen, ob wirklich neue Bildpunkte ankommen: das Bild
+// wird alle 2 s auf eine 24x24-Flaeche gezeichnet und die Pruefsumme
+// verglichen. Sensorrauschen sorgt dafuer, dass sie sich bei lebendem Strom
+// IMMER aendert, auch wenn sich im Bild nichts bewegt. Steht sie 6 s still,
+// ist der Strom tot. Nach drei vergeblichen Versuchen schaltet die Seite auf
+// Einzelbilder (/bild.jpg, 2 je Sekunde): jede Anforderung steht fuer sich und
+// ueberlebt jeden Abriss. Alle 60 s wird der Strom erneut versucht.
+(function(){
+  const PRUEF_MS = 2000, STILL_MS = 6000, BIS_EINZEL = 3, ZURUECK_MS = 60000, EINZEL_MS = 500;
+  const lw = document.createElement('canvas'); lw.width = lw.height = 24;
+  const lc = lw.getContext('2d', {willReadFrequently:true});
+  const schild = document.createElement('div');
+  schild.style.cssText = 'position:fixed;left:10px;bottom:10px;z-index:9999;display:none;'
+    + 'padding:6px 10px;border-radius:7px;background:#b3261e;color:#fff;'
+    + 'font:13px/1.3 system-ui,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.3)';
+  document.addEventListener('DOMContentLoaded', ()=>document.body.appendChild(schild));
+  if (document.body) document.body.appendChild(schild);
+  const wachen = [];
+  function melde(){
+    const t = wachen.filter(w=>w.text).map(w=>w.text);
+    if (t.length) { schild.textContent = t[0]; schild.style.display = 'block'; }
+    else schild.style.display = 'none';
+  }
+  function summe(im){
+    try{
+      if (!im.naturalWidth) return null;
+      lc.drawImage(im, 0, 0, 24, 24);
+      const d = lc.getImageData(0, 0, 24, 24).data;
+      let s = 0; for (let i = 0; i < d.length; i += 4) s = (s * 31 + d[i]) >>> 0;
+      return s;
+    }catch(e){ return null; }                 // getImageData kann in Sonderfaellen werfen
+  }
+  // 1.19 (05.11.2026): Die Quelle des Livebilds ist nicht mehr fest /strom. Mit "Tiere umrahmen"
+  // kommt der Strom des Beobachters (:8092/strom_rahmen), in dem die Rahmen in DASSELBE Bild gezeichnet
+  // sind -- zwei getrennte Stroeme (Video und Rahmen) liefen bei springenden Tieren (bis 68 px je
+  // Bild) um ein bis drei Koerperlaengen auseinander, sein Wort: "die rahmen sind immer noch hinterher".
+  // Das Messbild bleibt unberuehrt: /strom und die Aufnahmen tragen keine Rahmen, nur dieser Anzeigestrom.
+  // crossorigin: die Pruefsumme des Waechters liest Bildpunkte; von fremder Herkunft geht das nur mit
+  // ausdruecklicher Freigabe (der Beobachter sendet Access-Control-Allow-Origin: *).
+  window.livequelle = function(){
+    const r = document.getElementById('rahmen_an');
+    return (!r || r.checked) ? (location.protocol + '//' + location.hostname + ':8092/strom_rahmen') : '/strom';
+  };
+  function stromAn(w){
+    w.einzel = false; if (w.tm) { clearTimeout(w.tm); w.tm = 0; }
+    w.im.crossOrigin = 'anonymous';
+    w.im.src = window.livequelle() + '?t=' + Date.now(); w.zeit = Date.now();
+  }
+  function einzelAn(w){
+    if (w.einzel) return;
+    w.einzel = true; w.seit = Date.now();
+    w.text = 'Livestrom instabil — Einzelbilder'; melde();
+    (function hol(){
+      if (!w.einzel) return;
+      w.im.src = '/bild.jpg?t=' + Date.now();
+      if (Date.now() - w.seit > ZURUECK_MS) { w.fehl = 0; w.text = ''; melde(); stromAn(w); return; }
+      w.tm = setTimeout(hol, EINZEL_MS);
+    })();
+  }
+  function neu(w){
+    if (w.einzel) return;
+    w.fehl++;
+    if (w.fehl >= BIS_EINZEL) { einzelAn(w); return; }
+    w.text = 'Bild steht — verbinde neu (' + w.fehl + ')'; melde();
+    stromAn(w);
+  }
+  function wache(im){
+    const w = {im:im, letzte:-1, zeit:Date.now(), fehl:0, einzel:false, tm:0, seit:0, text:''};
+    im.addEventListener('error', ()=>{ if (!w.einzel) neu(w); });
+    im.addEventListener('load',  ()=>{ w.zeit = Date.now(); });
+    wachen.push(w); return w;
+  }
+  for (const id of ['bild','vbbild']) {
+    const im = document.getElementById(id);
+    if (im && im.getAttribute('src')) { const w = wache(im); stromAn(w); }
+  }
+  const schalter = document.getElementById('rahmen_an');
+  if (schalter) schalter.addEventListener('change', () => { for (const w of wachen) { w.fehl = 0; w.text = ''; stromAn(w); } melde(); });
+  setInterval(()=>{
+    if (document.hidden) return;              // im Hintergrund drosselt der Browser ohnehin
+    const jetzt = Date.now();
+    for (const w of wachen) {
+      if (w.einzel) continue;
+      const s = summe(w.im);
+      if (s === null) { if (jetzt - w.zeit > STILL_MS) neu(w); continue; }
+      if (s !== w.letzte) { w.letzte = s; w.zeit = jetzt;
+                            if (w.fehl || w.text) { w.fehl = 0; w.text = ''; melde(); }
+                            continue; }
+      if (jetzt - w.zeit > STILL_MS) neu(w);
+    }
+  }, PRUEF_MS);
+})();
+
+// --- Tierrahmen und Tierzaehler 1.5 (04.11.2026) ------------------------------
+// Die Rahmen werden NICHT in den Bildstrom gezeichnet, sondern als durchsichtige
+// Lage darueber. Damit bleibt jedes Messbild unberuehrt -- was einmal im JPEG steht,
+// steht fuer immer darin und verfaelscht jede spaetere Auswertung.
+// Die Nummern kommen aus der Bahnverknuepfung der Wache (Hungarian-Zuordnung,
+// gegen trackpy 0.7 zu 100,00 % geprueft). Ein Tier behaelt seine Nummer, solange
+// es verfolgt werden kann; kommen sich zwei naeher als etwa 30 Bildpunkte (315 um),
+// verschmelzen sie zu EINEM Fleck -- dann sieht auch die Erkennung nur noch eines.
+(function(){
+  const QB = 640, QH = 480;                       // Groesse des Kamerabildes
+  const FARBEN = ['#22c55e','#3b82f6','#f59e0b','#ec4899','#14b8a6','#a855f7','#ef4444','#84cc16'];
+  const farbe = nr => FARBEN[nr % FARBEN.length];
+  // 1.26 (06.11.2026): Zeile Livestrom im Jetson-Block -- sein Wort: "der jetson soll im livestream die bilder der usb mikroskop
+  // kamera sehen koennen", "der schnelle datenaustausch muss gehen und zwar autonom": Dienst 1.4 liest :8090/strom dauernd und
+  // meldet in /stand unter live Bilder/s, Mbit/s, letztes Bild, abgeschnittene Teile; pi_live = Auswertung des Pi aus Jetson-Sicht.
+  // 1.31 (06.11.2026, 17:45): Reiter "Lernen" -- sein Wort: "kann man auch die Einlernseite in http://mikroskop:8090/ aufnehmen als Reiter?"
+  // Die Lernseite des Jetson (:8095/lernen) im Rahmen; geladen erst beim Oeffnen des Reiters und nur, wenn der Jetson antwortet
+  // (Kernforderung 42: der Pi wartet nie auf den Jetson). Einmal geladen bleibt sie stehen, damit die Arbeit nicht verloren geht.
+  (function(){
+    const J = 'http://<IP-des-Jetson>:8095', $l = i => document.getElementById(i);
+    const setz = (i, t) => { const e = $l(i); if (e && e.textContent !== t) e.textContent = t; };
+    async function laden(){
+      const r = $l('lrahmen'); if (!r || r.getAttribute('src')) return;
+      try {
+        const c = new AbortController(); setTimeout(() => c.abort(), 3000);
+        const d = await (await fetch(J + '/stand', {cache:'no-store', signal: c.signal})).json();
+        $l('llampe').classList.add('an'); setz('lstand', 'antwortet · Dienst ' + d.fassung + ' · Lernseite wird geladen');
+        r.src = J + '/lernen';
+      } catch(e) {
+        $l('llampe').classList.remove('an'); setz('lstand', 'Jetson nicht erreichbar (' + new Date().toLocaleTimeString('de-DE') + ') — die Lernseite läuft auf dem Jetson; der Pi arbeitet weiter');
+      }
+    }
+    document.querySelectorAll('nav button').forEach(b => b.addEventListener('click', () => { if (b.dataset.r === 'lernen') setTimeout(laden, 50); }));
+    if (document.getElementById('lernen').classList.contains('an')) laden();
+  })();
+  // 1.33 (06.11.2026, 19:15): Manuskript Teil B (Kapitel 9-18, aus MANUSKRIPT_TEIL_B_1.0.md) im Reiter Manuskript, mit Film des YOLO-Livedienstes;
+  // Figuren und Film blenden sich still aus, wo die Dateien fehlen (auf dem Pi). 1.32 war derselbe Stand ohne Film. Absatz zur Zusammenarbeit 5./6.11.
+  // 1.30 (06.11.2026, 17:05): waehrend eines Nachtrainings haelt die Trainingseinheit den YOLO-Livedienst an (Speicher, Befund 16:29);
+  // Reiter Statistik und Jetson-Block sagen dann "pausiert -- Training laeuft seit hh:mm:ss" (aus /stand.training des Jetson-Dienstes)
+  // statt "nicht erreichbar". Der Pi haengt weiterhin nicht daran (Kernforderung 42).
+  // 1.29 (06.11.2026): Reiter "Statistik" -- sein Wort: "die statistik in einem Reiter ... anzeigen, die tiere im Bild bleibt aber auf dem reiter
+  // wo sie jetzt ist" und "eine Funktionsanzeige, eine reale, die wirklich anzeigt dass die objekterkennung mit YOLO funktioniert, in echtzeit":
+  // MJPEG-Strom des YOLO-Dienstes (:8096/strom, Bilder mit Rahmen) nur solange der Reiter offen ist, Kacheln aus :8096/stand alle 2 s,
+  // Stundentafel aus dessen Zaehler, darunter der Stand des Jetson-Dienstes. Eigene Fehlerbehandlung, nichts anderes haengt daran.
+  (function(){
+    const Y = 'http://<IP-des-Jetson>:8096', $y = i => document.getElementById(i); let zuletzt = 0, stromAn = false;
+    const setz = (i, t) => { const e = $y(i); if (e && e.textContent !== t) e.textContent = t; };
+    function stromSetzen(an){ const im = $y('ystrom'); if (an && !stromAn) { im.src = Y + '/strom?' + Date.now(); stromAn = true; setz('ystromtext', 'Livebild mit Erkennungen (YOLO auf dem Jetson, Echtzeit)'); }
+      if (!an && stromAn) { im.removeAttribute('src'); stromAn = false; setz('ystromtext', 'Livebild mit Erkennungen: nicht verbunden'); } }
+    async function ytick(){
+      const offen = document.getElementById('statistik').classList.contains('an');
+      try {
+        const d = await (await fetch(Y + '/stand', {cache:'no-store'})).json(); zuletzt = Date.now();
+        $y('ylampe').classList.toggle('an', d.phase === 'laeuft');
+        setz('yzustand', 'Dienst ' + d.fassung + ' · Modell ' + (d.modell || '–') + ' · ' + d.phase + (d.fehler ? ' (' + d.fehler + ')' : '') + (d.laeuft_min == null ? '' : ' · seit ' + d.laeuft_min + ' min'));
+        setz('ytiere', d.tiere_mittel_5s == null ? '–' : String(d.tiere_mittel_5s)); setz('ybewegt', (d.bewegt ?? '–') + ' / ' + (d.ruhend ?? '–'));
+        setz('ygroesse', d.groesse_mm_median == null ? '–' : d.groesse_mm_median.toFixed(2)); setz('ytempo', d.tempo_mm_s_median == null ? '–' : d.tempo_mm_s_median.toFixed(2));
+        setz('yrate', (d.verarbeitet_s ?? '–') + ' von ' + (d.bilder_s ?? '–')); setz('ykoerner', String(d.koerner ?? '–'));
+        const st = ((d.zaehler && d.zaehler.stunden) || []).slice(-24).concat(d.zaehler && d.zaehler.laufend ? [Object.assign({laufend: true}, d.zaehler.laufend)] : []);
+        const tb = $y('ystunden').querySelector('tbody'); const html = st.length ? st.map(s => `<tr><td>${s.uhr.replace('T', ' ')}${s.laufend ? ' (läuft)' : ''}</td><td>${s.hoechstens}</td><td>${s.mittel ?? (s.bilder ? (s.summe / s.bilder).toFixed(2) : '–')}</td><td>${s.bilder}</td></tr>`).join('') : '<tr><td colspan="4">noch keine volle Stunde</td></tr>';
+        if (tb.innerHTML !== html) tb.innerHTML = html;
+        stromSetzen(offen && d.phase === 'laeuft');
+      } catch(e) {
+        if (Date.now() - zuletzt > 6000) {
+          $y('ylampe').classList.remove('an'); stromSetzen(false);
+          let tr = null; try { tr = (await (await fetch('http://<IP-des-Jetson>:8095/stand', {cache:'no-store'})).json()).training; } catch(e2) {}   // 1.30
+          setz('yzustand', tr && tr.laeuft ? 'YOLO pausiert — Training läuft seit ' + String(tr.gestartet || '?').slice(11) + ' · der Livedienst startet danach von selbst (' + new Date().toLocaleTimeString('de-DE') + ')'
+            : 'YOLO-Dienst nicht erreichbar (' + new Date().toLocaleTimeString('de-DE') + ') — Pi läuft ohne ihn weiter');
+        }
+      }
+    }
+    setInterval(ytick, 2000); ytick();
+    document.querySelectorAll('nav button').forEach(b => b.addEventListener('click', () => setTimeout(ytick, 50)));
+  })();
+  // 1.28 (06.11.2026): Zeile YOLO -- sein Wort: "mit dem yolo machen wir dann eine Bildauswertung auf dem jetson, wie viele tiere,
+  // groesse, geschwindigkeit etc. und spielen die daten zurueck auf den raspi zur anzeige": Zahlen aus /stand.yolo des Jetson-Dienstes 1.8
+  // (der den YOLO-Livedienst :8096 abfragt); ohne Modell oder Dienst steht dort, woran es fehlt. Der Pi haengt nicht daran (Kernforderung 42).
+  // 1.27 (06.11.2026): Jetson-Block lesbar -- sein Wort: "das ist schlecht lesbar": die Beschriftungen (Verbindung, Auslastung,
+  // Livestrom) waren laenger als ihre 9 Zeichen und klebten am Wert; jetzt 12 Zeichen mit Doppelpunkt, jedes Feld hinterlegt und mit Abstand.
+  // 1.25 (06.11.2026): Jetson-Block. Sein Wort: "in der html muss eine live anzeige fuer die Verbindung und die
+  // Arbeitsauslastung des jetsons. Ich moechte sehen dass er arbeitet und wenn er da ist" und "so dass die Grundfunktionen
+  // der Rueckfalloption auch funktionieren wenn der jetson nicht aktiv ist" -- eigener Abruf mit eigener Fehlerbehandlung,
+  // nichts anderes haengt daran. Adresse fest (Kabel), Abruf alle 2 s, Lampe faellt nach 6 s ohne Antwort.
+  // 1.34 (07.11.2026, sein Wort: "kann man auch die anlernkurven von yolo darstellen? damit man den
+  // fortschritt sieht?"): Lernkurve aus /yolo/verlauf des Jetson-Dienstes (ab Fassung 1.12). Gezeichnet wird
+  // mAP50 je Epoche, ein Zug je Trainingslauf, dazu die Guete am Ende jedes Laufs und mit wie vielen
+  // bewerteten Bildern er gerechnet wurde. Die Kurve waechst auch WAEHREND eines Trainings mit, weil
+  // ultralytics results.csv Zeile fuer Zeile schreibt. Laeuft nur, solange der Reiter offen ist.
+  (function(){
+    const J = 'http://<IP-des-Jetson>:8095', $k = i => document.getElementById(i);
+    const FARBEN = ['#0b6ef5', '#1a9c3a', '#b0268f', '#e8a317', '#c0392b', '#00868b'];
+    function zeichne(v){
+      const c = $k('ykurve'); if (!c) return; const g = c.getContext('2d');
+      const B = c.width, H = c.height, l = 46, r = 12, o = 14, u = 30;
+      g.clearRect(0, 0, B, H); g.fillStyle = '#fff'; g.fillRect(0, 0, B, H);
+      const laeufe = (v.laeufe || []).filter(x => x.kurve && x.kurve.length);
+      if (!laeufe.length) { g.fillStyle = '#777'; g.font = '14px system-ui';
+        g.fillText('Noch kein Trainingslauf aufgezeichnet. Nach der nächsten Runde „Fertig" erscheint hier die Kurve.', l, H / 2); return; }
+      const n = laeufe.reduce((s, x) => s + x.kurve.length, 0);
+      const hoch = Math.max(0.2, Math.min(1, Math.max(...laeufe.flatMap(x => x.kurve.map(p => p.mAP50 || 0))) * 1.25));
+      const px = i => l + (B - l - r) * (n > 1 ? i / (n - 1) : 0.5);
+      const py = y => o + (H - o - u) * (1 - (y || 0) / hoch);
+      g.strokeStyle = '#ddd'; g.fillStyle = '#666'; g.font = '11px system-ui'; g.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) { const y = hoch * i / 4;
+        g.beginPath(); g.moveTo(l, py(y)); g.lineTo(B - r, py(y)); g.stroke();
+        g.fillText(y.toFixed(2), 6, py(y) + 4); }
+      g.fillText('mAP50', 6, 11);
+      let i0 = 0;
+      laeufe.forEach((lauf, k) => {
+        const f = FARBEN[k % FARBEN.length];
+        g.strokeStyle = f; g.lineWidth = 2; g.beginPath();
+        lauf.kurve.forEach((p, j) => { const x = px(i0 + j), y = py(p.mAP50);
+          if (j === 0) g.moveTo(x, y); else g.lineTo(x, y); });
+        g.stroke();
+        const ende = px(i0 + lauf.kurve.length - 1), yl = py(lauf.mAP50);
+        g.fillStyle = f; g.beginPath(); g.arc(ende, yl, 3.5, 0, 7); g.fill();
+        g.font = '11px system-ui'; g.fillText((lauf.mAP50 ?? 0).toFixed(3), Math.min(ende + 5, B - r - 32), yl - 5);
+        if (k) { g.strokeStyle = '#eee'; g.lineWidth = 1; g.beginPath(); g.moveTo(px(i0), o); g.lineTo(px(i0), H - u); g.stroke(); }
+        const run = (v.runden || [])[k] || {};
+        const bilder = (run.datensatz && (run.datensatz.train + run.datensatz.val)) || null;
+        g.fillStyle = f; g.font = '11px system-ui';
+        g.fillText(lauf.lauf.replace('lauf_', '') + (bilder ? ' · ' + bilder + ' Bilder' : ''), px(i0) + 3, H - 16);
+        i0 += lauf.kurve.length;
+      });
+      g.fillStyle = '#666'; g.font = '11px system-ui'; g.fillText('Epochen →', B - r - 62, H - 4);
+    }
+    async function ktick(){
+      if (!document.getElementById('statistik').classList.contains('an')) return;
+      try {
+        const v = await (await fetch(J + '/yolo/verlauf', {cache:'no-store'})).json();
+        zeichne(v);
+        const l = (v.laeufe || []).filter(x => x.kurve && x.kurve.length);
+        const letzte = l[l.length - 1];
+        const m = v.modell || {};
+        $k('ykurvetext').textContent = l.length
+          ? `${l.length} Trainingslauf${l.length > 1 ? 'e' : ''} · zuletzt ${letzte.lauf} mit ${letzte.epochen} Epochen, Güte mAP50 ${(letzte.mAP50 ?? 0).toFixed(3)}`
+            + (m.mAP50 ? ` · im Einsatz: mAP50 ${m.mAP50}, ${m.uhr || ''}` : '')
+            + (v.laeuft ? ' · ein Training läuft gerade, die Kurve wächst mit' : '')
+          : 'Noch kein Trainingslauf aufgezeichnet.';
+      } catch(e) {
+        $k('ykurvetext').textContent = 'Lernverlauf nicht abrufbar (' + String(e.message).slice(0, 60) + ') — braucht Jetson-Dienst 1.12.';
+      }
+    }
+    setInterval(ktick, 10000);
+    document.querySelectorAll('nav button').forEach(b => b.addEventListener('click', () => { if (b.dataset.r === 'statistik') setTimeout(ktick, 60); }));
+    if (document.getElementById('statistik').classList.contains('an')) ktick();
+  })();
+  (function(){
+    const J = 'http://<IP-des-Jetson>:8095', $j = i => document.getElementById(i); let zuletzt = 0;
+    const setz = (i, t) => { const e = $j(i); if (e && e.textContent !== t) e.textContent = t; };
+    async function jtick(){
+      try {
+        const d = await (await fetch(J + '/stand', {cache:'no-store'})).json(); zuletzt = Date.now();
+        $j('jlampe').classList.add('an');
+        setz('jverb', 'antwortet · Dienst ' + d.fassung + ' · seit ' + d.laeuft_min + ' min · Platte ' + d.platte_frei_gb + ' GB frei');
+        setz('jcpu', 'CPU ' + (d.cpu == null ? '–' : d.cpu + ' %')); setz('jgpu', 'GPU ' + (d.gpu == null ? '–' : d.gpu + ' %'));
+        setz('jram', 'RAM ' + (d.ram || '–')); setz('jtemp', (d.temp == null ? '–' : d.temp.toFixed(0) + ' °C'));
+        setz('jauftrag', (d.auftrag || '–') + (d.letzter_rsync ? ' · zuletzt geholt ' + d.letzter_rsync + ' (' + d.neue_saetze + ' neu)' : '') + (d.letzter_fehler ? ' · Fehler: ' + d.letzter_fehler : ''));
+        const l = d.live, pl = d.pi_live;
+        setz('jlive', l ? (l.verbunden ? 'sieht die Kamera des Pi · ' + l.bilder_je_s + ' Bilder/s · ' + l.mbit_je_s + ' Mbit/s · letztes Bild vor ' + l.letztes_bild_vor_s + ' s · ' + l.abgeschnitten + ' abgeschnitten'
+          + (pl && pl.bilder_s != null ? ' · Auswertung ' + pl.fassung + ' ' + pl.bilder_s + ' B/s' : '') : 'kein Livestrom' + (l.fehler ? ' (' + l.fehler + ')' : '')) : '–');
+        const y = d.yolo;
+        setz('jyolo', !y ? 'Dienst 1.8 nötig' : (d.training && d.training.laeuft && y.phase !== 'laeuft') ? ('pausiert — Training läuft seit ' + String(d.training.gestartet || '?').slice(11) + ' · danach startet der Livedienst von selbst')   // 1.30
+          : (y.phase === 'laeuft' ? ('Modell ' + (y.modell || '?') + ' · ' + (y.tiere_mittel_5s ?? '–') + ' Tiere im Bild (5 s) · ' + (y.bewegt ?? 0) + ' bewegt, ' + (y.ruhend ?? 0) + ' ruhend · Größe ' + (y.groesse_mm_median ?? '–') + ' mm · Tempo ' + (y.tempo_mm_s_median ?? '–') + ' mm/s · ' + (y.verarbeitet_s ?? '–') + ' Bilder/s')
+          : ('YOLO ' + (y.phase || '–') + (y.fehler ? ' (' + y.fehler + ')' : '') + (y.modell ? ' · Modell ' + y.modell : ''))));
+        const s = d.statistik, v = d.verfolgung;
+        setz('jstat', (d.saetze || 0) + ' Sätze' + (s && s.bahnen != null ? ' · ' + s.bahnen + ' Bahnen · Länge ' + s.laenge_um_median + ' µm · Tempo ' + s.tempo_mm_s_median + ' mm/s · ' + s.tiere_je_bild + ' Tiere/Bild' : '') + (v ? ' · Treffer ' + v.getroffen_prozent + ' %, Wechsel ' + v.wechsel_prozent + ' %' : ''));
+        const ys = document.getElementById('ystatistik'); if (ys) ys.textContent = document.getElementById('jstat').textContent + (s && s.stand ? ' · Stand ' + s.stand : '');
+      } catch(e) {
+        if (Date.now() - zuletzt > 6000) { $j('jlampe').classList.remove('an'); setz('jverb', 'nicht erreichbar (' + new Date().toLocaleTimeString('de-DE') + ') — Pi und Seite laufen ohne ihn weiter'); }
+      }
+    }
+    setInterval(jtick, 2000); jtick();
+  })();
+  // 1.24 (05.11.2026): Zustandstext zaehlt ruhende Tiere mit (Auswertung 1.4: Aussehens-Nachweis, grauer Punkt).
+  // 1.23 (05.11.2026): Fassung der Auswertung aus /stand im Kopf, damit nicht jede Modulfassung eine neue Seite braucht.
+  setInterval(async () => { try { const d = await (await fetch(W + '/stand', {cache:'no-store'})).json(); const e = $('auswertung_fassung'); if (e && d.fassung) e.textContent = d.fassung; } catch(e) {} }, 5000);
+  // 1.22 (05.11.2026): Quelle ist die neu aufgesetzte Auswertung 1.1 (:8092/strom_rahmen = Strom mit Punkten, /zaehler, /punkte).
+  // 1.21 (05.11.2026): Selbstneuladen. Sein Wort: "ok, musste die seite manuell neu laden ... oder du warst gerade schneller?"
+  // Der Browser behaelt die alte Seite, bis sie neu geladen wird; der Pi lieferte 1.20 schon 20 Minuten lang aus. Darum
+  // holt die Seite alle 30 s ihren eigenen Kopf (ohne Zwischenspeicher) und laedt sich neu, wenn dort eine andere
+  // Fassungsnummer steht -- hoechstens einmal je 5 Minuten, damit ein Fehler nie zu einer Ladeschleife wird.
+  (function(){
+    const eigene = (document.body.innerHTML.match(/Seite (1\.\d+)/) || [])[1]; let zuletzt = 0; window.__fassungspruefungen = 0;
+    if (!eigene) return;
+    setInterval(async () => {
+      try {
+        const t = await (await fetch(location.pathname || '/', {cache:'no-store'})).text(); window.__fassungspruefungen++;
+        const neu = (t.match(/Seite (1\.\d+)/) || [])[1];
+        if (neu && neu !== eigene && Date.now() - zuletzt > 300000) { zuletzt = Date.now(); location.reload(); }
+      } catch(e) {}
+    }, 30000);
+  })();
+  // 1.20 (05.11.2026): Punkte statt Rahmen, ohne Text (Beobachter 2.13); Fassung im Seitenkopf sichtbar.
+  // 1.19 (05.11.2026): Livebild = :8092/strom_rahmen (Rahmen im Bild), Zaehler = :8092/zaehler (Beobachter 2.12).
+  // 1.18: Rahmen kommen vom BEOBACHTER (8092), demselben Erkenner wie die Lampe --
+  // sein Wort: "objekterkennung schlug an aber der melder meldete nichts, das ist doch quatsch".
+  const W = location.protocol + '//' + location.hostname + ':8092';
+  const an      = () => { const e = $('rahmen_an'); return !e || e.checked; };
+  const mitText = () => { const e = $('rahmen_nr'); return !e || e.checked; };
+
+  function male(c, d, sk){
+    const x = c.getContext('2d');
+    x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, c.width, c.height);
+    return;   // 1.19: Rahmen stehen im Bild selbst (/strom_rahmen); die Lage bleibt leer
+    if (!an() || !d) return;
+    const um = d.massstab_um_px;
+    x.setTransform(sk.s, 0, 0, sk.s, sk.ox, sk.oy);
+    x.font = (13 / sk.s).toFixed(1) + 'px system-ui, sans-serif';
+    // Erinnerte zuerst, damit gesehene darueber liegen. Gestrichelt und blass: das Tier ist
+    // gerade NICHT zu sehen (meist aus der Schaerfeebene geschwommen), die Bahn wird aber
+    // noch gehalten. In die Messung geht davon nichts ein -- nur in die Anzeige.
+    for (const t of (d.erinnert || [])) {
+      x.save(); x.globalAlpha = Math.max(.18, .6 - .09 * t.fehlt);
+      x.setLineDash([5 / sk.s, 4 / sk.s]); x.lineWidth = 1.5 / sk.s;
+      x.strokeStyle = farbe(t.nr);
+      x.strokeRect(t.rx - 2, t.ry - 2, t.rb + 4, t.rh + 4);
+      x.restore();
+    }
+    x.lineWidth = 2 / sk.s;
+    for (const t of (d.tiere || [])) {
+      const f = farbe(t.nr);
+      x.strokeStyle = f;
+      x.strokeRect(t.rx - 2, t.ry - 2, t.rb + 4, t.rh + 4);
+      if (!mitText()) continue;
+      const txt = 'Nr ' + t.nr + (um ? ' · ' + Math.round(t.L * um) + ' µm' : '');
+      const b = x.measureText(txt).width, hy = t.ry - 6 / sk.s;
+      x.fillStyle = 'rgba(0,0,0,.65)';
+      x.fillRect(t.rx - 2, hy - 14 / sk.s, b + 8 / sk.s, 15 / sk.s);
+      x.fillStyle = f; x.fillText(txt, t.rx + 2 / sk.s, hy - 3 / sk.s);
+    }
+    x.setTransform(1, 0, 0, 1, 0, 0);
+  }
+
+  function zeigen(d){
+    const st = $('rahmen_stand');
+    if (!d) { if (st) st.textContent = 'Wache nicht erreichbar'; return; }
+    const nb = (d.tiere || []).length, nr = (d.ruhend || []).length, n = nb + nr, e = 0;   // 1.24: ruhende Tiere zaehlen mit (grauer Punkt)
+    if (st) st.textContent = n + (n === 1 ? ' Tier' : ' Tiere') + ' im Bild'
+          + (nr ? ' (' + nr + ' ruhend, grau)' : '')
+          + (d.alter_s != null && d.alter_s > 3 ? ' — Stand vor ' + d.alter_s + ' s' : '');
+    const l = $('lage');
+    if (l) male(l, d, {s:1, ox:0, oy:0});                     // Flaeche ist 640x480 gross
+    const v = $('vblage');
+    if (v && document.body.classList.contains('vb')) {        // Vollbild: object-fit contain
+      const dpr = window.devicePixelRatio || 1;
+      const bw = v.clientWidth, bh = v.clientHeight;
+      if (v.width !== Math.round(bw*dpr)) { v.width = Math.round(bw*dpr); v.height = Math.round(bh*dpr); }
+      const s = Math.min(bw / QB, bh / QH) * dpr;
+      male(v, d, {s:s, ox:(bw*dpr - QB*s)/2, oy:(bh*dpr - QH*s)/2});
+    }
+  }
+  // Die Wache SCHICKT jede neue Lage (Ereignisstrom). Nachfragen alle 200 ms liess den
+  // Rahmen um bis zu 44 Bildpunkte hinterherlaufen -- mehr als die Laenge eines Tieres.
+  // Faellt der Strom aus, wird wie bisher nachgefragt, damit die Anzeige nie ganz steht.
+  let quelle = null, ersatz = 0;
+  function nachfragen(){
+    if (ersatz) return;
+    ersatz = setInterval(async () => {
+      try { zeigen(await (await fetch(W + '/punkte', {cache:'no-store'})).json()); }
+      catch(e){ zeigen(null); }
+    }, 200);
+  }
+  function strom(){
+    if (!window.EventSource) { nachfragen(); return; }
+    try { quelle = new EventSource(W + '/punkte_strom'); } catch(e){ nachfragen(); return; }
+    // Gemessen 04.11.2026: Firefox auf dem Pi bei 125 % CPU. 28,8 Meldungen je Sekunde,
+    // jede mit JSON, Loeschen und Zeichnen, sind zu viel fuer die Anzeige -- das Auge braucht
+    // keine 28,8. Die neueste Lage wird gemerkt und hoechstens alle 80 ms gezeichnet.
+    let neueste = null, zuletzt = 0, angemeldet = false;
+    function malen(){
+      angemeldet = false;
+      const jetzt = performance.now();
+      if (jetzt - zuletzt < 80) { angemeldet = true; setTimeout(malen, 80 - (jetzt - zuletzt)); return; }
+      zuletzt = jetzt;
+      if (neueste) { const d = neueste; neueste = null; try { zeigen(d); } catch(e){} }
+    }
+    quelle.onmessage = ev => {
+      if (ersatz) { clearInterval(ersatz); ersatz = 0; }
+      try { neueste = JSON.parse(ev.data); } catch(e){ return; }
+      if (!angemeldet) { angemeldet = true; requestAnimationFrame(malen); }
+    };
+    quelle.onerror = () => { nachfragen(); };
+  }
+  // 1.19: kein Ereignisstrom mehr -- die Rahmen kommen im Bild; der Zustandstext fragt jede Sekunde nach.
+  setInterval(async () => {
+    try { zeigen(await (await fetch(W + '/punkte', {cache:'no-store'})).json()); } catch(e){ zeigen(null); }
+  }, 1000);
+
+  // --- Tierzaehler: je Stunde das Hoechste ------------------------------------
+  // Das Hoechste je Stunde ist die ehrliche Zahl fuer "wie viele sind da": ein Tier,
+  // das gerade still steht oder aus der Scharfebene schwimmt, fehlt im Einzelbild,
+  // war aber da. Der duenne Strich darunter ist der Mittelwert -- der Abstand
+  // zwischen beiden sagt, wie viel die Scharfebene verschluckt.
+  function kurve(d){
+    const c = $('tierkurve'); if (!c) return;
+    const x = c.getContext('2d'), w = c.width, h = c.height;
+    const stil = getComputedStyle(document.body);
+    const vg = stil.color || '#1d1d1b';
+    x.clearRect(0, 0, w, h);
+    const reihe = (d.stunden || []).slice(-36);
+    if (d.laufend && d.laufend.bilder) reihe.push(Object.assign({laufend:true}, d.laufend));
+    const info = $('tierinfo');
+    if (!reihe.length) { if (info) info.textContent = 'noch keine volle Stunde gemessen'; return; }
+    const l = 34, r = 8, o = 12, u = 26, bw = w - l - r, bh = h - o - u;
+    const ymax = Math.max(1, ...reihe.map(e => e.hoechstens)) ;
+    const ys = v => o + bh - (v / (ymax * 1.15)) * bh;
+    x.strokeStyle = 'rgba(128,128,128,.35)'; x.fillStyle = vg;
+    x.font = '11px system-ui, sans-serif'; x.textAlign = 'right';
+    const schritt = ymax <= 5 ? 1 : Math.ceil(ymax / 5);
+    for (let v = 0; v <= ymax; v += schritt) {
+      const y = ys(v);
+      x.beginPath(); x.moveTo(l, y); x.lineTo(w - r, y); x.stroke();
+      x.fillText(String(v), l - 5, y + 4);
+    }
+    const bb = bw / reihe.length, kb = Math.max(2, Math.min(22, bb * .68));
+    x.textAlign = 'center';
+    reihe.forEach((e, i) => {
+      const cx = l + bb * (i + .5), y = ys(e.hoechstens);
+      x.fillStyle = e.laufend ? 'rgba(31,78,158,.45)' : '#1f4e9e';
+      x.fillRect(cx - kb / 2, y, kb, o + bh - y);
+      x.fillStyle = '#b3261e';
+      const ym = ys(e.mittel);
+      x.fillRect(cx - kb / 2, ym - 1, kb, 2);
+      // Zeitstempel lesbar: die Stunde, und beim Tageswechsel zusaetzlich das Datum.
+      // Eine nackte Stundenzahl ist ueber mehrere Tage nicht eindeutig.
+      const uhr = e.uhr || '', std = uhr.slice(11, 13), tag = uhr.slice(0, 10);
+      const neuerTag = i === 0 || tag !== (reihe[i - 1].uhr || '').slice(0, 10);
+      const dicht = Math.ceil(reihe.length / 12);
+      if (neuerTag || reihe.length <= 14 || i % dicht === 0 || i === reihe.length - 1) {
+        x.fillStyle = vg; x.fillText(std, cx, h - 13);
+        if (neuerTag) { x.fillStyle = '#1f4e9e';
+                        x.fillText(tag.slice(8, 10) + '.' + tag.slice(5, 7) + '.', cx, h - 3); }
+      }
+    });
+    x.fillStyle = vg; x.textAlign = 'left';
+    x.font = '10px system-ui, sans-serif';
+    x.fillText('Uhrzeit (volle Stunde)', l, o - 2);
+    if (info) {
+      const letzte = reihe[reihe.length - 1];
+      const ganz = (d.stunden || []);
+      const vu = u => (u || '').replace('T', ' ').replace(/^(\d{4})-(\d{2})-(\d{2}) /, '$3.$2.$1 ');
+      info.textContent = 'laufende Stunde ' + vu(letzte.uhr)
+        + ': höchstens ' + letzte.hoechstens + ', im Mittel ' + letzte.mittel
+        + ' (' + letzte.bilder + ' Bilder)'
+        + (ganz.length ? ' · abgeschlossen: ' + ganz.length + ' Stunden, höchster Wert '
+           + Math.max(...ganz.map(e => e.hoechstens)) : '')
+        + ' · blau = höchstens, roter Strich = Mittel';
+    }
+  }
+  async function ztick(){
+    try { kurve(await (await fetch(W + '/zaehler', {cache:'no-store'})).json()); }
+    catch(e){ const i = $('tierinfo'); if (i) i.textContent = 'Wache nicht erreichbar'; }
+  }
+  setInterval(ztick, 20000); ztick();
+
+  // --- Leuchtanzeige des Bewegungsmelders (Port 8092) ------------------------
+  // Sein Wort: "zeige in der html an wann der trigger kommt mit einem leuchtbutton an der
+  // seite der so lange leuchtet wie nach dem triggern aufgezeichnet wird damit ich das
+  // ueberpruefen kann". Die Lampe leuchtet also genau waehrend der Aufzeichnung.
+  const MELDER = location.protocol + '//' + location.hostname + ':8092';
+  async function mtick(){
+    const k = $('melder'), tx = $('meldertext'), zl = $('melderzahl');
+    if (!k) return;
+    try {
+      const d = await (await fetch(MELDER + '/stand', {cache:'no-store'})).json();
+      k.classList.toggle('an', !!d.zeichnet);
+      tx.textContent = d.zeichnet ? 'ZEICHNET AUF' : 'Melder bereit';
+      // drei feste Zeilen: Ausloesezeit, Dauer, Objekte -- immer dieselbe Hoehe
+      const l = d.letzte || {};
+      zl.innerHTML = d.zeichnet
+        ? 'ausgelöst ' + (d.ausgeloest_uhr || '–') + '<br>'
+          + 'läuft ' + (d.aufnahme_s || 0).toFixed(1) + ' s (mind. ' + d.mindest_s + ' s)<br>'
+          + d.objekte + ' Objekte im Bild'
+        : (l.ausgeloest_uhr ? 'zuletzt ' + l.ausgeloest_uhr + '<br>' + l.dauer_s + ' s aufgezeichnet<br>' + d.aufnahmen + ' Aufnahmen'
+                            : 'noch nicht ausgelöst<br>' + d.vordergrund + ' px · ' + d.in_folge + '/5<br>' + d.aufnahmen + ' Aufnahmen');
+    } catch(e) {
+      k.classList.remove('an'); tx.textContent = 'Melder aus'; zl.textContent = '';
+    }
+  }
+  setInterval(mtick, 500); mtick();
+})();
+
+// --- Selbstaktualisierung 1.12 (04.11.2026) -----------------------------------
+// BEFUND: Eine offene Seite laedt sich nie von selbst neu. Nach jeder Auslieferung sah er
+// weiter die alte Fassung ("nein da ist nichts behoben") -- gemessen war die neue laengst
+// fest. Der Dienst sendet keinerlei Cache-Kopfzeilen (HTTP/1.0, kein Last-Modified), ein
+// Neuladen holt also immer frisch. Darum fragt die Seite jede Minute (und beim Wiedersichtbar-
+// werden des Reiters) ihre eigene Fassungsmarke ab und laedt sich bei Aenderung neu.
+(function(){
+  const eigene = (document.querySelector('meta[name=fassung]')||{}).content || '';
+  if (!eigene) return;
+  // Reiter merken, damit er den Neustart ueberlebt
+  document.querySelectorAll('nav button').forEach(b => b.addEventListener('click', () => {
+    try { sessionStorage.setItem('reiter', b.dataset.r); } catch(e){}
+  }));
+  try {
+    const r = sessionStorage.getItem('reiter');
+    const b = r && document.querySelector('nav button[data-r="' + r + '"]');
+    if (b && !b.classList.contains('an')) b.click();
+  } catch(e){}
+  let laeuft = false;
+  async function pruefen(){
+    if (laeuft || document.hidden) return;
+    laeuft = true;
+    try {
+      const t = await (await fetch(location.pathname, {cache:'no-store'})).text();
+      const m = t.match(/<meta name="fassung" content="([^"]+)"/);
+      if (m && m[1] !== eigene) location.reload();
+    } catch(e){}
+    laeuft = false;
+  }
+  setInterval(pruefen, 60000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) pruefen(); });
+})();
+</script></body></html>
