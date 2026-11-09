@@ -75,6 +75,8 @@ Einzelheiten in `protokolle/STAND_2026-11-09.md` und im Manuskript, Kapitel 20.
 
 Ein Filmausschnitt (5,9 s, der tierreichste Satz mit Video nach YOLO-Zählung, 06.11.2026 17:33 Uhr) liegt in `video/`: [roh](video/clip_roh_2026-11-06.mp4) und [mit den Rahmen des Modells](video/clip_yolo_2026-11-06.mp4); auf der Seite läuft er im Manuskript, Kapitel 13.
 
+**Erklärvideo des Verfassers** (09.11.2026, 4:06 min, Hochformat, mit Ton, 65 MB): ein Rundgang am Aufbau — Mikroskop mit Servo am Rändelrad, Raspberry Pi mit Anzeige, Jetson, Verkabelung — [video/Erklaervideo_USB_Mikroskop_Salzkrebse_2026-11-09.mp4](video/Erklaervideo_USB_Mikroskop_Salzkrebse_2026-11-09.mp4).
+
 ## Aufbau
 
 * **Pi:** `pi/autofokus4.py` (Fokusdienst mit Seite, Teil A), `pi/auswertung_1.4_rev2.py` (Bildwächter: MOG2, Form und Farbe,
