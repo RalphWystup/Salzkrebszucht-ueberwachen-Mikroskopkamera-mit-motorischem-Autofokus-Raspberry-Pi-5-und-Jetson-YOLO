@@ -1,8 +1,8 @@
 ---
 title: "Salzkrebszucht überwachen: Mikroskopkamera mit motorischem Autofokus am Raspberry Pi 5, Jetson Orin Nano erkennt und zählt mit YOLO"
-subtitle: "Manuskript, Fassung 1.1 vom 07.11.2026 — Teil A: Der motorische Autofokus (18.10.2026) · Teil B: Beobachtung, Lernen und Erkennen (06./07.11.2026)"
+subtitle: "Manuskript, Fassung 1.2 vom 09.11.2026 — Teil A: Der motorische Autofokus (18.10.2026) · Teil B: Beobachtung, Lernen und Erkennen (06.–09.11.2026)"
 author: "Prof. Dr.-Ing. Ralph Wystup M.Sc. und Claude (Anthropic, Claude Code) — gemeinsam erstellt"
-date: "07.11.2026"
+date: "09.11.2026"
 lang: de
 ---
 
@@ -485,6 +485,26 @@ zuerst die Zahl der bewerteten Bilder zu erhöhen und erst danach an Schwellen z
 2. Die Schwelle des Livedienstes von 0,40 auf 0,25 senken. Eine Zahl, sofort umkehrbar, dreifache Ausbeute.
 3. Ortsfest-Maske, Flächenfenster und Gruppierungsabstand der Farbregel überprüfen — erst messen, dann ändern.
 4. Die Datei mit den eingezeichneten Rahmen nicht mehr mitschreiben, sondern bei Bedarf zeichnen.
+
+## 20 · Nachtrag 09.11.2026: der Absturz der Nacht und was daraus wurde
+
+**Befund.** In der Nacht vom 08. auf den 09.11. fror der Pi um 01:13 Uhr ein; am Nachmittag davor war das Livebild immer wieder für Sekunden stehen geblieben. Das Journal des vorigen Starts (`journalctl -b -1`) zeigt die Ursache: der Bildwächter 1.4 legt jede Aufnahme über eine Warteschlange auf die Karte, und diese Warteschlange war **unbegrenzt**. Bei dichter Tierbewegung lösten die Aufnahmen schneller aus, als die Karte sie wegschreiben konnte: der Verzug zwischen Auslösung und Ablage stieg bis auf 2036 s, über den Lauf standen 18 527 Auslösungen 18 041 Ablagen gegenüber, und jeder wartende Satz hielt 10–20 MB Bilder im Speicher. Der Prozess wuchs von 300 MB auf 2,19 GB; der Kern beendete ihn um 21:26 und um 00:10 (beim ersten Mal starb das Journal mit), und um 01:13 war der Speicher so knapp, dass nichts mehr lief. Das „Stocken“ des Bildes am Nachmittag war also kein Netzproblem, sondern Auslagern unter Speichernot.
+
+**Abhilfe (Bildwächter 1.4_rev2).** Erkennung und Verfolgung sind unverändert — die Rohaufnahme `20261109_095234.avi` (440 Bilder) ergibt mit 1.4, rev1 und rev2 Bild für Bild dieselben Rahmen und Bahnen. Geändert ist nur der Umgang mit der Last:
+
+* die Schreibwarteschlange fasst höchstens **drei Sätze**; ein vierter wird verworfen und gezählt (`verworfen`), statt den Speicher zu füllen;
+* veraltete Bilder im Eingangspuffer werden übersprungen und gezählt (`uebersprungen`) — der Pi schafft neben Firefox-Kiosk und Fokusdienst etwa 20 von 28,8 Bildern/s, und rev2 arbeitet die jüngsten statt alle ab;
+* eine **Speicherwache** beendet den Dienst geordnet bei 1,2 GB, systemd startet ihn neu; dazu wirkt erstmals die Dienstgrenze `MemoryMax=1500M`, weil der Kern-Speichercontroller eingeschaltet wurde (`cgroup_enable=memory cgroup_memory=1` in `cmdline.txt` — die Firmware des Pi schaltet ihn sonst ab, und systemd nimmt die Grenze stillschweigend an, ohne sie durchzusetzen);
+* ein **Aussetzer-Protokoll** meldet jede Lücke der Hauptschleife über 1 s im Journal und in `/stand`;
+* die **Zähler liegen auf der Karte**: jede volle Stunde eine Zeile (`zaehler_stunden.jsonl`), alle fünf Sekunden der Stand (`zaehler.json`), beim Start wird die Vorgeschichte gelesen und zusammengeführt. Vorher waren Stundenverlauf und Gesamtzähler mit jedem Neustart weg.
+
+**Gemessen nach 54 min Betrieb:** 62 949 Bilder verarbeitet, 19,1/s, 32 % übersprungen, 0 verworfen, 0 Aussetzer, 260 MB Speicher; der Versatz zwischen Bedienen (8090) und Anzeige (8092) fiel von 0,51 s (Median, 1.4) auf **0,15 s**. Ein scheinbarer Ausreißer von 5,8 s erwies sich als Messfehler: die letzten Bilder des kürzeren Vergleichsstroms hatten keinen Partner mehr.
+
+**Wache entfernt.** Der ältere Bildwächter (8091) lief neben der Auswertung und zählte dasselbe zweimal. Er ist abgeschaltet und nach `ALT_2026-11-09/` verschoben; die Seite **1.35** hat keinen Reiter „Wache“ mehr, die Vollbildzeile zeigt die Zahlen der Auswertung.
+
+**Lernbilder nachziehen.** Die Tiere wachsen, und ein Modell aus Lernbildern vom 06.11. veraltet. Die Lernseite **1.10** hat deshalb den Knopf „100 neue Bilder aus aktuellem Material“: der Jetson-Dienst **1.13** (`POST /lernen/nachziehen`) wählt mit `jetson_lernbilder_1.1.py` aus den Aufnahmen der letzten sechs Stunden Bilder, auf denen mindestens zehn Bilder vor und nach dem gewählten Bild Tiere erkannt wurden — höchstens zwei je Satz, im Abstand von mindestens 25 Bildern. Jede Runde trägt die Zeitmarke `datensatz` (Wachstumsstand); der Datensatzbau **1.2** nimmt alle Marken zusammen und schreibt die Zusammensetzung (`zusammensetzung.json`, im Verlauf). Erster echter Druck 10:27 Uhr: 100 Bilder in 5 s. Das anschließende Training (398 Bilder, 40 Epochen, 1004 s) hob mAP@0,5 der Klasse Tier von 0,53 auf **0,75**; während des Trainings zeigt die Seite „YOLO pausiert“, danach läuft der Livedienst mit 28 Bildern/s weiter.
+
+**Prüfmittel:** `pruefe_seite_1.35_1.0.js` (19 Proben), `pruefe_lernseite_nachziehen_1.0.js` (14 Proben), Einzelproben zu Zähler, Warteschlange, Überspringen, Speicherwache und Vorgeschichte. Rückfälle je ein Befehl: `pi_auswertung_wechsel_1.0.sh 1.4`, `seite_1.34_vorher.html`, Fassungsdatei `jetson_dienst_1.12.py`, `lernen_vorher_1.9.html`.
 
 ## Quellen
 

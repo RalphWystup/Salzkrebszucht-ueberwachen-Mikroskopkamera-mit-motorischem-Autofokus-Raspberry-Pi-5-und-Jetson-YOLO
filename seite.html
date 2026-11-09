@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mikroskop-Fokus</title><meta name="fassung" content="1.33">
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mikroskop-Fokus</title><meta name="fassung" content="1.35">
 <style>
 :root{--bg:#f4f3ef;--fg:#1d1d1b;--rand:#c9c6bd;--kasten:#fff;--grau:#6b6962;--blau:#1f4e9e;--rot:#b3261e}
 body{font:15px/1.45 system-ui,"Segoe UI",sans-serif;margin:0;background:var(--bg);color:var(--fg)}
@@ -91,6 +91,8 @@ button.g{background:#e8f0fb;border-color:var(--blau)}button:disabled{opacity:.45
 pre.log{background:#fff;border:1px solid #ccc;padding:8px;height:250px;overflow:auto;font-size:12px;margin:0;white-space:pre-wrap}
 input[type=number]{font:inherit;padding:7px;width:70px}small{color:var(--grau)}
 .text{max-width:960px}
+/* 1.35 (09.11.2026, sein Wort: "dann entferne die wache und den reiter dazu"): Reiter, Abschnitt und Abfragen der Wache (Port 8091)
+   entfernt; die Vollbildleiste zeigt statt der Wache die Auswertung (8092). Sonst unveraendert gegenueber 1.34. */
 /* 1.34 (07.11.2026, sein Wort: "neben das bild sonst muss man immer scrolen" und "das auch rechts, das ist
    immer platz frei"): Reiter, die Flaeche brauchen, duerfen breiter sein als 960 px. */
 .text.weit{max-width:none}
@@ -146,9 +148,6 @@ body.vb .vw{color:#9ad} body.vb .vg{color:#7c7} body.vb .vr{color:#f88}
     [/8092\/punkte/,   'daten/auswertung_punkte.json'],
     [/8092\/zaehler/,  'daten/auswertung_zaehler.json'],
     [/8092\/stand/,    'daten/auswertung_stand.json'],
-    [/8091\/zaehler/,  'daten/wache_zaehler.json'],
-    [/8091\/punkte/,   'daten/wache_punkte.json'],
-    [/8091\/stand/,    'daten/stand_wache.json'],
     [/8095\/stand/,    'daten/stand_jetson.json'],
     [/\/status(\?|$)/, 'daten/status_pi.json'],
     [/\/status\b/,     'daten/status_pi.json']
@@ -194,11 +193,11 @@ body.vb .vw{color:#9ad} body.vb .vg{color:#7c7} body.vb .vr{color:#f88}
       Object.defineProperty(r, 'src', {
         configurable: true,
         get: function(){ return d.get.call(this); },
-        set: function(v){ d.set.call(this, /\/lernen/.test(String(v)) ? 'lernseite/lernen_1.9.html' : v); }
+        set: function(v){ d.set.call(this, /\/lernen/.test(String(v)) ? 'lernseite/lernen_1.10.html' : v); }
       });
     } catch (err) {}
     var a = document.getElementById('llink');
-    if (a) { a.href = 'lernseite/lernen_1.9.html'; a.textContent = 'In eigenem Fenster öffnen'; }
+    if (a) { a.href = 'lernseite/lernen_1.10.html'; a.textContent = 'In eigenem Fenster öffnen'; }
   }
 
   // Ein gesperrter Knopf soll auch gesperrt AUSSEHEN -- die farbigen Knoepfe behalten sonst
@@ -240,8 +239,8 @@ body.vb .vw{color:#9ad} body.vb .vg{color:#7c7} body.vb .vr{color:#f88}
 </script>
 
 </head><body>
-<header><h1>Mikroskop-Fokus</h1><small>USB-Mikroskop am Raspberry Pi 5, Servo an Hardware-PWM · Prof. Dr.-Ing. Ralph Wystup M.Sc. und Claude (Anthropic, Claude Code) — gemeinsam erstellt · Fassung 4, 18.10.2026 · <b>Seite 1.34</b> · Jetson-Block · Punkte im Bild von der Auswertung <span id="auswertung_fassung">–</span> (neu aufgesetzt 05.11.2026) · Bildwächter 1.4 · Jetson mit YOLO (Manuskript Teil B) · lädt sich bei neuer Fassung selbst neu</small></header>
-<nav><button class="an" data-r="bedienen">Bedienen</button><button data-r="statistik">Statistik</button><button data-r="lernen">Lernen</button><button data-r="hardware">Hardware und Verschaltung</button><button data-r="beschreibung">Beschreibung und Ablauf</button><button data-r="manuskript">Manuskript: Methoden</button><button data-r="messung">Messungen</button><button data-r="zusammenarbeit">Zusammenarbeit mit der KI</button><button data-r="wache">Wache</button></nav>
+<header><h1>Mikroskop-Fokus</h1><small>USB-Mikroskop am Raspberry Pi 5, Servo an Hardware-PWM · Prof. Dr.-Ing. Ralph Wystup M.Sc. und Claude (Anthropic, Claude Code) — gemeinsam erstellt · Fassung 4, 18.10.2026 · <b>Seite 1.35</b> · Jetson-Block · Punkte im Bild von der Auswertung <span id="auswertung_fassung">–</span> (neu aufgesetzt 05.11.2026) · Bildwächter 1.4 · Jetson mit YOLO (Manuskript Teil B) · lädt sich bei neuer Fassung selbst neu</small></header>
+<nav><button class="an" data-r="bedienen">Bedienen</button><button data-r="statistik">Statistik</button><button data-r="lernen">Lernen</button><button data-r="hardware">Hardware und Verschaltung</button><button data-r="beschreibung">Beschreibung und Ablauf</button><button data-r="manuskript">Manuskript: Methoden</button><button data-r="messung">Messungen</button><button data-r="zusammenarbeit">Zusammenarbeit mit der KI</button></nav>
 
 <section class="an" id="bedienen"><div class="k">
 <div><div class="zoomrahmen" id="zoomrahmen"><img class="live" id="bild" src="bilder/bild_roh_1.jpg" alt="Standbild aus dem Betrieb" draggable="false"><canvas class="lage" id="lage" width="640" height="480"></canvas></div>
@@ -378,7 +377,7 @@ und ein Jetson Orin Nano daneben erkennt die Tiere mit einem angelernten Netz. D
 zwar so, dass der Pi nie auf den Jetson wartet.</p>
 <table>
 <tr><th>Gerät</th><th>Aufgabe</th><th>läuft als</th></tr>
-<tr><td>Raspberry Pi 5</td><td>Bild aufnehmen, scharf stellen, Bewegung erkennen, Aufnahmen schreiben, diese Seite ausliefern, Tiere verfolgen</td><td><code>autofokus4.py</code> (Port 8090), <code>auswertung_1.4.py</code> (Port 8092), <code>wache_pi</code> (Port 8091)</td></tr>
+<tr><td>Raspberry Pi 5</td><td>Bild aufnehmen, scharf stellen, Bewegung erkennen, Aufnahmen schreiben, diese Seite ausliefern, Tiere verfolgen</td><td><code>autofokus4.py</code> (Port 8090), <code>auswertung_1.4.py</code> (Port 8092)</td></tr>
 <tr><td>Jetson Orin Nano</td><td>Aufnahmen abholen, Farbwahrheit rechnen, Statistik, Lernseite ausliefern, YOLO anlernen und live rechnen</td><td><code>mikroskop-jetson</code> (Port 8095), <code>mikroskop-yolo</code> (Port 8096), <code>mikroskop-training</code> (einmalig)</td></tr>
 </table>
 <p>Fällt der Jetson aus, bleiben in dieser Seite nur die Lampen grau. Aufnahme, Schärfe, Verfolgung und der
@@ -1121,24 +1120,6 @@ Kapitel 15) ist das Ergebnis der Forderung des Verfassers, dass das Zusammenspie
 einer Wissensdatenbank, die vor jedem neuen Mechanismus befragt wird — „sieh immer zuerst nach, damit wir nichts vergessen, was wir schon mal gelöst haben".</p>
 </div></section>
 
-<section id="wache"><div class="text">
-<h2>Wache: Tierbeobachtung und die drei Wächter</h2>
-<p id="wstand" style="font-size:17px;margin:8px 0">wird abgefragt …</p>
-<table class="tafel" id="wtafel"></table>
-<h3>Was die drei Wächter prüfen</h3>
-<table class="tafel">
-<tr><th>Wächter</th><th>woran</th><th>Sollwert</th><th>fällt aus, wenn</th></tr>
-<tr><td><b>Fokus</b></td><td>Servowinkel, bei jeder Prüfung von <code>/status</code> geholt</td>
-    <td>der Winkel der Grundlinie</td><td>nachfokussiert wurde</td></tr>
-<tr><td><b>Lage</b></td><td>Phasenkorrelation gegen das Referenzbild</td>
-    <td>0 Bildpunkte</td><td>Schale oder Folie verrutscht sind</td></tr>
-<tr><td><b>Beharrlichkeit</b></td><td>Punkte, die in über 80 % der Bilder eines Fensters abweichen</td>
-    <td>unter 150</td><td>Schmutz sich abgesetzt hat oder eine Blase steht</td></tr>
-</table>
-<p><small>Sie versagen aus verschiedenen Gründen — fällt einer aus, fällt der nächste nicht mit.
-Die Wache läuft als eigener Dienst auf Port 8091 und rührt diese Seite nicht an. Steht dort
-„nicht erreichbar", ist sie nicht gestartet; am Mikroskop ändert das nichts.</small></p>
-</div></section>
 <!-- 1.17: Lampe steht ausserhalb des Vollbild-Behaelters -- sein Wort: "nur auf der html", "das vollbild kann so bleiben" -->
 <div id="melder" title="Bewegungsmelder: leuchtet, solange nach dem Ausloesen aufgezeichnet wird">
  <div id="melderlampe"></div><b id="meldertext">Melder</b>
@@ -1177,37 +1158,6 @@ r.addEventListener('pointermove',e=>{if(!zieh)return;tx=zieh.tx+(e.clientX-zieh.
 r.addEventListener('pointerup',()=>{zieh=null;r.style.cursor='grab';});r.addEventListener('pointercancel',()=>{zieh=null;});
 male();})();
 
-// --- Wache auf Port 8091 (eigener Dienst, eigene Herkunft; sendet CORS-Kopf) ---
-const WACHE = location.protocol + '//' + location.hostname + ':8091';
-function wzeile(n, v, ok){return `<tr><td>${n}</td><td style="font-variant-numeric:tabular-nums">${v}</td>`
-  + `<td>${ok===null?'':(ok?'<b style="color:#2e7d32">in Ordnung</b>':'<b style="color:#b00">ACHTUNG</b>')}</td></tr>`;}
-async function wtick(){
-  const st=document.getElementById('wstand'), tf=document.getElementById('wtafel');
-  if(!st) return;
-  try{
-    const z=await (await fetch(WACHE+'/stand',{cache:'no-store'})).json();
-    st.textContent=`${z.phase} · ${z.bilder} Bilder · ${z.episoden} Episoden · seit ${z.laeuft_seit_min} min`;
-    const ws=z.winkel_soll, w=z.winkel;
-    let h='<tr><th>Größe</th><th>Wert</th><th>Urteil</th></tr>';
-    h+=wzeile('Fokus (Servowinkel)', w==null?'–':w.toFixed(2)+'°'+(ws?` (Soll ${ws.toFixed(2)}°)`:''),
-              (w==null||ws==null)?null:Math.abs(w-ws)<=0.15);
-    h+=wzeile('Maßstab aus der Folie', z.massstab_um_px?z.massstab_um_px.toFixed(3)+' µm/px':'nicht lesbar',
-              z.massstab_um_px?true:null);
-    h+=wzeile('Lage gegen die Referenz', `(${z.lage[0].toFixed(0)}, ${z.lage[1].toFixed(0)}) px`,
-              Math.abs(z.lage[0])<1 && Math.abs(z.lage[1])<1);
-    h+=wzeile('stehende Abweichungen', z.stehend+' Punkte', z.stehend<150);
-    h+=wzeile('Referenz neu gebaut', z.referenz_neu+'×', null);
-    const e=z.letzte_episode;
-    // immer dieselbe Zeilenzahl -- eine fehlende Zeile liesse die Tafel springen
-    h+=wzeile('letzte Episode', e ? `${e.uhr||''} · ${e.ortungen} Ortungen`
-        +(e.laenge_um?` · ${e.laenge_um.toFixed(0)} µm · ${e.tempo_mm_s.toFixed(2)} mm/s`:'') : '–', null);
-    tf.innerHTML=h;
-  }catch(e){
-    st.textContent='Wache nicht erreichbar (Dienst auf Port 8091 läuft nicht)';
-    tf.innerHTML='';
-  }
-}
-setInterval(wtick, 3000); wtick();
 
 // --- Vollbildansicht (nur mit ?vollbild in der Adresse) ------------------------
 // BEFUND 03.11.2026: Zuerst lag die Vollbildansicht als eigene Datei unter file://.
@@ -1226,21 +1176,12 @@ if (location.search.indexOf('vollbild') >= 0) {
         + ` · <span class="vw">Schärfe</span> ${z.schaerfe.toFixed(0)}`
         + ` · <span class="vw">Bildrate</span> ${z.fps?z.fps.toFixed(1):'–'}/s · ${z.phase}`;
     }catch(e){ V('vb1').innerHTML='<span class="vr">Fokusdienst antwortet nicht</span>'; }
-    try{
-      const w = await (await fetch(location.protocol+'//'+location.hostname+':8091/stand',
-                                   {cache:'no-store'})).json();
-      const f=(a)=>a?'vg':'vr';
-      const fok=(w.winkel!=null&&w.winkel_soll!=null)?Math.abs(w.winkel-w.winkel_soll)<=0.15:null;
-      V('vb2').innerHTML = `<span class="vw">Wache</span> ${w.episoden} Episoden · ${w.bilder} Bilder`
-        + (w.massstab_um_px?` · <span class="vw">Maßstab</span> ${w.massstab_um_px.toFixed(3)} µm/px`:'')
-        + ` · <span class="${f(fok)}">Fokus</span>`
-        + ` <span class="${f(Math.abs(w.lage[0])<1&&Math.abs(w.lage[1])<1)}">Lage</span>`
-        + ` <span class="${f(w.stehend<150)}">Beharrlichkeit</span>`;
-      const e=w.letzte_episode;
-      V('vb3').innerHTML = e ? `<span class="vw">zuletzt</span> `
-        + (e.laenge_um?`${e.laenge_um.toFixed(0)} µm · ${e.tempo_mm_s.toFixed(2)} mm/s`
-                      :`${e.ortungen} Ortungen`) : '';
-    }catch(e){ V('vb2').innerHTML='<span class="vr">Wache läuft nicht</span>'; V('vb3').textContent=''; }
+    try{   // 1.35: Auswertung (8092) statt Wache (8091); die Wache ist am 09.11.2026 auf sein Wort abgestellt
+      const w = await (await fetch(location.protocol+'//'+location.hostname+':8092/stand',{cache:'no-store'})).json();
+      V('vb2').innerHTML = `<span class="vw">Auswertung ${w.fassung}</span> ${w.objekte} im Bild · ${w.aufnahmen} Aufnahmen · ${w.bilder_s}/s`
+        + (w.verworfen ? ` · <span class="vr">${w.verworfen} verworfen</span>` : '');
+      V('vb3').innerHTML = w.letzte ? `<span class="vw">zuletzt</span> ${w.letzte.uhr} · ${w.letzte.bilder} Bilder` : '';
+    }catch(e){ V('vb2').innerHTML='<span class="vr">Auswertung läuft nicht</span>'; V('vb3').textContent=''; }
   }
   setInterval(vbtick, 3000); vbtick();
 }
@@ -1348,7 +1289,7 @@ if (location.search.indexOf('vollbild') >= 0) {
 // Die Rahmen werden NICHT in den Bildstrom gezeichnet, sondern als durchsichtige
 // Lage darueber. Damit bleibt jedes Messbild unberuehrt -- was einmal im JPEG steht,
 // steht fuer immer darin und verfaelscht jede spaetere Auswertung.
-// Die Nummern kommen aus der Bahnverknuepfung der Wache (Hungarian-Zuordnung,
+// Die Nummern kommen aus der Bahnverknuepfung der Auswertung (Hungarian-Zuordnung,
 // gegen trackpy 0.7 zu 100,00 % geprueft). Ein Tier behaelt seine Nummer, solange
 // es verfolgt werden kann; kommen sich zwei naeher als etwa 30 Bildpunkte (315 um),
 // verschmelzen sie zu EINEM Fleck -- dann sieht auch die Erkennung nur noch eines.
@@ -1580,7 +1521,7 @@ if (location.search.indexOf('vollbild') >= 0) {
 
   function zeigen(d){
     const st = $('rahmen_stand');
-    if (!d) { if (st) st.textContent = 'Wache nicht erreichbar'; return; }
+    if (!d) { if (st) st.textContent = 'Auswertung nicht erreichbar'; return; }
     const nb = (d.tiere || []).length, nr = (d.ruhend || []).length, n = nb + nr, e = 0;   // 1.24: ruhende Tiere zaehlen mit (grauer Punkt)
     if (st) st.textContent = n + (n === 1 ? ' Tier' : ' Tiere') + ' im Bild'
           + (nr ? ' (' + nr + ' ruhend, grau)' : '')
@@ -1696,7 +1637,7 @@ if (location.search.indexOf('vollbild') >= 0) {
   }
   async function ztick(){
     try { kurve(await (await fetch(W + '/zaehler', {cache:'no-store'})).json()); }
-    catch(e){ const i = $('tierinfo'); if (i) i.textContent = 'Wache nicht erreichbar'; }
+    catch(e){ const i = $('tierinfo'); if (i) i.textContent = 'Auswertung nicht erreichbar'; }
   }
   setInterval(ztick, 20000); ztick();
 

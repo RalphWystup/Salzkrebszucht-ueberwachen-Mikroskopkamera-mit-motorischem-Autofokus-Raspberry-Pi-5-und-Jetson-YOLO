@@ -1,1 +1,45 @@
-{"fassung": "1.4", "phase": "wacht", "zeichnet": false, "rest_s": 0.0, "objekte": 0, "ausgeloest_uhr": "20:29:34", "aufnahme_s": 5.0, "kaputt": 0, "mindest_s": 5.0, "hoechst_s": 15.0, "vordergrund": 0, "in_folge": 0, "aufnahmen": 6532, "letzte": {"name": "20261107_202934", "bilder": 165, "mit_objekt": 28, "ausgeloest_uhr": "20:29:34", "dauer_s": 5.7, "uhr": "20:29:47"}, "bilder": 3191050, "bilder_s": 28.9, "helligkeit": 142.7, "beleuchtungswechsel": 15, "letzter_wechsel_uhr": "14:45:00", "nachlernen": 0, "bahnen_offen": 0, "seit": 1793969128.4527602, "laeuft_min": 1845.8}
+{
+ "fassung": "1.4_rev2",
+ "phase": "wacht",
+ "zeichnet": false,
+ "rest_s": 0.0,
+ "objekte": 0,
+ "ausgeloest_uhr": "12:37:07",
+ "aufnahme_s": 5.7,
+ "kaputt": 0,
+ "mindest_s": 5.0,
+ "hoechst_s": 15.0,
+ "vordergrund": 0,
+ "in_folge": 0,
+ "aufnahmen": 919,
+ "letzte": {
+  "name": "20261109_123701",
+  "bilder": 120,
+  "mit_objekt": 92,
+  "ausgeloest_uhr": "12:37:07",
+  "dauer_s": 6.3,
+  "uhr": "12:37:10"
+ },
+ "bilder": 163477,
+ "bilder_s": 18.9,
+ "helligkeit": 139.1,
+ "beleuchtungswechsel": 1,
+ "letzter_wechsel_uhr": "10:44:12",
+ "nachlernen": 0,
+ "bahnen_offen": 1,
+ "seit": 1794215728.6050842,
+ "verworfen": 0,
+ "warteschlange": 1,
+ "uebersprungen": 81741,
+ "speicher_mb": 190.4,
+ "aussetzer": 0,
+ "aussetzer_max_s": 0.0,
+ "gesamt": {
+  "starts": 2,
+  "erster_start": "2026-11-09 10:09:19",
+  "bilder": 168477,
+  "aufnahmen": 950,
+  "verworfen": 0
+ },
+ "laeuft_min": 141.7
+}

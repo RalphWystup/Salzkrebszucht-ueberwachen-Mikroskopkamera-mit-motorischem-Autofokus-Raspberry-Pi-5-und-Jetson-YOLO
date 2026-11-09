@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+# 1.13 (09.11.2026, sein Wort: "die einzulernenden bilder fuer yolo veralten da die tiere wachsen. Also muss es einen button geben wo neue Bilder
+#     ca. 100 Stueck aus aktuellem Bildmaterial ... erzeugt werden koennen"): POST /lernen/nachziehen {anzahl, stunden} startet abgeloest
+#     jetson_lernbilder_1.1.py (neue Lernbilder nur aus Bildern mit erkannten Tieren, Marke "datensatz" = Zeitpunkt = Wachstumsstand);
+#     Stand in /stand unter nachziehen; /lernen/liste traegt je Bild die Marke; Datensatzbau mit jetson_yolo_datensatz_1.2 (alle Marken
+#     zusammen, Zusammensetzung im Verlauf). Rueckfall: echo jetson_dienst_1.12.py > ~/mikroskop/jetson_dienst_FASSUNG.txt
 # 1.9 (06.11.2026, 15:55): Training ueber jetson_yolo_training_1.4 (ohne TensorRT-Export, der zweimal im Speicher hing).
 # 1.10 (06.11.2026, 16:58): Trainingsstart dauerhaft gemerkt (lernen/TRAINING_START.json, Uhr der Fertig-Meldung) -- Befund 16:35: nach jedem
 #     Dienstneustart war Z["training"]["gestartet"] leer, eine vorhandene FERTIG.json haette darum jedes Mal ein neues Training ausgeloest
@@ -71,12 +76,13 @@ LIVE = {"bytes": b"", "zeit": 0.0, "gesichert": 0.0}    # letztes vollstaendiges
 HIER = os.environ.get("JETSON_HIER") or os.path.expanduser("~/mikroskop"); ABLAGE = os.path.join(HIER, "aufnahmen"); AUFTRAEGE = os.path.join(HIER, "auftraege")
 os.makedirs(ABLAGE, exist_ok=True); os.makedirs(AUFTRAEGE, exist_ok=True)
 TAKT = 60; STATISTIK_TAKT = 300
-Z = {"fassung": "1.12", "pi": None, "seit": time.time(), "auftrag": "start", "letzter_rsync": None, "letzter_fehler": None, "saetze": 0,
+Z = {"fassung": "1.13", "pi": None, "seit": time.time(), "auftrag": "start", "letzter_rsync": None, "letzter_fehler": None, "saetze": 0,
      "neue_saetze": 0, "geprueft": 0, "statistik": None, "verfolgung": None, "cpu": None, "gpu": None, "ram": None, "temp": None,
      "platte_frei_gb": None, "uhr": None, "auftraege": {"erledigt": 0, "letzter": None, "rc": None, "ende": None, "laeuft": None},
      "live": {"verbunden": False, "pi": None, "seit": None, "bilder": 0, "abgeschnitten": 0, "neuverbindungen": 0, "bilder_je_s": 0.0, "mbit_je_s": 0.0,
               "letztes_bild": None, "bild_kb": None, "fehler": None}, "pi_live": None,
      "training": {"angefordert": None, "gestartet": None, "laeuft": False, "letzte_runde": None}, "statistik_uhr": 0.0, "yolo": None,
+     "nachziehen": {"laeuft": False, "gestartet": None, "ende": None, "ergebnis": None, "fehler": None},                     # 1.13
      "platte": {"videos_gb": None, "lernarchiv_gb": None, "lernarchiv_saetze": None, "geloescht_saetze": 0, "geloescht_gb": 0.0, "letztes": None, "frei_gb": None, "regel": f"Videos nach {VIDEO_FRIST_H:.0f} h, bei < {FREI_MIN_GB:.0f} GB frei nach {NOT_FRIST_H:.0f} h; Lernarchiv jeder 10. Satz + behalten.txt bis {LERN_GB:.0f} GB"}}
 sperre = threading.Lock()
 def log(s): print(time.strftime("%H:%M:%S "), s, flush=True)
@@ -354,7 +360,7 @@ def training_pruefen():
         except Exception: pass
     if T["gestartet"] == d.get("uhr") or T["laeuft"]: return
     json.dump({"uhr": d.get("uhr"), "start": time.strftime("%Y-%m-%d %H:%M:%S")}, open(start_f, "w", encoding="utf-8"))   # 1.10
-    aus, err, rc = sh(f"cd {HIER} && python3 jetson_yolo_datensatz_1.1.py", 600); log("Datensatz: " + aus.strip()[-200:])
+    aus, err, rc = sh(f"cd {HIER} && python3 jetson_yolo_datensatz_1.2.py", 600); log("Datensatz: " + aus.strip()[-200:])
     try:                                                                          # 1.12: Runde im Verlauf festhalten
         ds = json.loads(aus[aus.index("DATENSATZJSON") + 13:].strip()) if "DATENSATZJSON" in aus else {}
         vp = os.path.join(HIER, "yolo", "verlauf.json")
@@ -409,10 +415,26 @@ def yolo_verlauf():
     return {"laeufe": laeufe, "runden": runden, "modell": info, "laeuft": training_laeuft()}
 
 
+def nachziehen_starten(anzahl, stunden):
+    """1.13: jetson_lernbilder_1.1.py abgeloest laufen lassen (Bilder mit erkannten Tieren aus aktuellem Material); Stand in Z["nachziehen"]."""
+    with sperre:
+        if Z["nachziehen"]["laeuft"]: return False
+        Z["nachziehen"].update(laeuft=True, gestartet=time.strftime("%Y-%m-%d %H:%M:%S"), ende=None, ergebnis=None, fehler=None)
+    def lauf():
+        aus, err, rc = sh(f"cd {HIER} && python3 jetson_lernbilder_1.1.py {int(anzahl)} {float(stunden)}", 900)
+        erg, fehler = None, None
+        try: erg = json.loads(aus[aus.index("LERNBILDER") + 10:].strip().splitlines()[0]) if "LERNBILDER" in aus else None
+        except Exception as e: fehler = f"Ausgabe nicht lesbar: {e}"
+        if rc != 0 or erg is None: fehler = (fehler or "") + f" rc {rc}: " + (err or aus).strip()[-200:]
+        with sperre: Z["nachziehen"].update(laeuft=False, ende=time.strftime("%Y-%m-%d %H:%M:%S"), ergebnis=erg, fehler=fehler)
+        log(f"Nachziehen: {json.dumps(erg) if erg else fehler}")
+    threading.Thread(target=lauf, daemon=True).start(); return True
+
+
 def lern_liste():
     aus = []
     for p in sorted(glob.glob(os.path.join(LERNEN, "*.json"))):
-        try: d = json.load(open(p, encoding="utf-8")); aus.append({"name": os.path.basename(p)[:-5], "status": d.get("status", "offen"), "n_boxen": len(d.get("boxen", []))})
+        try: d = json.load(open(p, encoding="utf-8")); aus.append({"name": os.path.basename(p)[:-5], "status": d.get("status", "offen"), "n_boxen": len(d.get("boxen", [])), "datensatz": str(d.get("datensatz") or "alt")})   # 1.13: Marke
         except Exception: aus.append({"name": os.path.basename(p)[:-5], "status": "kaputt", "n_boxen": 0})
     return aus
 
@@ -457,7 +479,14 @@ class Auskunft(http.server.BaseHTTPRequestHandler):
 
     def do_POST(self):                                                     # 1.7: Rahmen und Stand eines Lernbilds speichern
         p = self.path.split("?")[0]
-        if p == "/lernen/fertig":                                          # 1.8: Bewertungsrunde abgeschlossen -> FERTIG.json, Training im naechsten Takt
+        if p == "/lernen/nachziehen":                                      # 1.13: neue Lernbilder aus aktuellem Material (sein Wort 09.11.2026)
+            try:
+                n = int(self.headers.get("Content-Length") or 0); w = json.loads(self.rfile.read(n).decode("utf-8")) if n else {}
+                anzahl = max(1, min(500, int(w.get("anzahl", 100)))); stunden = max(0.5, min(240.0, float(w.get("stunden", 6))))
+                if nachziehen_starten(anzahl, stunden): self._json({"ok": True, "gestartet": Z["nachziehen"]["gestartet"], "anzahl": anzahl, "stunden": stunden})
+                else: self._json({"ok": False, "grund": "ein Nachziehen laeuft schon", "gestartet": Z["nachziehen"]["gestartet"]})
+            except Exception as e: self._json({"ok": False, "fehler": str(e)[:120]})
+        elif p == "/lernen/fertig":                                        # 1.8: Bewertungsrunde abgeschlossen -> FERTIG.json, Training im naechsten Takt
             try:
                 liste = lern_liste(); z = {}
                 for e in liste: z[e["status"]] = z.get(e["status"], 0) + 1

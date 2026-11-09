@@ -1,6 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""auswertung_1.4.py -- Bildauswertung am Mikroskop-Pi, neu aufgesetzt am 05.11.2026.
+"""auswertung_1.4_rev2.py -- Bildauswertung am Mikroskop-Pi, neu aufgesetzt am 05.11.2026; Revision 2 vom 09.11.2026.
+
+ rev2 (09.11.2026, 10:15): e) Vorgeschichte: beim Laden werden ZAEHLER_DATEI und STUNDEN_DATEI (98 Stunden der Wache) zusammengefuehrt,
+         nach Uhrzeit sortiert, Dubletten weg, die letzten 72 fuer /zaehler (rev1 nahm nur eine von beiden -- Befund 10:09: eine
+         zaehler.json vom 06.11. verdeckte die 98 Stunden). f) Aussetzer der Hauptschleife > AUSSETZER_S werden protokolliert
+         (Dauer, Warteschlange, Speicher) und gezaehlt (Z["aussetzer"]) -- Befund 10:11: Versatz Median 0,14 s, aber ein Ausreisser 5,8 s.
+
+ rev1 (09.11.2026, sein Wort: "es darf nicht mehr zu einem Ueberlauf kommen", "Daten und Statistiken auf der SD-Karte sichern").
+      Erkennung, Verfolgung, Anzeige und Aufzeichnung sind UNVERAENDERT gegenueber 1.4 (Rueckfallebene). Neu nur:
+      a) Schreibwarteschlange begrenzt (WARTESCHLANGE Saetze). BEFUND Absturznacht 08./09.11.: 18 527 Ausloesungen, 18 041 Ablagen;
+         die Ablage hinkte bis 34 min hinterher (journalctl -b -1), jeder wartende Satz haelt 10..20 MB Bilder -> 2,1 GB -> oom-killer
+         21:26 und 00:10, 01:13 fror der Pi ein. Ist die Schlange voll, wird der neue Satz verworfen und gezaehlt (Z["verworfen"]).
+      b) Veraltete Bilder im Strom ueberspringen: liegt im Lesepuffer schon das naechste vollstaendige Bild, wird das aeltere nicht
+         verarbeitet (Z["uebersprungen"]). Gemessen 09.11. 10:01: Anzeige (8092) hinter Bedienen (8090) Median 0,51 s, Spitzen 5,7 s.
+      c) Eigene Speicherwache: ueberschreitet der Prozess SPEICHER_MAX_MB, sichert er den Zaehler und beendet sich (systemd startet
+         neu). Unabhaengig vom Kern-Controller (der war bis 09.11. mit cgroup_disable=memory abgeschaltet).
+      d) Stundenzaehler auf Platte: ZAEHLER_DATEI (Zustand, atomar; wie 1.5) und je abgeschlossene Stunde eine Zeile in STUNDEN_DATEI
+         im Format der Wache 1.6 (stunde, uhr, hoechstens, mittel, bilder) -- die 98 Stunden Vorgeschichte laufen weiter.
+         Dazu Gesamtzaehler (Starts, Bilder, Aufnahmen, Verworfene) ueber Neustarts hinweg; /stand liefert "gesamt".
 
 Sein Wort: "du faengst noch einmal ganz von vorne an ... die Bildauswertung setze komplett neu auf, nachdem du die
 angeordneten Recherchen durchgefuehrt hast, dazu vermesse die Tiere, die Dynamik, alle Randbedingungen".
@@ -48,9 +66,15 @@ try:
 except Exception:
     linear_sum_assignment = None
 
-FASSUNG = "1.4"
+FASSUNG = "1.4_rev2"
 STROM = "http://127.0.0.1:8090/strom"
 ABLAGE = "/home/pi/wache/aufnahmen"
+WARTESCHLANGE = 3                              # rev1: hoechstens so viele fertige Saetze warten auf die Ablage (je 10..20 MB)
+SPEICHER_MAX_MB = 1200                         # rev1: darueber beendet sich der Prozess selbst (systemd: Restart=always)
+ZAEHLER_DATEI = "/home/pi/wache/zaehler.json"  # rev1: Zustand des Stundenzaehlers und Gesamtzaehler (atomar)
+STUNDEN_DATEI = "/home/pi/wache/zaehler_stunden.jsonl"   # rev1: je Stunde eine Zeile, Format der Wache 1.6
+STUNDEN_BEHALTEN = 24 * 30
+AUSSETZER_S = 1.0                              # rev2: Hauptschleife laenger als 1 s ohne Bild -> Protokoll
 PORT = 8092
 AUS = (slice(40, 440), slice(60, 580))        # Einblendung oben links und Rand bleiben draussen (RANDBEDINGUNGEN)
 BILDRATE = 28.8                                # Bilder/s des Stroms (gemessen)
@@ -81,12 +105,14 @@ BEHALTEN, BEHALTEN_MIN = 40, 20
 Z = {"fassung": FASSUNG, "phase": "start", "zeichnet": False, "rest_s": 0.0, "objekte": 0, "ausgeloest_uhr": None,
      "aufnahme_s": 0.0, "kaputt": 0, "mindest_s": SEKUNDEN, "hoechst_s": HOECHSTENS_S, "vordergrund": 0, "in_folge": 0,
      "aufnahmen": 0, "letzte": None, "bilder": 0, "bilder_s": 0.0, "helligkeit": 0.0, "beleuchtungswechsel": 0,
-     "letzter_wechsel_uhr": None, "nachlernen": 0, "bahnen_offen": 0, "seit": time.time()}
+     "letzter_wechsel_uhr": None, "nachlernen": 0, "bahnen_offen": 0, "seit": time.time(),
+     "verworfen": 0, "warteschlange": 0, "uebersprungen": 0, "speicher_mb": 0.0, "aussetzer": 0, "aussetzer_max_s": 0.0}   # rev1/rev2
+BASIS = {"starts": 0, "bilder": 0, "aufnahmen": 0, "verworfen": 0, "erster_start": None}               # rev1: Gesamt vor diesem Start
 sperre = threading.Lock()
 LIVE = {"t": 0.0, "tiere": [], "ruhend": [], "breite": 640, "hoehe": 480, "massstab_um_px": None}
 BILD = {"jpeg": None, "n": 0, "zuschauer": 0}; bild_da = threading.Condition()
 ZAEHLER = {"stunden": [], "laufend": None}
-SCHREIBER = queue.Queue()
+SCHREIBER = queue.Queue(maxsize=WARTESCHLANGE)   # rev1: begrenzt
 LAENGE = re.compile(rb"Content-Length:\s*(\d+)")
 
 
@@ -94,6 +120,16 @@ def log(s): print(time.strftime("%H:%M:%S "), s, flush=True)
 
 
 # ------------------------------------------------------------------ Bildstrom (uebernommen: Endmarke FF D9, Wiederaufsetzen)
+def bild_vollstaendig(puf):
+    """rev1: Liegt im Puffer (ab Anfang) ein vollstaendiges Bild? Liefert (kopfende, laenge) oder None."""
+    a = puf.find(b"\r\n\r\n")
+    if a < 0: return None
+    m = LAENGE.search(puf[:a])
+    if not m: return None
+    n = int(m.group(1))
+    return (a, n) if len(puf) >= a + 4 + n else None
+
+
 def strom(quelle=STROM):
     while True:
         try:
@@ -113,9 +149,28 @@ def strom(quelle=STROM):
                     if b[-2:] != b"\xff\xd9":
                         with sperre: Z["kaputt"] += 1
                         continue
+                    if bild_vollstaendig(puf) is not None:                   # rev1: ein neueres Bild wartet schon -> dieses ueberspringen
+                        with sperre: Z["uebersprungen"] += 1
+                        continue
                     yield b, t
         except Exception as e:
             log(f"Strom abgerissen ({e}) -- neuer Versuch in 2 s"); time.sleep(2)
+
+
+def speicher_mb():
+    """rev1: eigener Arbeitsspeicher (RSS) in MB aus /proc/self/statm."""
+    try:
+        with open("/proc/self/statm") as f: return int(f.read().split()[1]) * os.sysconf("SC_PAGE_SIZE") / 1048576
+    except Exception: return 0.0
+
+
+def speicher_pruefen():
+    """rev1: Speicherwache. Ueber SPEICHER_MAX_MB: Zaehler sichern, melden, beenden -- systemd startet neu (Restart=always)."""
+    mb = speicher_mb()
+    with sperre: Z["speicher_mb"] = round(mb, 1); q = SCHREIBER.qsize(); Z["warteschlange"] = q
+    if mb > SPEICHER_MAX_MB:
+        log(f"SPEICHERWACHE: {mb:.0f} MB > {SPEICHER_MAX_MB} MB (Warteschlange {q}) -- Zaehler gesichert, Prozess beendet sich, systemd startet neu")
+        zaehler_sichern(); sys.stdout.flush(); os._exit(3)
 
 
 # ------------------------------------------------------------------ 1. Erkennung
@@ -258,13 +313,74 @@ def markieren(im, tiere, ruhend=()):
     return im
 
 
+def gesamt():
+    """rev1: Gesamtzaehler = Stand vor diesem Start + dieser Lauf (Aufruf unter sperre oder mit Kopie von Z)."""
+    return {"starts": BASIS["starts"], "erster_start": BASIS["erster_start"], "bilder": BASIS["bilder"] + Z["bilder"],
+            "aufnahmen": BASIS["aufnahmen"] + Z["aufnahmen"], "verworfen": BASIS["verworfen"] + Z["verworfen"]}
+
+
+def zaehler_sichern():
+    """rev1: Stundenzaehler und Gesamtzaehler atomar nach ZAEHLER_DATEI (wie 1.5). Nie unter 'sperre' aufrufen."""
+    try:
+        with sperre: d = {"fassung": FASSUNG, "uhr": time.strftime("%Y-%m-%d %H:%M:%S"), "stunden": list(ZAEHLER["stunden"]), "laufend": ZAEHLER["laufend"], "gesamt": gesamt()}
+        os.makedirs(os.path.dirname(ZAEHLER_DATEI), exist_ok=True); tmp = ZAEHLER_DATEI + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f: json.dump(d, f)
+        os.replace(tmp, ZAEHLER_DATEI)
+    except Exception as e: log(f"Zaehler nicht gesichert: {e}")
+
+
+def stunden_zusammenfuehren(*listen):
+    """rev2: Stundenlisten vereinigen -- je Uhrzeit ein Eintrag (der spaetere gewinnt), nach Uhrzeit sortiert, die letzten 72."""
+    je = {}
+    for l in listen:
+        for z in l:
+            if isinstance(z, dict) and z.get("uhr"): je[z["uhr"]] = {k: z[k] for k in ("uhr", "hoechstens", "mittel", "bilder") if k in z}
+    return [je[u] for u in sorted(je)][-72:]
+
+
+def zaehler_laden():
+    """rev2: beim Start ZAEHLER_DATEI (Zustand, Gesamtzaehler) und STUNDEN_DATEI (eine Zeile je Stunde, Vorgeschichte der Wache)
+    zusammenfuehren. Dieselbe Stunde zaehlt weiter, eine aeltere laufende Stunde wird abgeschlossen und in STUNDEN_DATEI geschrieben."""
+    aus_datei, aus_zeilen, l = [], [], None
+    try:
+        with open(ZAEHLER_DATEI, encoding="utf-8") as f: d = json.load(f)
+        aus_datei = d.get("stunden", []); l = d.get("laufend"); g = d.get("gesamt") or {}
+        for k in ("starts", "bilder", "aufnahmen", "verworfen"): BASIS[k] = int(g.get(k, 0) or 0)
+        BASIS["erster_start"] = g.get("erster_start")
+    except FileNotFoundError: pass
+    except Exception as e: log(f"Zaehler nicht geladen: {e}")
+    try:
+        with open(STUNDEN_DATEI, encoding="utf-8") as f: aus_zeilen = [json.loads(z) for z in f if z.strip()]
+    except FileNotFoundError: pass
+    except Exception as e: log(f"Vorgeschichte nicht lesbar: {e}")
+    ZAEHLER["stunden"] = stunden_zusammenfuehren(aus_zeilen, aus_datei)
+    if l and l.get("uhr") == time.strftime("%Y-%m-%dT%H:00"): ZAEHLER["laufend"] = l
+    elif l and "summe" in l and not any(z["uhr"] == l["uhr"] for z in ZAEHLER["stunden"]): stunde_abschliessen(l)
+    BASIS["starts"] += 1
+    if not BASIS["erster_start"]: BASIS["erster_start"] = time.strftime("%Y-%m-%d %H:%M:%S")
+    log(f"Zaehler geladen: {len(ZAEHLER['stunden'])} Stunden ({len(aus_zeilen)} aus {os.path.basename(STUNDEN_DATEI)}, {len(aus_datei)} aus {os.path.basename(ZAEHLER_DATEI)}), "
+        f"gesamt {BASIS['bilder']} Bilder / {BASIS['aufnahmen']} Aufnahmen / {BASIS['starts']}. Start" + (", laufende Stunde uebernommen" if ZAEHLER["laufend"] else ""))
+
+
+def stunde_abschliessen(l):
+    """rev1: laufende Stunde l abschliessen: in ZAEHLER['stunden'] (72) und als Zeile in STUNDEN_DATEI (Format Wache 1.6)."""
+    l["mittel"] = round(l["summe"] / max(l["bilder"], 1), 2); del l["summe"]
+    ZAEHLER["stunden"] = (ZAEHLER["stunden"] + [l])[-72:]
+    try:
+        h = int(time.mktime(time.strptime(l["uhr"], "%Y-%m-%dT%H:%M")) // 3600)
+        os.makedirs(os.path.dirname(STUNDEN_DATEI), exist_ok=True)
+        with open(STUNDEN_DATEI, "a", encoding="utf-8") as f:
+            f.write(json.dumps({"stunde": h, "uhr": l["uhr"], "hoechstens": l["hoechstens"], "mittel": l["mittel"], "bilder": l["bilder"]}) + "\n")
+    except Exception as e: log(f"Stunde nicht geschrieben: {e}")
+
+
 def zaehlen(n_tiere, t):
     uhr = time.strftime("%Y-%m-%dT%H:00", time.localtime(t)); l = ZAEHLER["laufend"]
     if l is None or l["uhr"] != uhr:
-        if l is not None:
-            l["mittel"] = round(l["summe"] / max(l["bilder"], 1), 2); del l["summe"]; ZAEHLER["stunden"] = (ZAEHLER["stunden"] + [l])[-72:]
-        l = ZAEHLER["laufend"] = {"uhr": uhr, "hoechstens": 0, "summe": 0, "bilder": 0}
+        if l is not None: stunde_abschliessen(l)                                                           # rev1: auch auf Platte
+        l = ZAEHLER["laufend"] = {"uhr": uhr, "hoechstens": 0, "summe": 0, "bilder": 0}; zaehler_sichern()
     l["bilder"] += 1; l["summe"] += n_tiere; l["hoechstens"] = max(l["hoechstens"], n_tiere)
+    if l["bilder"] % 5000 == 0: zaehler_sichern()                                                          # rev1: etwa alle drei Minuten
 
 
 # ------------------------------------------------------------------ 4. Aufzeichnung (uebernommen, Rahmen und Nummern nur in der Ablage)
@@ -341,7 +457,14 @@ def lauf(quelle=STROM, einmal=None):
     E = Erkenner(); V = Verfolger(); ring = collections.deque(maxlen=VORLAUF)
     folge = 0; auf = None; n = 0; t_rate = time.time(); n_rate = 0; t_start = time.time()
     quelle_it = ((b, t_start + i / BILDRATE) for i, b in enumerate(einmal)) if einmal is not None else strom(quelle)
+    takt = None
     for b, t in quelle_it:
+        if einmal is None:                                                                          # rev2: Aussetzer der Hauptschleife
+            jetzt = time.time()
+            if takt is not None and jetzt - takt > AUSSETZER_S:
+                with sperre: Z["aussetzer"] += 1; Z["aussetzer_max_s"] = round(max(Z["aussetzer_max_s"], jetzt - takt), 2); q = SCHREIBER.qsize()
+                log(f"AUSSETZER: {jetzt - takt:.1f} s kein Bild verarbeitet (Warteschlange {q}, Speicher {speicher_mb():.0f} MB, Zuschauer {BILD['zuschauer']})")
+            takt = jetzt
         with sperre: zuschauer = BILD["zuschauer"]
         farbbild = cv2.imdecode(np.frombuffer(b, np.uint8), cv2.IMREAD_COLOR)        # 1.4: Farbbild immer (Aussehens-Nachweis)
         if farbbild is None: continue
@@ -349,7 +472,7 @@ def lauf(quelle=STROM, einmal=None):
         n += 1; n_rate += 1
         if time.time() - t_rate >= 5:
             with sperre: Z["bilder_s"] = round(n_rate / (time.time() - t_rate), 1)
-            t_rate, n_rate = time.time(), 0
+            t_rate, n_rate = time.time(), 0; speicher_pruefen()                                     # rev1
         n_fg, erk = E.schritt(g[AUS], farbbild[AUS]); bewegt, ruhend = V.schritt(erk)
         with sperre:
             LIVE["t"] = t; LIVE["tiere"] = bewegt; LIVE["ruhend"] = ruhend
@@ -374,9 +497,21 @@ def lauf(quelle=STROM, einmal=None):
             auf["b"].append(b); auf["z"].append(t); auf["f"].append(alle); auf["v"].append(zusatz); dauer = t - auf["t0"]
             with sperre: Z["rest_s"] = round(max(0.0, SEKUNDEN - dauer), 2); Z["aufnahme_s"] = round(dauer, 1)
             if (dauer >= SEKUNDEN and not bewegt) or dauer >= HOECHSTENS_S or (einmal is not None and n == len(einmal)):
-                d = auf["z"][-1] - auf["z"][0]; SCHREIBER.put((auf["name"], auf["b"], auf["z"], auf["f"], len(auf["b"]) / d if d > 0 else 25.0, auf["v"]))
+                ablage_einreihen(auf)                                                               # rev1: begrenzt, verwirft bei voller Schlange
                 with sperre: Z["zeichnet"] = False; Z["rest_s"] = 0.0; Z["phase"] = "wacht"
                 auf = None; folge = 0; ring.clear()
+
+
+def ablage_einreihen(auf):
+    """rev1: fertigen Satz in die begrenzte Schreibwarteschlange; ist sie voll, wird er verworfen und gezaehlt (statt 2 GB Rueckstau)."""
+    d = auf["z"][-1] - auf["z"][0]; satz = (auf["name"], auf["b"], auf["z"], auf["f"], len(auf["b"]) / d if d > 0 else 25.0, auf["v"])
+    try:
+        SCHREIBER.put_nowait(satz)
+        with sperre: Z["warteschlange"] = SCHREIBER.qsize()
+        return True
+    except queue.Full:
+        with sperre: Z["verworfen"] += 1; v = Z["verworfen"]
+        log(f"Ablage {auf['name']} VERWORFEN: Warteschlange voll ({WARTESCHLANGE} Saetze warten), bisher {v} verworfen"); return False
 
 
 class Auskunft(http.server.BaseHTTPRequestHandler):
@@ -387,7 +522,7 @@ class Auskunft(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         p = self.path.split("?")[0]
         if p in ("/", "/stand"):
-            with sperre: d = dict(Z)
+            with sperre: d = dict(Z); d["gesamt"] = gesamt()                                        # rev1
             d["laeuft_min"] = round((time.time() - Z["seit"]) / 60, 1); self._json(d)
         elif p == "/punkte":
             with sperre: self._json({"t": LIVE["t"], "alter_s": round(time.time() - LIVE["t"], 2) if LIVE["t"] else None, "breite": LIVE["breite"], "hoehe": LIVE["hoehe"], "massstab_um_px": LIVE["massstab_um_px"], "tiere": LIVE["tiere"], "erinnert": [], "ruhend": LIVE["ruhend"]})
@@ -418,7 +553,9 @@ def main():
     class S(socketserver.ThreadingTCPServer): allow_reuse_address = True; daemon_threads = True
     threading.Thread(target=S(("", PORT), Auskunft).serve_forever, daemon=True).start()
     threading.Thread(target=schreiber, daemon=True).start(); threading.Thread(target=massstab_holen, daemon=True).start()
-    log(f"Auswertung {FASSUNG} -- Erkennung, Verfolgung (Tor {TOR:.0f} px, {MIN_TREFFER} Treffer), Anzeige, Aufzeichnung; :{PORT}/stand, /punkte, /zaehler, /strom_marken")
+    zaehler_laden()                                                                                 # rev1
+    log(f"Auswertung {FASSUNG} -- Erkennung, Verfolgung (Tor {TOR:.0f} px, {MIN_TREFFER} Treffer), Anzeige, Aufzeichnung; :{PORT}/stand, /punkte, /zaehler, /strom_marken; "
+        f"Warteschlange {WARTESCHLANGE}, Speicherwache {SPEICHER_MAX_MB} MB, Zaehler {ZAEHLER_DATEI}")
     lauf()
 
 

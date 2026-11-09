@@ -1,22 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""jetson_yolo_datensatz_1.1.py -- laeuft auf dem Jetson (Auftrag): baut aus den bewerteten Lernbildern (~/mikroskop/lernen/bilder) den
+"""jetson_yolo_datensatz_1.2.py -- laeuft auf dem Jetson (Auftrag): baut aus den bewerteten Lernbildern (~/mikroskop/lernen/bilder) den
 YOLO-Datensatz ~/mikroskop/yolo/datensatz (images/labels je train/val, data.yaml). Klassen: 0 tier, 1 korn, 2 massstab.
 Geprueft (sein Urteil) immer; offen (nur Vorschlaege) ebenfalls, ausser mit --nur-geprueft; verworfen nie. Aufteilung 85/15 nach Namen (fest).
-  python3 jetson_yolo_datensatz_1.1.py [--nur-geprueft]      Ausgabe DATENSATZJSON"""
+  python3 jetson_yolo_datensatz_1.2.py [--nur-geprueft]      Ausgabe DATENSATZJSON
+1.2 (09.11.2026): Bilder tragen eine Marke "datensatz" (Zeitpunkt des Nachziehens = Wachstumsstand, jetson_lernbilder_1.1); alle Marken
+    gehen ZUSAMMEN in den einen Datensatz (sein Wort: "das muss yolo automatisch verarbeiten"), die Zusammensetzung je Marke steht in
+    DATENSATZJSON["marken"] und in <datensatz>/zusammensetzung.json. Bilder ohne Marke heissen "alt" (vor dem 09.11.2026)."""
 import os, glob, json, shutil, hashlib, sys
 L = os.path.expanduser("~/mikroskop/lernen/bilder"); D = os.path.expanduser("~/mikroskop/yolo/datensatz"); KLASSEN = ["tier", "korn", "massstab"]
 nur_geprueft = "--nur-geprueft" in sys.argv
 for t in ("train", "val"):
     os.makedirs(f"{D}/images/{t}", exist_ok=True); os.makedirs(f"{D}/labels/{t}", exist_ok=True)
     for p in glob.glob(f"{D}/images/{t}/*") + glob.glob(f"{D}/labels/{t}/*"): os.remove(p)      # Datensatz ist ein Bauprodukt; Quelle bleibt lernen/bilder
-z = {"geprueft": 0, "offen": 0, "verworfen": 0, "train": 0, "val": 0, "boxen": {k: 0 for k in KLASSEN}, "leer": 0}
+z = {"geprueft": 0, "offen": 0, "verworfen": 0, "train": 0, "val": 0, "boxen": {k: 0 for k in KLASSEN}, "leer": 0, "marken": {}}
 for pj in sorted(glob.glob(L + "/*.json")):
     d = json.load(open(pj, encoding="utf-8")); st = d.get("status", "offen"); z[st] = z.get(st, 0) + 1
     if st not in ("geprueft", "offen") or (st == "offen" and nur_geprueft): continue      # 1.1: zurueckgestellte und verworfene nie
     name = os.path.basename(pj)[:-5]; pb = pj[:-5] + ".jpg"
     if not os.path.exists(pb): continue
     teil = "val" if int(hashlib.md5(name.encode()).hexdigest()[:4], 16) % 100 < 15 else "train"
+    mk = str(d.get("datensatz") or "alt"); z["marken"][mk] = z["marken"].get(mk, 0) + 1                 # 1.2: Wachstumsstand zaehlen
     shutil.copy(pb, f"{D}/images/{teil}/{name}.jpg"); zeilen = []
     for b in d.get("boxen", []):
         k = KLASSEN.index(b.get("klasse", "tier")) if b.get("klasse", "tier") in KLASSEN else 0
@@ -26,4 +30,5 @@ for pj in sorted(glob.glob(L + "/*.json")):
     if not zeilen: z["leer"] += 1
     open(f"{D}/labels/{teil}/{name}.txt", "w").write("\n".join(zeilen) + ("\n" if zeilen else "")); z[teil] += 1
 open(f"{D}/data.yaml", "w").write(f"path: {D}\ntrain: images/train\nval: images/val\nnames:\n  0: tier\n  1: korn\n  2: massstab\n")
+json.dump({"uhr": __import__("time").strftime("%Y-%m-%d %H:%M:%S"), "marken": z["marken"], "train": z["train"], "val": z["val"]}, open(f"{D}/zusammensetzung.json", "w", encoding="utf-8"), indent=1)
 print("DATENSATZJSON", json.dumps(z))

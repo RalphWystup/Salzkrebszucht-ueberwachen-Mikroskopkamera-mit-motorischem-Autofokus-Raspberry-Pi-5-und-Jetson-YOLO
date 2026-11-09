@@ -1,4 +1,4 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Lernbilder bewerten 1.9</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Lernbilder bewerten 1.10</title>
 <style>
 body{font-family:system-ui,sans-serif;margin:0;background:#f3f3f1;color:#222}
 header{display:flex;gap:18px;align-items:center;padding:8px 14px;background:#fff;border-bottom:1px solid #ddd;flex-wrap:wrap}
@@ -40,7 +40,12 @@ body:not(.breit) main{flex-wrap:wrap}
 body:not(.breit) #seite{flex:1 1 100%;max-width:none}
 button{font:inherit;padding:6px 12px;margin:3px 4px 3px 0;border:1px solid #888;border-radius:4px;background:#fff;cursor:pointer}
 button.gruen{background:#1a9c3a;color:#fff;border-color:#1a9c3a} button.rot{background:#c0392b;color:#fff;border-color:#c0392b}
+/* 1.10 (09.11.2026, sein Wort: "die einzulernenden bilder fuer yolo veralten da die tiere wachsen. Also muss es einen button geben wo neue
+   Bilder ca. 100 Stueck aus aktuellem Bildmaterial, natuerlich nur wenn tiere detektiert wurden, erzeugt werden koennen"): Knopf "Nachziehen"
+   (POST /lernen/nachziehen -> jetson_lernbilder_1.1 auf dem Jetson), jede Runde traegt die Marke datensatz = Zeitpunkt (Wachstumsstand);
+   Auswahl "neueste Runde" zeigt nur die Bilder der juengsten Marke. Das Training nimmt alle Marken zusammen (jetson_yolo_datensatz_1.2). */
 button.blau{background:#0b6ef5;color:#fff;border-color:#0b6ef5;font-weight:600}
+#nachziehen{background:#fff;border:1px solid #0b6ef5;color:#0b6ef5;font-weight:600}#nachziehen:disabled{opacity:.6}
 button.kl{font-weight:600;border-width:2px;opacity:.55} button.kl.aktiv{opacity:1;box-shadow:0 0 0 2px #ffd54a inset}
 #liste{max-height:60vh;overflow:auto;border:1px solid #ccc;background:#fff;font-size:13px;margin-top:8px}
 #liste div{padding:3px 6px;cursor:pointer;border-bottom:1px solid #eee;font-variant-numeric:tabular-nums}
@@ -74,6 +79,10 @@ kbd{border:1px solid #bbb;border-radius:3px;padding:0 4px;background:#fafafa;fon
     var s = (typeof u === 'string') ? u : (u && u.url) || '';
     var m = (o && o.method) || 'GET';
     if (/\/lernen\/zuruecksetzen/.test(s)) {
+      return Promise.resolve(new Response('{"ok":false,"fehler":"veroeffentlichte Fassung ohne Geraet"}',
+             {status:200, headers:{'Content-Type':'application/json'}}));
+    }
+    if (/\/lernen\/nachziehen/.test(s)) {          // 09.11.2026: Knopf "100 neue Bilder" der Lernseite 1.10
       return Promise.resolve(new Response('{"ok":false,"fehler":"veroeffentlichte Fassung ohne Geraet"}',
              {status:200, headers:{'Content-Type':'application/json'}}));
     }
@@ -149,9 +158,10 @@ kbd{border:1px solid #bbb;border-radius:3px;padding:0 4px;background:#fafafa;fon
 </script>
 
 </head><body>
-<header><b>Lernbilder bewerten</b><small>Seite 1.9 · Jetson</small><span id="stand">–</span>
-<label>Zeige <select id="filter"><option value="offen" data-text="nur offene">nur offene</option><option value="zurueckgestellt" data-text="zurückgestellte">zurückgestellte</option><option value="alle" data-text="alle">alle</option><option value="geprueft" data-text="geprüfte">geprüfte</option><option value="verworfen" data-text="verworfene">verworfene</option></select></label>
-<button id="fertig" class="blau" style="margin-left:auto">■ Fertig für heute</button>
+<header><b>Lernbilder bewerten</b><small>Seite 1.10 · Jetson</small><span id="stand">–</span>
+<label>Zeige <select id="filter"><option value="offen" data-text="nur offene">nur offene</option><option value="neu" data-text="neueste Runde">neueste Runde</option><option value="zurueckgestellt" data-text="zurückgestellte">zurückgestellte</option><option value="alle" data-text="alle">alle</option><option value="geprueft" data-text="geprüfte">geprüfte</option><option value="verworfen" data-text="verworfene">verworfene</option></select></label>
+<button id="nachziehen" style="margin-left:auto" title="zieht etwa 100 neue Lernbilder aus den Aufnahmen der letzten Stunden, nur Bilder mit erkannten Tieren; die Runde bekommt die Zeitmarke von jetzt (Wachstumsstand)">⟳ 100 neue Bilder aus aktuellem Material</button>
+<button id="fertig" class="blau">■ Fertig für heute</button>
 <button id="zuruecksetzen" title="setzt alle Bewertungen auf „offen“ zurück; die gezeichneten Rahmen bleiben, vorher wird gesichert">⟲ alles Gelernte zurücksetzen</button>
 </header>
 <div id="bereit">–</div>
@@ -202,13 +212,15 @@ async function laden(erstmals){                                       // 1.6: Fe
   if (erstmals) { const z = zaehlen();
     if (!z[$('filter').value]) { const w = ['offen', 'zurueckgestellt', 'geprueft', 'verworfen'].find(k => z[k] > 0); $('filter').value = w || 'alle'; } }
   zeigeListe(); const f = $('filter').value;
-  const erste = liste.findIndex(e => f === 'alle' || e.status === f);
+  const erste = liste.findIndex(e => passt(e, f));
   if (idx < 0) { if (erste >= 0) oeffnen(erste); else { zeigeStand(); $('info').textContent = 'In dieser Auswahl steht kein Bild. Oben eine andere Auswahl waehlen.'; } }
   else zeigeStand(); }
-function zaehlen(){ const z = {offen:0, geprueft:0, verworfen:0, zurueckgestellt:0, alle: liste.length};
-  liste.forEach(e => z[e.status] = (z[e.status] || 0) + 1); return z; }
+const neueste = () => liste.reduce((m, e) => (e.datensatz && e.datensatz !== 'alt' && e.datensatz > m) ? e.datensatz : m, '');   // 1.10: juengste Marke
+const passt = (e, f) => f === 'alle' || (f === 'neu' ? (!!e.datensatz && e.datensatz === neueste()) : e.status === f);         // 1.10: eine Stelle entscheidet
+function zaehlen(){ const z = {offen:0, geprueft:0, verworfen:0, zurueckgestellt:0, alle: liste.length, neu: 0}; const m = neueste();
+  liste.forEach(e => { z[e.status] = (z[e.status] || 0) + 1; if (m && e.datensatz === m) z.neu++; }); return z; }
 function gefiltert(){ const f = $('filter').value;                     // 1.6: die Platznummern der gerade sichtbaren Bilder
-  return liste.map((e, i) => (f === 'alle' || e.status === f) ? i : -1).filter(i => i >= 0); }
+  return liste.map((e, i) => passt(e, f) ? i : -1).filter(i => i >= 0); }
 function zeigeStand(){ const z = zaehlen();
   $('stand').textContent = `${liste.length} Bilder · ${z.offen||0} offen · ${z.geprueft||0} geprüft · ${z.verworfen||0} verworfen` + (z.zurueckgestellt ? ` · ${z.zurueckgestellt} zurückgestellt` : '');
   // 1.6: jede Auswahl traegt ihre Zahl -- dann ist vor dem Klicken zu sehen, dass "nur offene" leer ist
@@ -216,7 +228,7 @@ function zeigeStand(){ const z = zaehlen();
 function zeigeListe(){ zeigeStand(); const f = $('filter').value; $('liste').innerHTML = '';
   const sicht = gefiltert();                                           // 1.6: eine Stelle entscheidet, was sichtbar ist
   sicht.forEach(i => { const e = liste[i];
-    const d = document.createElement('div'); d.textContent = `${e.name}  (${e.n_boxen})`; d.className = e.status + (i === idx ? ' aktiv' : ''); d.onclick = () => oeffnen(i); $('liste').appendChild(d); });
+    const d = document.createElement('div'); d.textContent = `${e.name}  (${e.n_boxen})` + (e.datensatz && e.datensatz !== 'alt' ? `  · ${e.datensatz.slice(5)}` : ''); /* 1.10: Marke */ d.className = e.status + (i === idx ? ' aktiv' : ''); d.onclick = () => oeffnen(i); $('liste').appendChild(d); });
   // 1.9, sein Wort: "immer wenn ich rahmen stimm...weiter druecke springt das bild nach unten".
   // scrollIntoViewIfNeeded rollt JEDEN scrollbaren Vorfahren mit, also auch die Seite und im Reiter den
   // aeusseren Rahmen. Hier wird nur noch IN der Liste gerollt, mit eigener Rechnung.
@@ -313,7 +325,7 @@ function zurueckBlaettern(){                                           // 1.6: z
   const sicht = gefiltert(); const stelle = sicht.indexOf(idx);
   if (stelle > 0) oeffnen(sicht[stelle - 1]);
   else if (stelle < 0 && sicht.length) oeffnen(sicht[sicht.length - 1]); }
-function sperren(an){ ['richtig', 'verwerfen', 'zurueckstellen', 'weiter', 'zurueck', 'reset', 'fertig', 'zuruecksetzen'].forEach(k => { const b = $(k); if (b) b.disabled = an; }); }
+function sperren(an){ ['richtig', 'verwerfen', 'zurueckstellen', 'weiter', 'zurueck', 'reset', 'fertig', 'zuruecksetzen', 'nachziehen'].forEach(k => { const b = $(k); if (b) b.disabled = an; }); }
 // 1.6: nach jedem Knopfdruck den Fokus vom Knopf nehmen -- sonst schluckt der Knopf die Eingabetaste
 // und die Pfeiltasten, und die Tastaturbedienung war ab dem ersten Klick tot.
 const knopf = (id, tun) => { const b = $(id); b.onclick = ev => { b.blur(); tun(ev); }; };
@@ -353,10 +365,38 @@ async function bereit(){
       (y.tiere_mittel_5s !== undefined ? ` und sieht gerade ${y.tiere} Tiere.` : '.'); }
   else { lampe = 'grau'; satz = `<b>Kein Livedienst.</b> Zustand: ${y.phase || 'unbekannt'}.`; }
   const runde = t.letzte_runde ? `letzte Runde übergeben ${String(t.letzte_runde.uhr || '').slice(5, 16)}` : 'noch keine Runde übergeben';
+  const nz = d.nachziehen || {}; const nzt = nz.laeuft ? ` &nbsp;|&nbsp; <b>Nachziehen läuft</b> seit ${uhr(nz.gestartet)}` :
+    (nz.ergebnis ? ` &nbsp;|&nbsp; zuletzt nachgezogen ${nz.ergebnis.neu} Bilder (Marke ${nz.ergebnis.datensatz})` : '');   // 1.10
   b.innerHTML = `<span class="lampe ${lampe}"></span>${satz}<br>` +
     `<b>Ihr Lernstand:</b> ${z.geprueft || 0} geprüft · ${z.zurueckgestellt || 0} zurückgestellt · ${z.offen || 0} offen · ` +
-    `${z.verworfen || 0} verworfen &nbsp;|&nbsp; ${runde} &nbsp;|&nbsp; Stand ${new Date().toLocaleTimeString('de-DE')}`;
+    `${z.verworfen || 0} verworfen &nbsp;|&nbsp; ${runde}${nzt} &nbsp;|&nbsp; Stand ${new Date().toLocaleTimeString('de-DE')}`;
 }
+knopf('nachziehen', async () => {                                   // 1.10: neue Lernbilder aus aktuellem Material
+  const z = zaehlen();
+  if (!confirm(`100 neue Lernbilder aus den Aufnahmen der letzten Stunden ziehen?\n\n` +
+      `Genommen werden nur Bilder, auf denen Tiere erkannt wurden; die Runde bekommt die Zeitmarke von jetzt (Wachstumsstand).\n` +
+      `Bisherige Bilder und Bewertungen bleiben unberührt (${z.alle} Bilder, ${z.geprueft||0} geprüft). Dauer etwa eine Minute.`)) return;
+  const b = $('nachziehen'), g = $('gespeichert'); b.disabled = true; b.textContent = '⟳ Nachziehen läuft …';
+  let a = {};
+  try { a = await (await fetch('/lernen/nachziehen', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({anzahl: 100, stunden: 6})})).json(); }
+  catch (err) { a = {ok: false, fehler: err.message}; }
+  if (!a.ok) { g.style.color = '#c0392b'; g.textContent = 'Nachziehen NICHT gestartet: ' + (a.grund || a.fehler || 'keine Antwort');
+    b.disabled = false; b.textContent = '⟳ 100 neue Bilder aus aktuellem Material'; return; }
+  g.style.color = '#13314f'; g.textContent = `Nachziehen gestartet ${String(a.gestartet || '').slice(11)} — der Jetson sucht Bilder mit Tieren …`; bereit();
+  let n = null;                                                          // auf das Ende warten (hoechstens 15 min), Stand aus /stand
+  for (let i = 0; i < 450; i++) { await new Promise(r => setTimeout(r, 2000));
+    try { const d = await (await fetch('/stand', {cache:'no-store'})).json(); n = d.nachziehen || null; } catch (e) { n = null; }
+    if (n && !n.laeuft && (n.ergebnis || n.fehler)) break; }
+  b.disabled = false; b.textContent = '⟳ 100 neue Bilder aus aktuellem Material';
+  const bl = $('bilanz'); bl.hidden = false;
+  if (n && n.ergebnis) { const e = n.ergebnis;
+    bl.innerHTML = `<b>Runde ${e.datensatz}:</b> ${e.neu} neue Lernbilder aus ${e.saetze_benutzt} Aufnahmen (älteste ${e.aeltestes_benutzt_h} h), ` +
+      `${e.saetze_juenger_h} Aufnahmen mit Video jünger als 6 h, ${e.schon_vorhanden} schon vorhanden. ` +
+      `Jetzt steht die Auswahl auf <b>„neueste Runde“</b> — bewerten wie gewohnt, dann „Fertig für heute“; das Training nimmt alle Runden zusammen.`;
+    g.style.color = '#1a7a2a'; g.textContent = `${e.neu} neue Bilder (Marke ${e.datensatz})`;
+    $('filter').value = 'neu'; idx = -1; daten = null; await laden(false); bereit(); }
+  else { bl.innerHTML = `<b>Nachziehen ohne Ergebnis:</b> ${n && n.fehler ? n.fehler : 'der Jetson hat sich nicht gemeldet (Zeit abgelaufen)'}.`; g.style.color = '#c0392b'; g.textContent = 'Nachziehen fehlgeschlagen'; }
+  if (!document.body.classList.contains('breit')) bl.scrollIntoView(); });
 knopf('zuruecksetzen', async () => {
   const z = zaehlen();
   if (!confirm(`Alles Gelernte zurücksetzen?\n\n` +

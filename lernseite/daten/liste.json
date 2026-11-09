@@ -1,1 +1,3764 @@
-[{"name": "20261106_100110_b185", "status": "geprueft", "n_boxen": 4}, {"name": "20261106_100110_b210", "status": "geprueft", "n_boxen": 4}, {"name": "20261106_100110_b235", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_100210_b188", "status": "geprueft", "n_boxen": 3}, {"name": "20261106_100210_b28", "status": "geprueft", "n_boxen": 4}, {"name": "20261106_100210_b98", "status": "geprueft", "n_boxen": 5}, {"name": "20261106_100410_b164", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_100410_b39", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_100410_b99", "status": "verworfen", "n_boxen": 2}, {"name": "20261106_100510_b107", "status": "verworfen", "n_boxen": 4}, {"name": "20261106_100510_b133", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_100510_b60", "status": "geprueft", "n_boxen": 5}, {"name": "20261106_100630_b137", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_100630_b165", "status": "verworfen", "n_boxen": 2}, {"name": "20261106_100630_b65", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_100840_b176", "status": "geprueft", "n_boxen": 6}, {"name": "20261106_100840_b201", "status": "geprueft", "n_boxen": 5}, {"name": "20261106_100840_b243", "status": "zurueckgestellt", "n_boxen": 3}, {"name": "20261106_100910_b129", "status": "verworfen", "n_boxen": 1}, {"name": "20261106_100910_b154", "status": "geprueft", "n_boxen": 3}, {"name": "20261106_100910_b196", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_101030_b122", "status": "geprueft", "n_boxen": 4}, {"name": "20261106_101030_b14", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_101030_b42", "status": "geprueft", "n_boxen": 4}, {"name": "20261106_101250_b103", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_101250_b164", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_101250_b28", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_102300_b149", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_102300_b24", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_102320_b124", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_102320_b149", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_102320_b61", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_102410_b109", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_102410_b134", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_102410_b174", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_102440_b154", "status": "geprueft", "n_boxen": 4}, {"name": "20261106_102440_b179", "status": "verworfen", "n_boxen": 7}, {"name": "20261106_102440_b208", "status": "geprueft", "n_boxen": 5}, {"name": "20261106_102630_b109", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_102630_b18", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_102630_b43", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_103450_b255", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_103450_b280", "status": "geprueft", "n_boxen": 4}, {"name": "20261106_103450_b68", "status": "geprueft", "n_boxen": 7}, {"name": "20261106_103640_b18", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_103640_b232", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_103640_b258", "status": "geprueft", "n_boxen": 5}, {"name": "20261106_103740_b12", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_103740_b44", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_103740_b74", "status": "geprueft", "n_boxen": 4}, {"name": "20261106_103800_b104", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_103800_b48", "status": "geprueft", "n_boxen": 5}, {"name": "20261106_103800_b74", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_103850_b125", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_103850_b160", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_103850_b20", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_103940_b134", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_103940_b17", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_103940_b64", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_104010_b121", "status": "geprueft", "n_boxen": 4}, {"name": "20261106_104010_b22", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_104010_b95", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_104020_b144", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_104020_b169", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_104020_b37", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_104550_b129", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_104550_b36", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_104550_b94", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_104620_b108", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_104620_b13", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_104620_b38", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_104700_b29", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_105540_b122", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_105540_b45", "status": "verworfen", "n_boxen": 3}, {"name": "20261106_105540_b70", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_105710_b146", "status": "geprueft", "n_boxen": 6}, {"name": "20261106_105710_b15", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_105710_b173", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_105740_b105", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_105740_b130", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_105740_b80", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_110100_b110", "status": "geprueft", "n_boxen": 6}, {"name": "20261106_110100_b143", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_110100_b168", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_110130_b109", "status": "geprueft", "n_boxen": 5}, {"name": "20261106_110130_b177", "status": "zurueckgestellt", "n_boxen": 3}, {"name": "20261106_110130_b225", "status": "geprueft", "n_boxen": 5}, {"name": "20261106_110250_b100", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_110250_b170", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_110250_b40", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_110330_b105", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_110330_b40", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_110330_b72", "status": "geprueft", "n_boxen": 4}, {"name": "20261106_111150_b21", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_111540_b110", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_111540_b55", "status": "geprueft", "n_boxen": 7}, {"name": "20261106_111540_b81", "status": "geprueft", "n_boxen": 3}, {"name": "20261106_112050_b22", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_112050_b47", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_112050_b72", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_112240_b109", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_112240_b134", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_112240_b84", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_112450_b147", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_112450_b19", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_112450_b44", "status": "zurueckgestellt", "n_boxen": 3}, {"name": "20261106_112510_b48", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_112510_b73", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_112510_b98", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_112540_b22", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_112540_b47", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_112820_b142", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_112820_b167", "status": "zurueckgestellt", "n_boxen": 3}, {"name": "20261106_112820_b80", "status": "geprueft", "n_boxen": 4}, {"name": "20261106_113130_b25", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_113130_b50", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_113330_b33", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_113330_b58", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_113330_b83", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_113520_b116", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_113520_b14", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_113520_b39", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_113630_b22", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_113630_b47", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_113940_b134", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_113940_b14", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_113940_b39", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_114230_b11", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_114230_b72", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_114300_b116", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_114300_b152", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_114300_b91", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_114450_b111", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_114450_b61", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_114450_b86", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_114530_b143", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_114530_b168", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_114530_b31", "status": "geprueft", "n_boxen": 3}, {"name": "20261106_115140_b177", "status": "geprueft", "n_boxen": 1}, {"name": "20261106_115140_b18", "status": "geprueft", "n_boxen": 3}, {"name": "20261106_115140_b202", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_115210_b114", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_115210_b12", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_115210_b89", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_115250_b26", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_115250_b51", "status": "geprueft", "n_boxen": 4}, {"name": "20261106_115420_b171", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_115420_b196", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_115420_b221", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_115710_b29", "status": "geprueft", "n_boxen": 4}, {"name": "20261106_115710_b55", "status": "zurueckgestellt", "n_boxen": 3}, {"name": "20261106_115710_b80", "status": "geprueft", "n_boxen": 7}, {"name": "20261106_115910_b158", "status": "geprueft", "n_boxen": 4}, {"name": "20261106_115910_b16", "status": "geprueft", "n_boxen": 5}, {"name": "20261106_115910_b82", "status": "zurueckgestellt", "n_boxen": 4}, {"name": "20261106_120120_b27", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_120120_b64", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_120120_b89", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_120150_b127", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_120150_b163", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_120150_b48", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_120240_b29", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_120400_b13", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_120400_b40", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_120400_b65", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_120500_b146", "status": "geprueft", "n_boxen": 5}, {"name": "20261106_120500_b40", "status": "zurueckgestellt", "n_boxen": 4}, {"name": "20261106_120500_b65", "status": "geprueft", "n_boxen": 4}, {"name": "20261106_120540_b35", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_120630_b34", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_120630_b59", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_120630_b84", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_120720_b14", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_120720_b39", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_120720_b64", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_120810_b171", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_120810_b196", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_120810_b221", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_121350_b122", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_121350_b147", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_121350_b97", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_121640_b134", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_121640_b159", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_121640_b36", "status": "geprueft", "n_boxen": 5}, {"name": "20261106_121850_b16", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_121850_b41", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_121850_b66", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_121920_b134", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_121920_b159", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_121920_b97", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_121950_b151", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_121950_b176", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_121950_b201", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_122630_b118", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_122630_b162", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_122630_b187", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_123150_b24", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_123600_b128", "status": "geprueft", "n_boxen": 6}, {"name": "20261106_123600_b34", "status": "geprueft", "n_boxen": 6}, {"name": "20261106_123600_b94", "status": "zurueckgestellt", "n_boxen": 3}, {"name": "20261106_123620_b22", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_123620_b47", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_123900_b120", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_123900_b145", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_123900_b83", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_124410_b111", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_124410_b136", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_124410_b161", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_124710_b31", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_125400_b100", "status": "geprueft", "n_boxen": 4}, {"name": "20261106_125400_b12", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_125400_b47", "status": "geprueft", "n_boxen": 4}, {"name": "20261106_130130_b26", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_130330_b238", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_130330_b263", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_130330_b288", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_130410_b31", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_130410_b56", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_130440_b23", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_130600_b180", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_130600_b205", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_130600_b230", "status": "geprueft", "n_boxen": 6}, {"name": "20261106_130630_b130", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_130630_b155", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_130630_b183", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_130800_b28", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_130800_b94", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_130940_b122", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_130940_b175", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_130940_b47", "status": "zurueckgestellt", "n_boxen": 3}, {"name": "20261106_131000_b104", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_131000_b175", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_131000_b29", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_131110_b106", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_131110_b131", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_131110_b156", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_131250_b136", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_131250_b175", "status": "zurueckgestellt", "n_boxen": 3}, {"name": "20261106_131250_b213", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_131310_b138", "status": "geprueft", "n_boxen": 5}, {"name": "20261106_131310_b164", "status": "zurueckgestellt", "n_boxen": 3}, {"name": "20261106_131310_b94", "status": "geprueft", "n_boxen": 4}, {"name": "20261106_131400_b113", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_131400_b154", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_131400_b63", "status": "zurueckgestellt", "n_boxen": 3}, {"name": "20261106_132140_b26", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_132140_b80", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_132430_b25", "status": "zurueckgestellt", "n_boxen": 3}, {"name": "20261106_132430_b50", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_132800_b18", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_132800_b62", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_132800_b89", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_132820_b37", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_133410_b136", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_133410_b161", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_133410_b95", "status": "zurueckgestellt", "n_boxen": 3}, {"name": "20261106_133610_b129", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_133610_b154", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_133610_b48", "status": "zurueckgestellt", "n_boxen": 3}, {"name": "20261106_133710_b142", "status": "geprueft", "n_boxen": 4}, {"name": "20261106_133710_b168", "status": "geprueft", "n_boxen": 4}, {"name": "20261106_133710_b42", "status": "zurueckgestellt", "n_boxen": 3}, {"name": "20261106_133720_b105", "status": "zurueckgestellt", "n_boxen": 3}, {"name": "20261106_133720_b154", "status": "geprueft", "n_boxen": 5}, {"name": "20261106_133720_b80", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_133820_b139", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_133820_b164", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_133820_b17", "status": "zurueckgestellt", "n_boxen": 3}, {"name": "20261106_133830_b115", "status": "zurueckgestellt", "n_boxen": 3}, {"name": "20261106_133830_b140", "status": "zurueckgestellt", "n_boxen": 3}, {"name": "20261106_133830_b24", "status": "zurueckgestellt", "n_boxen": 3}, {"name": "20261106_134540_b118", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_134540_b143", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_134540_b85", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_134850_b33", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_134850_b59", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_134900_b111", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_134900_b33", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_135110_b100", "status": "zurueckgestellt", "n_boxen": 3}, {"name": "20261106_135110_b139", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_135110_b58", "status": "geprueft", "n_boxen": 5}, {"name": "20261106_135630_b134", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_135630_b159", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_135630_b184", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_135650_b154", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_135650_b179", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_135650_b34", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_135730_b32", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_135730_b57", "status": "geprueft", "n_boxen": 4}, {"name": "20261106_135730_b82", "status": "geprueft", "n_boxen": 4}, {"name": "20261106_140040_b100", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_140040_b14", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_140040_b39", "status": "zurueckgestellt", "n_boxen": 1}, {"name": "20261106_140050_b35", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_140050_b60", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_140050_b85", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_140140_b131", "status": "zurueckgestellt", "n_boxen": 2}, {"name": "20261106_140140_b156", "status": "geprueft", "n_boxen": 4}, {"name": "20261106_140140_b26", "status": "zurueckgestellt", "n_boxen": 3}, {"name": "20261106_140320_b32", "status": "zurueckgestellt", "n_boxen": 3}, {"name": "20261106_140320_b69", "status": "zurueckgestellt", "n_boxen": 2}]
+[
+ {
+  "name": "20261106_100110_b185",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_100110_b210",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_100110_b235",
+  "status": "geprueft",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_100210_b188",
+  "status": "geprueft",
+  "n_boxen": 3,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_100210_b28",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_100210_b98",
+  "status": "geprueft",
+  "n_boxen": 5,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_100410_b164",
+  "status": "geprueft",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_100410_b39",
+  "status": "geprueft",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_100410_b99",
+  "status": "verworfen",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_100510_b107",
+  "status": "verworfen",
+  "n_boxen": 4,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_100510_b133",
+  "status": "geprueft",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_100510_b60",
+  "status": "geprueft",
+  "n_boxen": 5,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_100630_b137",
+  "status": "geprueft",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_100630_b165",
+  "status": "verworfen",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_100630_b65",
+  "status": "geprueft",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_100840_b176",
+  "status": "geprueft",
+  "n_boxen": 6,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_100840_b201",
+  "status": "geprueft",
+  "n_boxen": 5,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_100840_b243",
+  "status": "geprueft",
+  "n_boxen": 3,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_100910_b129",
+  "status": "verworfen",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_100910_b154",
+  "status": "geprueft",
+  "n_boxen": 3,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_100910_b196",
+  "status": "geprueft",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_101030_b122",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_101030_b14",
+  "status": "geprueft",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_101030_b42",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_101250_b103",
+  "status": "geprueft",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_101250_b164",
+  "status": "geprueft",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_101250_b28",
+  "status": "geprueft",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_102300_b149",
+  "status": "geprueft",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_102300_b24",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_102320_b124",
+  "status": "geprueft",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_102320_b149",
+  "status": "geprueft",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_102320_b61",
+  "status": "geprueft",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_102410_b109",
+  "status": "geprueft",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_102410_b134",
+  "status": "geprueft",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_102410_b174",
+  "status": "geprueft",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_102440_b154",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_102440_b179",
+  "status": "verworfen",
+  "n_boxen": 7,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_102440_b208",
+  "status": "geprueft",
+  "n_boxen": 5,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_102630_b109",
+  "status": "verworfen",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_102630_b18",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_102630_b43",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_103450_b255",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_103450_b280",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_103450_b68",
+  "status": "geprueft",
+  "n_boxen": 7,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_103640_b18",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_103640_b232",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_103640_b258",
+  "status": "geprueft",
+  "n_boxen": 5,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_103740_b12",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_103740_b44",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_103740_b74",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_103800_b104",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_103800_b48",
+  "status": "geprueft",
+  "n_boxen": 5,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_103800_b74",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_103850_b125",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_103850_b160",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_103850_b20",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_103940_b134",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_103940_b17",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_103940_b64",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_104010_b121",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_104010_b22",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_104010_b95",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_104020_b144",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_104020_b169",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_104020_b37",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_104550_b129",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_104550_b36",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_104550_b94",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_104620_b108",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_104620_b13",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_104620_b38",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_104700_b29",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_105540_b122",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_105540_b45",
+  "status": "verworfen",
+  "n_boxen": 3,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_105540_b70",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_105710_b146",
+  "status": "geprueft",
+  "n_boxen": 6,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_105710_b15",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_105710_b173",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_105740_b105",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_105740_b130",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_105740_b80",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_110100_b110",
+  "status": "geprueft",
+  "n_boxen": 6,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_110100_b143",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_110100_b168",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_110130_b109",
+  "status": "geprueft",
+  "n_boxen": 5,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_110130_b177",
+  "status": "zurueckgestellt",
+  "n_boxen": 3,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_110130_b225",
+  "status": "geprueft",
+  "n_boxen": 5,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_110250_b100",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_110250_b170",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_110250_b40",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_110330_b105",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_110330_b40",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_110330_b72",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_111150_b21",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_111540_b110",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_111540_b55",
+  "status": "geprueft",
+  "n_boxen": 7,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_111540_b81",
+  "status": "geprueft",
+  "n_boxen": 3,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_112050_b22",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_112050_b47",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_112050_b72",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_112240_b109",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_112240_b134",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_112240_b84",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_112450_b147",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_112450_b19",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_112450_b44",
+  "status": "zurueckgestellt",
+  "n_boxen": 3,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_112510_b48",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_112510_b73",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_112510_b98",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_112540_b22",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_112540_b47",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_112820_b142",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_112820_b167",
+  "status": "zurueckgestellt",
+  "n_boxen": 3,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_112820_b80",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_113130_b25",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_113130_b50",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_113330_b33",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_113330_b58",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_113330_b83",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_113520_b116",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_113520_b14",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_113520_b39",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_113630_b22",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_113630_b47",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_113940_b134",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_113940_b14",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_113940_b39",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_114230_b11",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_114230_b72",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_114300_b116",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_114300_b152",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_114300_b91",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_114450_b111",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_114450_b61",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_114450_b86",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_114530_b143",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_114530_b168",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_114530_b31",
+  "status": "geprueft",
+  "n_boxen": 3,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_115140_b177",
+  "status": "geprueft",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_115140_b18",
+  "status": "geprueft",
+  "n_boxen": 3,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_115140_b202",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_115210_b114",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_115210_b12",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_115210_b89",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_115250_b26",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_115250_b51",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_115420_b171",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_115420_b196",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_115420_b221",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_115710_b29",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_115710_b55",
+  "status": "zurueckgestellt",
+  "n_boxen": 3,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_115710_b80",
+  "status": "geprueft",
+  "n_boxen": 7,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_115910_b158",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_115910_b16",
+  "status": "geprueft",
+  "n_boxen": 5,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_115910_b82",
+  "status": "zurueckgestellt",
+  "n_boxen": 4,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_120120_b27",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_120120_b64",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_120120_b89",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_120150_b127",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_120150_b163",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_120150_b48",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_120240_b29",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_120400_b13",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_120400_b40",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_120400_b65",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_120500_b146",
+  "status": "geprueft",
+  "n_boxen": 5,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_120500_b40",
+  "status": "zurueckgestellt",
+  "n_boxen": 4,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_120500_b65",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_120540_b35",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_120630_b34",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_120630_b59",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_120630_b84",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_120720_b14",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_120720_b39",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_120720_b64",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_120810_b171",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_120810_b196",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_120810_b221",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_121350_b122",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_121350_b147",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_121350_b97",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_121640_b134",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_121640_b159",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_121640_b36",
+  "status": "geprueft",
+  "n_boxen": 5,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_121850_b16",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_121850_b41",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_121850_b66",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_121920_b134",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_121920_b159",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_121920_b97",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_121950_b151",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_121950_b176",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_121950_b201",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_122630_b118",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_122630_b162",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_122630_b187",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_123150_b24",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_123600_b128",
+  "status": "geprueft",
+  "n_boxen": 6,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_123600_b34",
+  "status": "geprueft",
+  "n_boxen": 6,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_123600_b94",
+  "status": "zurueckgestellt",
+  "n_boxen": 3,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_123620_b22",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_123620_b47",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_123900_b120",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_123900_b145",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_123900_b83",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_124410_b111",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_124410_b136",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_124410_b161",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_124710_b31",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_125400_b100",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_125400_b12",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_125400_b47",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_130130_b26",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_130330_b238",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_130330_b263",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_130330_b288",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_130410_b31",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_130410_b56",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_130440_b23",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_130600_b180",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_130600_b205",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_130600_b230",
+  "status": "geprueft",
+  "n_boxen": 6,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_130630_b130",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_130630_b155",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_130630_b183",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_130800_b28",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_130800_b94",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_130940_b122",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_130940_b175",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_130940_b47",
+  "status": "zurueckgestellt",
+  "n_boxen": 3,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_131000_b104",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_131000_b175",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_131000_b29",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_131110_b106",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_131110_b131",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_131110_b156",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_131250_b136",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_131250_b175",
+  "status": "zurueckgestellt",
+  "n_boxen": 3,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_131250_b213",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_131310_b138",
+  "status": "geprueft",
+  "n_boxen": 5,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_131310_b164",
+  "status": "zurueckgestellt",
+  "n_boxen": 3,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_131310_b94",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_131400_b113",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_131400_b154",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_131400_b63",
+  "status": "zurueckgestellt",
+  "n_boxen": 3,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_132140_b26",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_132140_b80",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_132430_b25",
+  "status": "zurueckgestellt",
+  "n_boxen": 3,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_132430_b50",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_132800_b18",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_132800_b62",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_132800_b89",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_132820_b37",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_133410_b136",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_133410_b161",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_133410_b95",
+  "status": "zurueckgestellt",
+  "n_boxen": 3,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_133610_b129",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_133610_b154",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_133610_b48",
+  "status": "zurueckgestellt",
+  "n_boxen": 3,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_133710_b142",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_133710_b168",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_133710_b42",
+  "status": "zurueckgestellt",
+  "n_boxen": 3,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_133720_b105",
+  "status": "zurueckgestellt",
+  "n_boxen": 3,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_133720_b154",
+  "status": "geprueft",
+  "n_boxen": 5,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_133720_b80",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_133820_b139",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_133820_b164",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_133820_b17",
+  "status": "zurueckgestellt",
+  "n_boxen": 3,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_133830_b115",
+  "status": "zurueckgestellt",
+  "n_boxen": 3,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_133830_b140",
+  "status": "zurueckgestellt",
+  "n_boxen": 3,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_133830_b24",
+  "status": "zurueckgestellt",
+  "n_boxen": 3,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_134540_b118",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_134540_b143",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_134540_b85",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_134850_b33",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_134850_b59",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_134900_b111",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_134900_b33",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_135110_b100",
+  "status": "zurueckgestellt",
+  "n_boxen": 3,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_135110_b139",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_135110_b58",
+  "status": "geprueft",
+  "n_boxen": 5,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_135630_b134",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_135630_b159",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_135630_b184",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_135650_b154",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_135650_b179",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_135650_b34",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_135730_b32",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_135730_b57",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_135730_b82",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_140040_b100",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_140040_b14",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_140040_b39",
+  "status": "zurueckgestellt",
+  "n_boxen": 1,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_140050_b35",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_140050_b60",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_140050_b85",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_140140_b131",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_140140_b156",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_140140_b26",
+  "status": "zurueckgestellt",
+  "n_boxen": 3,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_140320_b32",
+  "status": "zurueckgestellt",
+  "n_boxen": 3,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261106_140320_b69",
+  "status": "zurueckgestellt",
+  "n_boxen": 2,
+  "datensatz": "alt"
+ },
+ {
+  "name": "20261109_101023_b116",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101029_b24",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101037_b28",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101045_b61",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101045_b86",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101054_b122",
+  "status": "offen",
+  "n_boxen": 1,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101054_b67",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101100_b115",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101100_b85",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101120_b36",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101120_b61",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101129_b108",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101129_b143",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101136_b227",
+  "status": "offen",
+  "n_boxen": 6,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101136_b298",
+  "status": "offen",
+  "n_boxen": 6,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101151_b10",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101151_b111",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101159_b104",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101159_b79",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101206_b114",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101206_b150",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101216_b119",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101216_b49",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101222_b111",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101228_b112",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101228_b87",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101234_b119",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101234_b94",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101241_b105",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101241_b68",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101251_b29",
+  "status": "offen",
+  "n_boxen": 1,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101251_b58",
+  "status": "offen",
+  "n_boxen": 1,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101257_b131",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101257_b57",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101303_b62",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101303_b87",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101308_b100",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101308_b71",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101315_b115",
+  "status": "offen",
+  "n_boxen": 7,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101315_b90",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101322_b37",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101322_b62",
+  "status": "offen",
+  "n_boxen": 6,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101328_b120",
+  "status": "offen",
+  "n_boxen": 9,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101328_b232",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101343_b155",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101343_b20",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101353_b256",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101353_b301",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101408_b137",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101408_b273",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101423_b128",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101423_b154",
+  "status": "offen",
+  "n_boxen": 6,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101433_b43",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101433_b95",
+  "status": "offen",
+  "n_boxen": 7,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101442_b144",
+  "status": "offen",
+  "n_boxen": 8,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101442_b267",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101457_b102",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101457_b52",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101504_b103",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101504_b58",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101532_b168",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101532_b193",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101541_b118",
+  "status": "offen",
+  "n_boxen": 8,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101541_b163",
+  "status": "offen",
+  "n_boxen": 6,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101552_b23",
+  "status": "offen",
+  "n_boxen": 7,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101552_b287",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101607_b185",
+  "status": "offen",
+  "n_boxen": 6,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101607_b82",
+  "status": "offen",
+  "n_boxen": 7,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101622_b11",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101622_b45",
+  "status": "offen",
+  "n_boxen": 7,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101630_b150",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101630_b190",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101641_b285",
+  "status": "offen",
+  "n_boxen": 6,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101641_b310",
+  "status": "offen",
+  "n_boxen": 6,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101656_b11",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101656_b50",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101704_b137",
+  "status": "offen",
+  "n_boxen": 7,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101704_b260",
+  "status": "offen",
+  "n_boxen": 6,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101717_b245",
+  "status": "offen",
+  "n_boxen": 7,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101717_b304",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101733_b18",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101733_b43",
+  "status": "offen",
+  "n_boxen": 6,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101746_b123",
+  "status": "offen",
+  "n_boxen": 8,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101746_b82",
+  "status": "offen",
+  "n_boxen": 8,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101801_b242",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101801_b275",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101817_b40",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101817_b97",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101823_b111",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101823_b198",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101833_b110",
+  "status": "offen",
+  "n_boxen": 7,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101833_b35",
+  "status": "offen",
+  "n_boxen": 6,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101840_b16",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101840_b41",
+  "status": "offen",
+  "n_boxen": 7,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101855_b143",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101855_b191",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101910_b228",
+  "status": "offen",
+  "n_boxen": 1,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101910_b78",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101922_b176",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101922_b204",
+  "status": "offen",
+  "n_boxen": 6,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101933_b54",
+  "status": "offen",
+  "n_boxen": 8,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101933_b82",
+  "status": "offen",
+  "n_boxen": 6,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101939_b146",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101939_b173",
+  "status": "offen",
+  "n_boxen": 8,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101949_b23",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101949_b92",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101959_b118",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_101959_b89",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102009_b121",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102009_b50",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102018_b135",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102018_b80",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102026_b119",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102026_b94",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102033_b125",
+  "status": "offen",
+  "n_boxen": 8,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102033_b82",
+  "status": "offen",
+  "n_boxen": 6,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102045_b21",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102045_b58",
+  "status": "offen",
+  "n_boxen": 1,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102051_b134",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102051_b66",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102059_b138",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102059_b165",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102110_b109",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102110_b42",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102116_b19",
+  "status": "offen",
+  "n_boxen": 1,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102116_b64",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102123_b14",
+  "status": "offen",
+  "n_boxen": 1,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102123_b39",
+  "status": "offen",
+  "n_boxen": 1,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102130_b103",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102130_b64",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102138_b107",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102138_b39",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102143_b65",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102143_b90",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102149_b107",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102149_b79",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102154_b103",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102154_b78",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102200_b124",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102200_b28",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102207_b160",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102207_b20",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102226_b173",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102226_b53",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102235_b146",
+  "status": "offen",
+  "n_boxen": 7,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102235_b189",
+  "status": "offen",
+  "n_boxen": 9,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102247_b51",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102247_b79",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102252_b129",
+  "status": "offen",
+  "n_boxen": 6,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102252_b215",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102306_b123",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102306_b98",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102312_b22",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102312_b56",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102319_b160",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102319_b238",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102334_b128",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102334_b53",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102341_b119",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102341_b88",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102350_b116",
+  "status": "offen",
+  "n_boxen": 1,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102350_b32",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102356_b140",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102356_b175",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102405_b120",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102405_b145",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102413_b105",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102413_b29",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102420_b50",
+  "status": "offen",
+  "n_boxen": 1,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102420_b75",
+  "status": "offen",
+  "n_boxen": 1,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102429_b103",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102429_b74",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102434_b106",
+  "status": "offen",
+  "n_boxen": 1,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102434_b50",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102446_b116",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102446_b77",
+  "status": "offen",
+  "n_boxen": 1,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102452_b117",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102452_b77",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102459_b160",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102459_b89",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102507_b110",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102507_b61",
+  "status": "offen",
+  "n_boxen": 1,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102514_b116",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102514_b75",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102521_b68",
+  "status": "offen",
+  "n_boxen": 1,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102521_b93",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102527_b181",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102527_b226",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102542_b192",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102542_b68",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102553_b178",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102553_b224",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102606_b296",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102606_b94",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102622_b105",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1029"
+ },
+ {
+  "name": "20261109_102622_b109",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102622_b72",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102632_b106",
+  "status": "offen",
+  "n_boxen": 6,
+  "datensatz": "2026-11-09_1029"
+ },
+ {
+  "name": "20261109_102632_b21",
+  "status": "offen",
+  "n_boxen": 7,
+  "datensatz": "2026-11-09_1029"
+ },
+ {
+  "name": "20261109_102632_b26",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102632_b64",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102638_b118",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102638_b190",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1027"
+ },
+ {
+  "name": "20261109_102638_b98",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1029"
+ },
+ {
+  "name": "20261109_102654_b152",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1029"
+ },
+ {
+  "name": "20261109_102654_b83",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1029"
+ },
+ {
+  "name": "20261109_102704_b135",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1029"
+ },
+ {
+  "name": "20261109_102704_b95",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1029"
+ },
+ {
+  "name": "20261109_102711_b259",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1029"
+ },
+ {
+  "name": "20261109_102711_b284",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1029"
+ },
+ {
+  "name": "20261109_102727_b141",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1029"
+ },
+ {
+  "name": "20261109_102727_b95",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1029"
+ },
+ {
+  "name": "20261109_102739_b25",
+  "status": "geprueft",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102739_b93",
+  "status": "geprueft",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102757_b110",
+  "status": "geprueft",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102757_b77",
+  "status": "geprueft",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102804_b102",
+  "status": "geprueft",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102804_b137",
+  "status": "geprueft",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102811_b121",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102811_b61",
+  "status": "geprueft",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102818_b117",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102818_b51",
+  "status": "geprueft",
+  "n_boxen": 6,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102824_b119",
+  "status": "geprueft",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102824_b146",
+  "status": "geprueft",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102835_b101",
+  "status": "geprueft",
+  "n_boxen": 9,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102835_b61",
+  "status": "geprueft",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102840_b108",
+  "status": "geprueft",
+  "n_boxen": 6,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102840_b156",
+  "status": "geprueft",
+  "n_boxen": 6,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102848_b101",
+  "status": "geprueft",
+  "n_boxen": 7,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102848_b25",
+  "status": "geprueft",
+  "n_boxen": 6,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102856_b57",
+  "status": "geprueft",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102856_b96",
+  "status": "geprueft",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102905_b141",
+  "status": "geprueft",
+  "n_boxen": 6,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102905_b191",
+  "status": "geprueft",
+  "n_boxen": 7,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102915_b10",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102915_b62",
+  "status": "geprueft",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102921_b157",
+  "status": "geprueft",
+  "n_boxen": 6,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102921_b31",
+  "status": "geprueft",
+  "n_boxen": 7,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102931_b31",
+  "status": "geprueft",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102931_b67",
+  "status": "geprueft",
+  "n_boxen": 6,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102939_b115",
+  "status": "geprueft",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102939_b167",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102947_b116",
+  "status": "geprueft",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102947_b58",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102955_b101",
+  "status": "geprueft",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_102955_b58",
+  "status": "geprueft",
+  "n_boxen": 7,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103000_b109",
+  "status": "geprueft",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103000_b134",
+  "status": "geprueft",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103008_b104",
+  "status": "geprueft",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103008_b79",
+  "status": "geprueft",
+  "n_boxen": 1,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103014_b110",
+  "status": "geprueft",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103014_b85",
+  "status": "geprueft",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103019_b12",
+  "status": "geprueft",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103027_b106",
+  "status": "geprueft",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103027_b137",
+  "status": "geprueft",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103033_b57",
+  "status": "geprueft",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103033_b82",
+  "status": "geprueft",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103039_b53",
+  "status": "geprueft",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103039_b99",
+  "status": "geprueft",
+  "n_boxen": 6,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103045_b138",
+  "status": "geprueft",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103045_b40",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103052_b29",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103052_b54",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103058_b45",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103058_b98",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103104_b16",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103104_b82",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103110_b112",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103110_b46",
+  "status": "offen",
+  "n_boxen": 6,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103116_b105",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103116_b22",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103121_b49",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103121_b89",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103127_b142",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103127_b167",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103140_b30",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103145_b120",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103145_b148",
+  "status": "offen",
+  "n_boxen": 7,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103154_b16",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103154_b81",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103159_b108",
+  "status": "offen",
+  "n_boxen": 6,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103159_b74",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103210_b140",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103210_b46",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103217_b107",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103217_b12",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103224_b113",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103224_b88",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103230_b57",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103230_b82",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103236_b104",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103236_b17",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103243_b11",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103243_b91",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103249_b48",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103249_b74",
+  "status": "offen",
+  "n_boxen": 7,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103256_b144",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103256_b179",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103305_b109",
+  "status": "offen",
+  "n_boxen": 7,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103305_b138",
+  "status": "offen",
+  "n_boxen": 7,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103316_b14",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103316_b57",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103322_b105",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103322_b80",
+  "status": "offen",
+  "n_boxen": 1,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103328_b232",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103328_b258",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103341_b113",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103341_b30",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103347_b125",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103347_b99",
+  "status": "offen",
+  "n_boxen": 2,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103354_b57",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103354_b82",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103359_b103",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103359_b39",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103405_b158",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103405_b93",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103415_b60",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103415_b89",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103422_b33",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103422_b58",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103427_b110",
+  "status": "offen",
+  "n_boxen": 1,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103427_b28",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103433_b22",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103433_b70",
+  "status": "offen",
+  "n_boxen": 3,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103439_b103",
+  "status": "offen",
+  "n_boxen": 4,
+  "datensatz": "2026-11-09_1036"
+ },
+ {
+  "name": "20261109_103439_b78",
+  "status": "offen",
+  "n_boxen": 5,
+  "datensatz": "2026-11-09_1036"
+ }
+]

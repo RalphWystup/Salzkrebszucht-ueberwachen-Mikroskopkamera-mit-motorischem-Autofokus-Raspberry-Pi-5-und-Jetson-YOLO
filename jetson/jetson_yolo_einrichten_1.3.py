@@ -3,7 +3,7 @@
 """jetson_yolo_einrichten_1.3.py -- laeuft AUF dem Jetson ueber jetson_fahren_1.3 (sudo ueber JK): schreibt die Einheiten mikroskop-training und
 mikroskop-yolo neu, nur daemon-reload, kein Neustart des laufenden Livedienstes.
 1.3 (06.11.2026, 17:20), Befund aus dem Journal 16:46:53: 'cache_leeren: cannot create /proc/sys/vm/drop_caches: Permission denied' -- ExecStartPre
-ohne '+' lief als dhbw, der Seitencache wurde beim Start NIE geleert (Befund 14:28: CUDA/nvmap braucht physisch freien Speicher). Jetzt
+ohne '+' lief als <jetson-benutzer>, der Seitencache wurde beim Start NIE geleert (Befund 14:28: CUDA/nvmap braucht physisch freien Speicher). Jetzt
 'ExecStartPre=-+/usr/local/sbin/cache_leeren' (+ = als root, - = Fehler nicht toedlich) in beiden Einheiten. Sonst wie 1.2: die Trainingseinheit
 haelt den Livedienst an (ExecStartPre=+systemctl stop) und startet ihn danach (ExecStopPost=+systemctl start), KillMode=control-group.
 Nachweis der Kette 16:42-16:47: Fertig -> Datensatz -> Training 215 s (Livedienst pausiert) -> best.pt 16:46:45 -> Livedienst 16:46:53 neu, Modell geladen 16:47:00."""
@@ -16,7 +16,7 @@ Description=Mikroskop-YOLO-Training (yolov8n auf ~/mikroskop/yolo/datensatz; eig
 After=network-online.target
 [Service]
 Type=oneshot
-User=dhbw
+User=<jetson-benutzer>
 WorkingDirectory={H}/yolo
 Environment=LD_LIBRARY_PATH=/usr/lib/aarch64-linux-gnu/libcudss/12
 ExecStartPre=+/bin/systemctl stop mikroskop-yolo.service
@@ -33,7 +33,7 @@ ConditionPathExists=|{H}/yolo/modell/best.engine
 ConditionPathExists=|{H}/yolo/modell/best.pt
 [Service]
 Type=simple
-User=dhbw
+User=<jetson-benutzer>
 WorkingDirectory={H}
 Environment=LD_LIBRARY_PATH=/usr/lib/aarch64-linux-gnu/libcudss/12
 ExecStartPre=-+/usr/local/sbin/cache_leeren

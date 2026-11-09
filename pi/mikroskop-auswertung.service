@@ -1,14 +1,15 @@
 [Unit]
-Description=Mikroskop-Auswertung 1.4 (Erkennung, Verfolgung, Anzeige, Aufzeichnung; neu aufgesetzt 05.11.2026)
+Description=Mikroskop-Auswertung 1.4_rev2 (1.4 + begrenzte Schreibwarteschlange, Speicherwache, Stundenzaehler auf Platte, Vorgeschichte, Aussetzer-Protokoll; 09.11.2026)
 After=network.target mikroskop-fokus.service
 Wants=mikroskop-fokus.service
 [Service]
 Type=simple
 User=pi
 WorkingDirectory=/home/pi
-ExecStart=/usr/bin/python3 -u /home/pi/auswertung_1.4.py
+ExecStart=/usr/bin/python3 -u /home/pi/auswertung_1.4_rev2.py
 Restart=always
 RestartSec=5
 Nice=10
+MemoryMax=1500M
 [Install]
 WantedBy=multi-user.target
