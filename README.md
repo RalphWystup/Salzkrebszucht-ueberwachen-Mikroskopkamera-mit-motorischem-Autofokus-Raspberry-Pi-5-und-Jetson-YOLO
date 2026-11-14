@@ -2,10 +2,10 @@
 
 <img src="Foto_Ralph_Wystup.jpg" align="right" width="140" alt="Prof. Dr.-Ing. Ralph Wystup">
 
-**Autoren:** Prof. Dr.-Ing. Ralph Wystup M.Sc. und Claude (Anthropic, Claude Code) — gemeinsam erstellt · Fassung 1.2 vom 09.11.2026
+**Autoren:** Prof. Dr.-Ing. Ralph Wystup M.Sc. und Claude (Anthropic, Claude Code) — gemeinsam erstellt · Fassung 1.3 vom 14.11.2026
 
 **Seite:** https://ralphwystup.github.io/Salzkrebszucht-ueberwachen-Mikroskopkamera-mit-motorischem-Autofokus-Raspberry-Pi-5-und-Jetson-YOLO/ —
-Bedienen, Statistik, Lernen, Hardware, Beschreibung, Manuskript (Teil A Autofokus, Teil B Beobachtung und YOLO), Messungen,
+Bedienen, Statistik, Lernen, Hardware, Beschreibung, Manuskript (Teil A Autofokus, Teil B Beobachtung, YOLO und Selbsttraining), Messungen,
 Zusammenarbeit mit der KI. Dieselbe Seite läuft live auf dem Pi mit Bild, Kurve, Punkten und den Zahlen des Jetson.
 
 **Kurzbeschreibung.** Eine Salzkrebszucht (*Artemia*, Lebendfutter der Aquakultur) wird unter einem einfachen USB-Mikroskop
@@ -15,8 +15,8 @@ liest den Livestrom mit, sammelt die Aufnahmen, lässt sich Lernbilder vom Mensc
 dem Gerät ein **YOLOv8**-Modell und liefert die Statistik zurück auf die Seite des Pi: Tiere je Bild, bewegt oder ruhend, Körpergröße,
 Tempo, Stundenzähler — mit einem Livebild, in dem jeder erkannte Rahmen in Echtzeit eingezeichnet ist.
 
-**Anwendungsfall:** Überwachung der Salzkrebszucht — wie viele Tiere, ob sie leben und sich bewegen, wie groß sie werden. Die nächste
-Runde Lernbilder startet das Nachtraining mit einem Knopf; das Modell wird im Lauf nachgeladen.
+**Anwendungsfall:** Überwachung der Salzkrebszucht — wie viele Tiere, ob sie leben und sich bewegen, wie groß sie werden. Seit dem
+14.11.2026 zieht sich YOLO selbst nach, wenn sich die Tiere verändern; jeder Lauf ist live auf der Seite zu sehen.
 
 ![YOLO bei der Arbeit: Livebild mit Rahmen, Klasse und Sicherheit](bilder/bild_yolo_1.jpg)
 
@@ -52,6 +52,37 @@ Runde Lernbilder startet das Nachtraining mit einem Knopf; das Modell wird im La
 
 Jede dieser Proben fällt an der jeweiligen Vorgängerfassung durch — eine Probe, die nie rot wird, beweist nichts.
 Einzelheiten in `protokolle/PROTOKOLL_2026-11-07.md`.
+
+## Was am 14.11.2026 dazukam: die Tiere ändern sich, und das Modell zieht sich selbst nach
+
+**Befund.** Beide Erkenner wurden über die Woche schlechter (gemessen über 36 070 Aufnahmesätze gegen die Farbwahrheit): OpenCV auf dem Pi
+fand am 06./07.11. 98–100 % der Tiere, seit dem 10.11. nur 79–84 %; das YOLO-Modell vom 13.11. fand am 13.11. 94 %, am 14.11. 70 %.
+Die Tiere sind blasser geworden (Sättigung der Tierpunkte 79 → 67, im Bild orange-braun → beige mit dunkler Darmlinie) und ihr brauner
+Kern kleiner (lange Seite der größten 88–93 px → 64–75 px) — der Dottersack der Nauplien ist aufgebraucht, die Farbe hängt nun vom Futter ab.
+Beide Erkenner waren auf das Aussehen vom 06.11. geeicht.
+
+**Selbsttraining** (`jetson/jetson_selbsttraining_1.0.py`, jede Nacht 03:00 Uhr oder auf Knopf): Drift messen → Lernmarken nur dort, wo
+**Bewegung** (Rahmen des Pi) **und Farbe** (mitlaufende Schwelle) dasselbe Tier zeigen — nie aus den eigenen Treffern des Netzes → Datensatz
+→ Training als Kandidat → **Abnahme** gegen das alte Modell auf denselben Bildern → Übernahme nur bei Verbesserung, das alte bleibt als Rückfall.
+
+| Erster Lauf, 14.11.2026 | altes Modell | neues Modell |
+|:--|--:|--:|
+| trifft die Lernmarken (180 Bilder, 6 Sätze) | 60 % | **79 %** |
+| Meldungen je Bild | 2,44 | 2,02 |
+
+101 Lernbilder mit 340 Tieren, 1 387 Farbflecken ohne Bewegung (Körner, Algenpulver) verworfen; 40 Epochen in 40 min. Der Reiter
+„Statistik" zeigt jeden Lauf in Echtzeit: Phase, Drift, Marken, Epochen mit Verlust und mAP, Abnahme, das Arbeitsbild und den Verlauf
+(Jetson-Dienst 1.14, `/selbst/stand`, `/selbst/bild.jpg`, `/selbst/verlauf`, `POST /selbst/start`).
+
+**Mitlaufende Farbschwelle auf dem Pi** (`pi/auswertung_1.4_rev3.py`): die Schwelle des Aussehens-Nachweises folgt der gemessenen
+Sättigung (0,6 × Median, 22…45; heute 25 statt fest 40). Geprüft an 12 echten Sätzen (1 420 Bilder) neben rev2: YOLO-Tiere mit Punkt
+85,5 % → 86,2 %, Punkte ohne Bezug 14,5 % → 14,6 %. Der Gewinn ist klein — nach der Fütterung ist die Schwelle nicht mehr der Engpass —,
+sie fängt aber weiteres Verblassen ab. Rückfall: `bash pi_auswertung_wechsel_1.0.sh 1.4_rev2`.
+
+Neu: Seite **1.37** (Manuskript Kapitel 20–25, Reiter „Messungen" mit den Messungen der Bildauswertung, die Autofokus-Messungen vom 18.10.
+als frühere Messungen), `manuskript/Manuskript_Salzkrebszucht_1.3.md/pdf`, Messwerkzeuge in `jetson/` (`jetson_verlauf_woche_1.0.py`,
+`jetson_transparenz_1.0.py`, `jetson_tiergroesse_1.0.py`, `jetson_vergleich_rev2_rev3_1.0.py`), Protokoll `protokolle/VERLAUF_WOCHE_2026-11-14.txt`.
+Die veröffentlichte Seite zeigt Aufzeichnungen vom 14.11.2026 (`daten/`, Standbilder `bilder/stand_*_2026-11-14.jpg`, `bilder/selbst_bild.jpg`).
 
 ## Was am 09.11.2026 dazukam: der Absturz der Nacht und das Nachziehen der Lernbilder
 
